@@ -303,9 +303,46 @@ class trix(object):
 				raise type(ex)(ex.args, 'err-nvalue-fail', xdata(
 						pathname=pathname
 					))
-
-
-
+	
+	
+	# PATH
+	@classmethod
+	def path(cls, path=None, *a, **k):
+		"""
+		Return an fs.Path object at `path`.
+		
+		>>> p = trix.path().path
+		>>> trix.path().dir().ls()
+		>>> trix.path("trix/app/config/app.conf").reader().readline()
+		"""
+		try:
+			return cls.__FPath(path, *a, **k)
+		except:
+			# requires full module path, so pass through innerpath()
+			cls.__FPath = cls.module(cls.innerpath('fs')).Path
+			return cls.__FPath(path, *a, **k)
+	
+	# N-PATH
+	@classmethod
+	def npath(cls, innerFPath=None, *a, **k):
+		"""
+		Return an fs.Path for a file-system object within the trix 
+		directory.
+		
+		>>> e = 'UTF_8'
+		>>> r = trix.npath("app/config/app.conf").reader(encoding=e)
+		>>> r.readline()
+		"""
+		return cls.path(cls.innerfpath(innerPath), *a, **k)
+	
+	# DIR
+	@classmethod
+	def dir(cls, path=None, *a, **k):
+		"""Like trix.path, but returns a Dir object."""
+		return cls.path(path, *a, **k).dir()
+	
+	
+	
 	# ---- general utility -----
 	
 	
