@@ -163,21 +163,38 @@ class trix(object):
 		o = p[-1]  # object
 		
 		try:
+			T = None
 			if m:
 				mm = cls.module(".".join(m))
 				T  = mm.__dict__[o]
 			else:
 				T = __builtins__[o]
 		
-		except KeyError:
-			raise KeyError('create-fail', xdata(path=modpath,
-					mod=".".join(m), obj=o
-				))
+		except KeyError as ex:
+			try:
+				otype = type(trix.value(modpath)).__name__
+				if otype == 'module':
+					reason = "invalid-create-type"
+					message = "cannnot-create-module"
+				raise TypeError("Can't trix.create a module.")
+			except TypeError:
+				raise TypeError('create-fail', xdata(path=modpath, 
+						otype=otype, mod=".".join(m), obj=o, T=T, 
+						error="err-create-fail", reason=reason, message=message
+					))
+			except KeyError:
+				reason=message=otype = "Unknown"
+				raise KeyError('create-fail', xdata(path=modpath, 
+						otype=otype, mod=".".join(m), obj=o, T=T, 
+						error="err-create-fail", reason=reason, message=message
+					))
 		
 		try:
 			return T(*a, **k)
 		except BaseException as ex:
-			raise type(ex)(xdata(path=modpath, a=a, k=k, obj=o))
+			raise type(ex)(
+					xdata(path=modpath, a=a, k=k, obj=o, T=type(o)
+				))
 		
 	
 	# N-CREATE - create an object given path from inside trix
@@ -365,7 +382,90 @@ class trix(object):
 				r[k] = d[k]
 				del(d[k])
 		return r
+	
+	
+	
+	# ---- display/debug -----
+	
+	
+	# FORMATTER (default, JDisplay)
+	@classmethod
+	def formatter(cls, *a, **k):
+		"""
+		Return a fmt.FormatBase subclass described by keyword "f" (with
+		"f" defaulting to "JDisplay"). Args and Kwargs are dependent on
+		the "f" format value. See trix.fmt.* class doc to learn more 
+		about how to control formats for various FormatBase subclasses.
+		
+		Call the returned object's `output` to display the output; Call 
+		the `format` method to return a str value containing formatted 
+		output.
+		
+		>>> j = trix.formatter(f="JCompact")
+		>>> j.output(dict(a=1,b=9,c=4))
+		>>>
+		>>> f = trix.formatter(f="Lines")
+		>>> f.format("Hello!", ff="title")
+		>>> f.output("Hello!", ff="title")
+		"""
+		f = k.pop("f", "JDisplay")
+		return cls.ncreate("fmt.%s"%f, *a, **k)
+	
+	
+	# DISPLAY - Util. JSON is the main data format within the package.
+	@classmethod
+	def display(cls, data, *a, **k):
+		"""
+		Print python data (dict, list, etc...) in, by default, display 
+		format. See `trix.formatter()` and various trix.fmt package doc
+		for details on required and optional args/kwargs. 
+		
+		>>> trix.display({'a':1, 'b':9, 'c':4})
+		"""
+		cls.formatter(*a, **k).output(data)
+	
+	
+	
+	# DEBUG
+	@classmethod
+	def debug(cls, debug=True, showtb=True):
+		"""
+		Enable/disable debugging/traceback. This should pretty much be
+		left alone. The trix code is too convoluted to debug without it.
+		However, it's available if you want to turn it off. If debug is
+		set to False, normal python excpetion format is displayed (and
+		tracebacks won't be duplicated). When `debug` is on but `showtb`
+		is False, the extended exception format is still shown but the
+		trailing traceback is ignored.
+		"""
+		Debug.debug(debug,showtb)
 
+	
+	# TRACE-BK
+	@classmethod
+	def tracebk(cls):
+		"""Return current exception's traceback as a list."""
+		tb = sys.exc_info()[2]
+		if tb:
+			try:
+				return list(traceback.extract_tb(tb))
+			finally:
+				del(tb)
+	
+	
+	# X-DATA
+	@classmethod
+	def xdata(cls, data=None, **k):
+		"""
+		Package extensive exception data into a dict. This is a utility
+		for the trix package; it helps generate extensive exception data
+		for use by the debug handler. That doesn't mean it's not still
+		useful for other purposes.
+		
+		>>> xdata(a=1, b=9, c=4)
+		"""
+		return xdata(cls, data, **k)
+	
 
 
 #
