@@ -1,10 +1,11 @@
 #
-# Copyright 2018 justworx
+# Copyright 2018-2019 justworx
 # This file is part of the trix project, distributed under the terms 
 # of the GNU Affero General Public License.
 #
 
 from . import *
+from ..propx import *
 import os, glob
 
 
@@ -31,30 +32,65 @@ class Dir(Path):
 	# CALL
 	def __call__(self, item):
 		"""
-		Calling a Path object as a function returns a new Path object that
-		points to its path "merged" with the (required) given `item`.
+		Calling a Dir object as a function returns a new Dir object 
+		that points to its path "merged" with the (required) given 
+		`item`. Eg., `dfiles = Dir('files')`
 		
-		For `Dir` objects, the given `item` may also be the integer offset
-		into the directory listing.
+		For `Dir` objects, the given `item` may also be the 
+		integer offset into the directory listing. Eg., `list=D[0].ls()`
+		
+		In either case, the result is a new Path object.
 		"""
 		try:
 			# this works if item is an integer index into this directory
 			return Path.__call__(self, self[item])
 		except TypeError:
 			# this works if item is a string path
-			return Path.__call__(self, item)
+			return Path.__call__(self, self.merge(item))
 	
 	
+	# GET ITEM - retrieve item path (string) by offset in directory.
 	def __getitem__(self, key):
 		"""
+		Retrieve item path (string) by offset in directory.
+		
 		Dir objects can act as lists of the full path to the items inside
 		the directory to which they point; Dir()[0] returns the full path
 		to the first item in its directory listing.
 		"""
-		ls = self.ls()
-		return self.merge(ls[key])
+		return self.merge(self.ls()[key])
 	
-	# Path-only methods
+	
+	#
+	# --- Multi-feature Properties -----------------------------------
+	#
+	@property
+	def ls(self):
+		"""
+		When called as though it were a method, this property returns
+		the list of items in this directory.
+		
+		  ```Dir().ls() # returns list of items in this directory```
+		
+		This property actually returns a proplist containing the 
+		directory listing. See `help(Dir().ls)` for more options.
+		"""
+		return proplist(self.listshort)
+	
+	
+	@property
+	def list(self):
+		"""
+		When called as though it were a method, this property returns
+		a list of lists, items  in this directory.
+		"""
+		return proplist(self.listlong)
+	
+	
+	#
+	# --- Navigation -------------------------------------------------
+	#
+	
 	def cd(self, path):
 		"""Change directory the given path."""
 		p = self.merge(path)
@@ -63,45 +99,8 @@ class Dir(Path):
 		self.path = p
 	
 	
-	def ls(self, path=None):
-		"""List directory at path."""
-		return os.listdir(self.merge(path))
-	
-	"""
 	#
-	# THIS SECTION NEEDS SOME WORK
-	#  - It may need to be moved to Path..
-	#  - It needs thorough testing.
-	#
-	# Single file operations, path relative to this directory.
-	#
-	
-	def head(self, path, lines=12, **k):
-		# get the path to `path` relative to this directory
-		p = Path(self.merge(path))
-		
-		# get a reader for that file
-		r = p.reader(**k)
-		
-		# iterate, collecting `lines` results
-		rr = []
-		for line in r.lines:
-			rr.append(line.strip())
-			lines -= 1
-			if lines < 1:
-				break
-		return rr
-	
-	def read(self, path, **k):
-		return self.file(path).read(**k)
-	
-	def file(self, path, **k):
-		return trix.ncreate('fs.file.File', self.merge(path), **k)
-	"""
-	
-	
-	#
-	# Directory contents actions
+	# --- Directory Manipulation -------------------------------------
 	#
 	
 	def mkdir(self, path, *a):
@@ -110,20 +109,25 @@ class Dir(Path):
 		argument (mode) is passed on to os.makedirs().
 		"""
 		os.makedirs(self.merge(path), *a)
-
+	
+	
+	# selection/action by pattern matches...
+	
+	# MV (move) 
 	def mv(self, pattern, dst):
-		"""Move pattern matches to dst."""
+		"""
+		Select contents of this directory that match `pattern` and 
+		move to `dst`.
+		"""
 		for src in self.match(pattern):
 			shutil.move(src, self.merge(dst))
 	
-	# This needs to be tested thoroughly.
-	#def cp(self, pattern, dst):
-	#	#Move pattern matches to dst.
-	#	for src in self.match(pattern):
-	#		shutil.move(src, self.merge(dst))
-	
+	# RM (remove)
 	def rm(self, pattern):
-		"""Remove files matching pattern."""
+		"""
+		Select contents of this directory that match `pattern` for 
+		removal.
+		"""
 		for px in self.match(pattern):
 			if os.path.isdir(px):
 				shutil.rmtree(px)
@@ -131,21 +135,50 @@ class Dir(Path):
 				os.remove(px)
 	
 	
+	# Directory manipulation features - applied to self.
+	
+	def copy(self, dst, symlinks=False, ignore=None):
+		"""Use shutil.copytree to copy this directory."""
+		shutil.copytree(self.path, dst, symlinks, ignore)
+	
+	def move(self, dst):
+		"""Move this directory to path `dst`."""
+		shutil.move(self.path, self.merge(dst))
+	
+	def rename(self, name):
+		"""
+		Rename this directory. Parents and contents remain unchanged.
+		"""
+		newname = self.merge("../%s" % name)
+		self.move(newname)
+		self.setpath(newname)
+	
+	
+	
 	#
-	# Pattern Searching - Match, Find
+	# --- Content Selection ------------------------------------------
 	#
 	
+	
+	#
+	# MATCH
+	#  - Select and return contents of this directory that match 
+	#    `pattern`.
+	#
 	def match(self, pattern):
 		"""Return matching directory items for the given pattern."""
 		return glob.glob(self.merge(pattern))
 	
 	
-	def search(self, path, pattern=None, **k):
+	#
+	# THIS NEEDS TO BE SPLIT UP
+	#  - search() returns results
+	#  - each() does actions
+	#
+	def search(self, pattern=None, **k):
 		"""
-		REQUIRES: Python 2.6+
-		
-		Search directories recursively starting at the given `path`; 
-		return list of all paths unless argument `pattern` is specified.
+		Search directories recursively starting at this directory path. 
+		Return list of all paths unless matching `pattern`; default: *.*
 		
 		KEYWORD ARGUMENT:
 		If `fn` keyword is specified, its value must be callable; this 
@@ -154,73 +187,131 @@ class Dir(Path):
 		individual additional arguments to fn.
 		
 		WARNING: There is no 'confirm' or 'undo' when passing a 'fn'.     
-				     ALWAYS CHECK the search results *without a function* 
-				     BEFORE using it with a function.
-		
-		This class makes minimal use of the os.walk function, which became
-		available in python 2.6.
+		         ALWAYS CHECK the search results *without a function* 
+		         BEFORE using it with a function.
 		"""
-		if not pattern:
-			raise ValueError('fs-pattern-required', xdata())
-		path = self.merge(path)
-		rlist = []
 		
-		# d = current dir path; dd = contained dir; ff = contained file;
+		path = self.path
+		pattern = pattern or '*.*'
+		
+		#
+		# Walk the directory path collecting results.
+		# At each step:
+		#  - d = current dir path;
+		#  - dd = contained dir;
+		#  - ff = contained files;
+		#
+		rlist = []
 		for d, dd, ff in self._walk(path):
 			rlist.extend(self.match(os.path.join(d, pattern)))
+		
+		# Handle action provided by kwarg `fn` (see WARNING above!)
 		if 'fn' in k:
 			fn = k['fn']
 			for fpath in rlist:
 				rr = {}
 				aa = k.get('args', [])
 				fn(fpath, *aa)
+		
+		# or, if no function was provided, just return the list.
 		else:
 			return rlist
 	
 	
-	def find(self, pattern, **k):
+	#
+	# --- Directory content access -----------------------------------
+	#
+	
+	# READ - file/archive text
+	def read(self, path, **k):
 		"""
-		REQUIRES: Python 2.6+
+		Reads a file or archive member and returns full text.
 		
-		Calls the .search() method passing this object's path and the 
-		given `pattern` and keyword args. Read the search method help for
-		more information.
-		
-		WARNING: There is no 'confirm' or 'undo' when passing a 'fn'.     
-				     ALWAYS CHECK the find results *without a function* 
-				     BEFORE using it with a function.
+		Keyword argument 'member' required for archive files (tar, zip).
+		Optional encoding-related kwargs default to encoding='utf_8'.
 		"""
-		return self.search(self.path, pattern, **k)
+		w = Path(self.merge(path)).wrapper(**k)
+		return w.reader(**k).read()
 	
 	
+	# HEAD - file/archive head 
+	def head(self, path=None, **k):
+		"""
+		Return the initial lines of the given file. See help for 
+		the Dir.headlines() method for details.
+		
+		Pass kwarg "lines" to specify the number of lines (default: 9)
+		"""
+		return self.headlines(path, **k).text()
 	
+	
+	# HEAD LINES
+	def headlines(self, path=None, **k):
+		"""
+		Returns a proplist containing the top lines from given file path,
+		which may be a full path or relative to this directory.
+		
+		Keyword argument 'member' required for archive files (tar, zip).
+		Optional encoding keyword argument defaults to DEF_ENCODE.
+		Optional kwarg 'lines' specifies number of lines (default: 9).
+		"""
+		# make it text
+		k.setdefault('encoding', DEF_ENCODE)
+		
+		p = Path(self.merge(path)) if path else self
+		w = p.wrapper(**k)
+		r = w.reader(**k)
+		
+		ct = k.get('lines', 9)
+		rr = []
+		for x in range(0, ct):
+			line = r.readline()
+			if not line:
+				break
+			rr.append(line)
+		
+		return proplist(rr)
 	
 	
 	#
-	# EXPERIMENTAL. CONVENIENCE.
-	#  - undocumented
-	#  - displays dir listings
+	# Raw Data Generation
 	#
+	def listshort(self, path=None):
+		"""Returns a python list of directory entries at `path`."""
+		return os.listdir(self.merge(path))
 	
-	def li(self):
-		"""Display items in grid."""
-		trix.display(self.ls(), f='List')
 	
-	def list(self):
-		"""Display items with detail."""
+	def listlong(self, path=None, **k):
+		"""
+		Return extended directory listing as a list of lists, each
+		containing name, type, size, uid, gid, atime, mtime, and ctime.
+		"""
+		h = ['name','type','size','uid','gid','atime','mtime','ctime']
+		d = Path(self.merge(path)) if path else self
 		
-		rr = [["NAME", 'TYPE', "SIZE"]]   # <-------------- english words
-		for p in self.ls():
-			pp = Path(self.merge(p))
-			try:
-				stat = pp.stat()
-				#print ('dir.list', pp, stat.st_size)
-				size = stat.st_size
-			except Exception as ex:
-				size = ''
-			rr.append([pp.name, pp.pathtype, size])
+		# create result variable
+		rr = []
 		
-		# show output
-		trix.display(rr, f="Grid")
-	
+		# append heading (if not forbidden by titles=False)
+		if k.get('h', k.get('head', True)):
+			rr.append(h)
+		
+		for item in d.ls():
+			# get status
+			x = Path(d.merge(item))
+			stat = x.stat()
+			
+			# append item record
+			rr.append([
+				x.name,
+				x.pathtype,
+				stat.st_size,
+				stat.st_uid,
+				stat.st_gid,
+				stat.st_atime,
+				stat.st_mtime,
+				stat.st_ctime,
+			])
+		
+		return rr
 
