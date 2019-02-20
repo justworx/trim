@@ -147,7 +147,7 @@ class propseq(propx):
 		Use trix.compenc.expand to revert to json.
 		"""
 		return self.compenc.compact(self.json(**k).encode('utf8'))
-
+	
 
 
 

@@ -48,7 +48,8 @@ assert(trix.kpop(dict(a=1,b=9,c=4), ['a', 'c']) == dict(a=1,c=4))
 assert(trix.kcopy(dict(a=1,b=9,c=4), 'b') == dict(b=9))
 assert(trix.kcopy(dict(a=1,b=9,c=4), ['b']) == dict(b=9))
 
-raise Exception("GOOD!")
+
+print("\n#\n# Trix Module: OK\n#\n")
 
 # -------------------------------------------------------------------
 #
@@ -60,10 +61,8 @@ raise Exception("GOOD!")
 # Load the test.util init module, which tests all available 
 # trix.util modules.
 #
-"""
-trix.nmodule('test.util')
+trix.nmodule('util')
 
-"""
 
 
 

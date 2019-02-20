@@ -12,5 +12,7 @@
 #
 
 # load the test.enchelp module, which tests trix.util.enchelp
-from .util import enchelp  # <-- trix.test.util
+from .util import bag
+from .util import compenc
+from .util import enchelp
 

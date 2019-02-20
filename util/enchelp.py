@@ -27,13 +27,19 @@ class EncodingHelper(object):
 		# Make sure encoding and errors were given as unicode; any error
 		# still brings the correct result. (I think. I hope.)
 		enc = config.get('encoding')
-		err = config.get('errors')
+		err = config.get('errors', '')
 		
 		try:
 			enc = enc.decode()
-			err = err.decode()
-		except AttributeError:
+		except:
 			pass
+
+		try:
+			err = err.decode()
+		except:
+			pass
+
+
 		
 		# Make sure `enc` matches (or is alias to) a valid encoding 
 		# defined in encodings.aliases.

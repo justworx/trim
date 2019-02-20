@@ -25,7 +25,7 @@ VERSION = 0.0000
 #    track down bugs. This formatting of exceptions really helps.
 #  - If you want exceptions the old-fashioned way, set it False.
 #
-AUTO_DEBUG = True
+AUTO_DEBUG = True #True/False
 
 #
 # DEF_ENCODE
