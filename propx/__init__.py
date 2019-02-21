@@ -129,7 +129,7 @@ class propseq(propx):
 	#
 	def b64(self, **k):
 		"""Return self.o as (compact) JSON bytes encoded to base64."""
-		return self.compenc.b64.encode(self.json(**k).encode('utf8'))
+		return self.compenc.b64.encode(self.json(**k).encode(**k))
 	
 	def b64s(self, **k):
 		"""Return self.o as (compact) JSON bytes encoded to base64."""
@@ -140,6 +140,14 @@ class propseq(propx):
 		Return self.o as (compact) JSON bytes encoded to url-safe base64.
 		"""
 		return self.compenc.b64.uencode(self.json(**k).encode('utf8'))
+	
+	def b32(self, **k):
+		"""Return self.o as (compact) JSON bytes encoded to base32."""
+		return self.compenc.b32.encode(self.json(**k).encode(**k))
+	
+	def b16(self, **k):
+		"""Return self.o as (compact) JSON bytes encoded to base16."""
+		return self.compenc.b16.encode(self.json(**k).encode(**k))
 	
 	def compact(self, **k):
 		"""
