@@ -43,10 +43,10 @@ class Dir(Path):
 		"""
 		try:
 			# this works if item is an integer index into this directory
-			return Path.__call__(self, self[item])
+			return Dir(Path.__call__(self, self[item]))
 		except TypeError:
 			# this works if item is a string path
-			return Path.__call__(self, self.merge(item))
+			return Dir(Path.__call__(self, self.merge(item)))
 	
 	
 	# GET ITEM - retrieve item path (string) by offset in directory.

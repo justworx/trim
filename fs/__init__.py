@@ -1,12 +1,12 @@
 #
-# Copyright 2018 justworx
+# Copyright 2018-2019 justworx
 # This file is part of the trix project, distributed under the terms 
 # of the GNU Affero General Public License.
 #
 
+from ..util import mime
 from ..util.enchelp import *
 import shutil, os, os.path as ospath
-
 
 class Path(object):
 	"""Represents a file system path."""
@@ -28,29 +28,15 @@ class Path(object):
 				self.sep = self.sep.decode()
 			self.__n = ospath.normpath(self.__p).split(self.sep)[-1]
 			
-			
 	
 	# CALL
-	def __call__(self, path):
+	def __call__(self, path=None):
 		"""
 		Returns a new Path object representing this path "merged" with the
 		(required) given `path`.
 		"""
-		return Path(self.merge(path))
+		return Path(self.merge(path or self.path))
 	
-	# REPR
-	def __repr__(self):
-		return str(type(self))
-	
-	# STR
-	def __str__(self):
-		"""The path as a string."""
-		return self.path
-	
-	# UNICODE
-	def __unicode__(self):
-		"""The path as a unicode string (python 2 support)"""
-		return unicode(self.path)
 	
 	# ENTER/EXIT
 	def __enter__(self):
@@ -60,7 +46,34 @@ class Path(object):
 		pass
 	
 	
+	# GET-ITEM
+	def __getitem__(self, i):
+		return self.path.split(self.sep)[i]
+	
+	
+	# REPR
+	def __repr__(self):
+		return "<%s.%s '%s' (%s)>" % (
+				str(type(self).__module__),
+				str(type(self).__name__), self.path, self.pathtype
+			)
+	
+	
+	# STR
+	def __str__(self):
+		"""The path as a string."""
+		return self.path
+	
+	
+	# UNICODE
+	def __unicode__(self):
+		"""The path as a unicode string (python 2 support)"""
+		return unicode(self.path)
+	
+	
+	#
 	# PROPERTIES
+	#
 	
 	@property
 	def mime(self):
@@ -89,33 +102,45 @@ class Path(object):
 	@property
 	def pathtype(self):
 		"""Return or set this path."""
-		if self.isdir():
-			return 'd'
-		elif self.isfile():
-			return 'f'
+		if self.isfile():
+			return 'f' #file'
+		elif self.isdir():
+			return 'd' #dir'
 		elif self.islink():
-			return 'l'
+			return 'l' #link'
 		elif self.ismount():
-			return 'm'
+			return 'm' #mount'
 		else:
-			return "?"
+			return '?'
 	
 	
+	#
 	# METHODS
+	#
 	
-	def exists(self, path=None):
-		"""True if path exists."""
-		return ospath.exists(self.merge(path))
-	
+	# GET/SET PATH
 	def getpath(self):
 		"""Return this object's path."""
 		return self.__p
 	
 	def setpath(self, path):
-		"""Set this object's path."""
+		"""
+		INTERNAL USE ONLY!
+		Sets the path to which this object points.
+		
+		WARNING:
+		This method is intended for ONLY for internal use. 
+		
+		Path.setpath does NOT move file system objects - other classes 
+		handle that kind of thing. The `setpath` method is used ONLY to 
+		reset an object's path once such a move has been made.
+		"""
 		self.__p = path
 		self.__n = ospath.normpath(path).split(self.sep)[-1]
 	
+	#
+	# PATH TYPES
+	#
 	def isfile(self, path=None):
 		"""True if path is a file."""
 		return ospath.isfile(self.merge(path))
@@ -132,6 +157,7 @@ class Path(object):
 		"""True if path is a mount point."""
 		return ospath.ismount(self.merge(path))
 	
+	# TOUCH
 	def touch(self, path=None, times=None):
 		"""Touch file at path. Arg times applies to os.utime()."""
 		p = self.merge(path)
@@ -142,6 +168,7 @@ class Path(object):
 			with open(p, 'a'):
 				os.utime(p, times)
 	
+	# MERGE
 	def merge(self, path):
 		"""Return the given path relative to self.path."""
 		if not path:
@@ -153,6 +180,7 @@ class Path(object):
 			p = ospath.join(self.path, p)
 			return ospath.abspath(ospath.normpath(p))
 	
+	# HASH
 	def hash(self, algo, blocksize=None):
 		"""
 		Hash the file at self.path using the given algo; optional argument
@@ -172,10 +200,22 @@ class Path(object):
 				b = f.read(blocksize)
 		return h.hexdigest()
 	
+	# MD5
 	def md5(self, blocksize=None):
 		"""Hash using md5 algo."""
 		return self.hash('md5', blocksize or self.blocksizer())
 	
+	# SHA-256
+	def sha256(self, blocksize=None):
+		"""Hash using sha256 algo."""
+		return self.hash('sha256', blocksize or self.blocksizer())
+	
+	# SHA-512
+	def sha512(self, blocksize=None):
+		"""Hash using sha512 algo."""
+		return self.hash('sha512', blocksize or self.blocksizer())
+	
+	# BLOCK-SIZER
 	def blocksizer(self, path=None):
 		"""Recommended block size (4K-16M), based on size of file."""
 		sz = ospath.getsize(path or self.path)
@@ -185,20 +225,24 @@ class Path(object):
 				return blocksize
 		return 2**24 # max
 	
+	# SIZE
 	def size(self, path=None):
 		p = self.merge(path)
 		return os.path.getsize(p)
 	
+	# STAT
 	def stat(self, path=None):
 		p = Path(self.merge(path))
-		t = p.pathtype
-		if t == 'l':
+		if p.pathtype == 'l':
 			return os.lstat(p.path)
-		#elif t == 'f':
 		else:
 			return os.stat(p.path)
-			
 	
+	# EXISTS
+	def exists(self, path=None):
+		"""True if path exists."""
+		return ospath.exists(self.merge(path))
+			
 	# DIR
 	def dir(self, path=None):
 		"""
@@ -219,11 +263,12 @@ class Path(object):
 		here is fs.file.File.
 		"""
 		# MIME, VALIDATION
-		mm = self.mime
 		if self.isdir() or self.ismount():
 			raise Exception('open-fail', xdata(
 				path=self.path, reason='file-required', k=k
 			))
+		
+		mm = self.mime
 		
 		# Application
 		if mm.type == 'application':
@@ -239,34 +284,14 @@ class Path(object):
 			# xlsx - for now, use zip, but there may be room for improvement
 			elif mm.subtype == 'vnd.openxmlformats-officedocument.spreadsheetml.sheet':
 				return trix.ncreate('fs.zip.Zip', self.path, **k)
-			
-			# json
-			#elif mm.subtype == 'json':
-			#	tj = trix.ncreate('data.transform.TransformJson')
-			#	return trix.ncreate(
-			#		'fs.tfile.TransformFile', tj, self.path, **k
-			#	)
 	
 		# encoded
 		elif mm.enc == 'bzip2':
 			return trix.ncreate('fs.bzip.Bzip', self.path, **k)	
-			
-			#if mm.subtype == 'plain':
-			#	return trix.ncreate('fs.bzip.Bzip', self.path, **k)
-			#elif mm.subtype in ['csv', 'tab-separated-values']:
-			#	return trix.ncreate('fs.csv.CSV', self.path, **k)
 		
 		# gzip
 		elif mm.enc == 'gzip':
 			return trix.ncreate('fs.gzip.Gzip', self.path, **k)
-			#if mm.subtype == 'plain':
-			#	return trix.ncreate('fs.gzip.Gzip', self.path, **k)
-			#elif mm.subtype in ['csv', 'tab-separated-values']:
-			#	return trix.ncreate('fs.csv.CSV', self.path, **k)
-			
-		# text csv	
-		#elif mm.subtype in ['csv', 'tab-separated-values']:
-		#	return trix.ncreate('fs.csv.CSV', self.path, **k)
 		
 		#
 		# Default - for plain text or, as a default, any kind of file
@@ -437,6 +462,7 @@ class FileBase(Path, EncodingHelper):
 			# this works if item is a string path
 			return p.__call__(item)
 	
+	
 	# SET PATH - prevent changing path
 	def setpath(self, path):
 		"""Prevents changing of this file wrapper's path. """
@@ -475,7 +501,7 @@ class FileBase(Path, EncodingHelper):
 	# MOVE
 	def move(self, dest):
 		src = self.path
-		dst = self.dir().merge(dest)
+		dst = self.expand(self.dir().merge(dest))
 		try:
 			shutil.move(src, dst)
 			Path.setpath(self, dst)
