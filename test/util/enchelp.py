@@ -5,12 +5,12 @@
 #
 
 
-from ..util.enchelp import *
+from ...util.enchelp import * 
 
-print ("HELLO!")
 
 eh = EncodingHelper(encoding='utf8', errors="replace")
 assert(eh.ek == {'encoding': 'utf_8', 'errors': 'replace'})
+
 
 """
 d = {'foo':'bar', 'errors':'ignore'}

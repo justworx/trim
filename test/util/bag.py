@@ -4,7 +4,7 @@
 # of the GNU Affero General Public License.
 #
 
-from ....util.bag import *
+from ...util.bag import *
 
 x = Bag(int)
 x.add('Bag-int', 1)

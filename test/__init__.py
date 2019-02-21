@@ -49,7 +49,8 @@ assert(trix.kcopy(dict(a=1,b=9,c=4), 'b') == dict(b=9))
 assert(trix.kcopy(dict(a=1,b=9,c=4), ['b']) == dict(b=9))
 
 
-print("\n#\n# Trix Module: OK\n#\n")
+print("\n* Module `trix`      : OK")
+
 
 # -------------------------------------------------------------------
 #
@@ -57,11 +58,8 @@ print("\n#\n# Trix Module: OK\n#\n")
 #
 # -------------------------------------------------------------------
 
-#
-# Load the test.util init module, which tests all available 
-# trix.util modules.
-#
-trix.nmodule('util')
+trix.nmodule('test.util')
+trix.nmodule('test.fmt')
 
 
 
