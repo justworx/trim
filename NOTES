@@ -1,0 +1,18 @@
+
+#
+# UTIL - Import Consistency
+#
+
+Some modules in the util package import other trix modules from 
+outside util. For now, it's only ok for util modules to import 
+from `trix` and `trix.fmt`. I've moved the following from util 
+to `trix.app`: [event, process, jconfig]
+
+There may be more such modules in the util package. When I encounter 
+them, I'll add them to the list above.
+
+
+
+
+
+
