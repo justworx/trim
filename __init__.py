@@ -81,7 +81,11 @@ class trix(object):
 	Logging = 0 #-1=print; 0=None; 1=log-to-file
 	
 	
-	# ---- object creation -----
+	#
+	#
+	# ---- OBJECT CREATION --------------------------------------------
+	#
+	#
 	
 	# INNER PATH	
 	@classmethod
@@ -100,20 +104,6 @@ class trix(object):
 			return "%s%s" % (cls.__m, p)
 		else:
 			return innerPath
-	
-	
-	# INNER F-PATH	
-	@classmethod
-	def innerfpath(cls, innerFPath=None):
-		"""
-		Return a file path from within the trix package.
-		
-		>>> trix.innerfpath('app/config/en.conf')
-		"""
-		ifp = cls.innerpath().split('.')
-		if innerFPath:
-			ifp.append(innerFPath)
-		return "/".join(ifp)
 	
 	
 	# MODULE
@@ -175,7 +165,7 @@ class trix(object):
 				otype = type(trix.value(modpath)).__name__
 				if otype == 'module':
 					reason = "invalid-create-type"
-					message = "cannnot-create-module"
+					message = "cannot-create-module"
 				raise TypeError("Can't trix.create a module.")
 			except TypeError:
 				raise TypeError('create-fail', xdata(path=modpath, 
@@ -305,6 +295,40 @@ class trix(object):
 					))
 	
 	
+	#
+	#
+	# ---- FILE SYSTEM FEATURES --------------------------------------
+	#
+	#
+	
+	# INNER F-PATH	
+	@classmethod
+	def innerfpath(cls, innerFPath=None):
+		"""
+		Return a file path from within the trix package.
+		
+		>>> trix.innerfpath('app/config/en.conf')
+		"""
+		ifp = cls.innerpath().split('.')
+		if innerFPath:
+			ifp.append(innerFPath)
+		return "/".join(ifp)
+	
+	
+	# N-PATH
+	@classmethod
+	def npath(cls, innerFPath=None, *a, **k):
+		"""
+		Return an fs.Path for a file-system object within the trix 
+		directory.
+		
+		>>> e = 'UTF_8'
+		>>> r = trix.npath("app/config/app.conf").reader(encoding=e)
+		>>> r.readline()
+		"""
+		return cls.path(cls.innerfpath(innerFPath), *a, **k)
+	
+	
 	# PATH
 	@classmethod
 	def path(cls, path=None, *a, **k):
@@ -322,18 +346,6 @@ class trix(object):
 			cls.__FPath = cls.module(cls.innerpath('fs')).Path
 			return cls.__FPath(path, *a, **k)
 	
-	# N-PATH
-	@classmethod
-	def npath(cls, innerFPath=None, *a, **k):
-		"""
-		Return an fs.Path for a file-system object within the trix 
-		directory.
-		
-		>>> e = 'UTF_8'
-		>>> r = trix.npath("app/config/app.conf").reader(encoding=e)
-		>>> r.readline()
-		"""
-		return cls.path(cls.innerfpath(innerPath), *a, **k)
 	
 	# DIR
 	@classmethod
@@ -342,27 +354,223 @@ class trix(object):
 		return cls.path(path, *a, **k).dir()
 	
 	
+	#
+	#
+	# ---- THREADS, PROCESSES -----------------------------------------
+	#
+	#
 	
-	# ---- general utility -----
-	
-	
-	# PROXIFY
+	# START - Start new thread 
 	@classmethod
-	def proxify(cls, obj):
+	def start (cls, x, *a, **k):
 		"""
-		Return a proxy for `obj`. If `obj` is already a proxy, returns
-		the proxy `obj` itself.
+		Start callable object `x` in a new thread, passing any given 
+		*args and **kwargs.
 		
 		>>> def test(): print("Testing 1 2 3");
-		>>> prxy = trix.proxify(test)
-		>>> prxy()
-		>>> trix.proxify(prxy)
+		>>> trix.start(test)
 		"""
 		try:
-			return cls.create('weakref.proxy', obj)
-		except BaseException:
-			return obj
-
+			thread.start_new_thread(x, a, k)
+		except:
+			pass
+	
+	
+	# PID
+	@classmethod
+	def pid(cls):
+		"""
+		Return the id for this process.
+		
+		>>> trix.pid()
+		"""
+		try:
+			return cls.__pid
+		except:
+			import os
+			cls.__pid = os.getpid()
+			return cls.__pid
+	
+	
+	# POPEN
+	@classmethod
+	def popen (cls, *a, **k):
+		"""
+		Open a subprocess and return a Popen object created with the given
+		args and kwargs. This functions exactly as would calling the popen
+		function directly, except that stdout and stderr are enabled by 
+		default.
+		
+		The return value is a Popen object. Use its communicate() method
+		to read results of the command.
+		
+		KWARGS REFERENCE:
+		bufsize=0, executable=None, stdin=None, stdout=None, stderr=None, 
+		preexec_fn=None, close_fds=False, shell=False, cwd=None, env=None,
+		universal_newlines=False, startupinfo=None, creationflags=0
+		
+		>>> trix.popen("dir").communicate()
+		"""
+		try:
+			m = cls.__sp
+		except:
+			m = cls.__sp = cls.module("subprocess")
+		
+		# set defaults and run the process
+		k.setdefault("stdout", m.PIPE)
+		k.setdefault("stderr", m.PIPE)
+		return m.Popen(*a, **k)
+	
+	
+	# PROCESS
+	@classmethod
+	def process(cls, path, *a, **k):
+		"""
+		Pass a class `path` and any needed args/kwargs. A Process object
+		is returned. Call the Process object's `launch` method passing a
+		method name (string) and any additional args/kwargs (or no params,
+		if the class constructor starts processing).
+		
+		>>> p = trix.process("trix.net.server.Server", 9999)
+		>>> p.launch('run')
+		>>> c = trix.create("trix.net.connect.Connect", 9999)
+		>>> c.write("Test")
+		>>> c.read()
+		>>> p.stop() # end the remote process
+		"""
+		# REM! `path` is the module.class to launch within the `Process`.
+		return cls.ncreate("util.process.Process", path, *a, **k)
+	
+	
+	# N-PROCESS
+	@classmethod
+	def nprocess(cls, innerPath, *a, **k):
+		"""
+		Like `process`, but given remote object's `innerPath`.
+		
+		>>> p = trix.nprocess("net.server.Server", 9999).launch('run')
+		>>> c = trix.create("trix.net.connect.Connect", 9999)
+		>>> c.write("Test")
+		>>> c.read()
+		>>> p.stop() # end the remote process
+		"""
+		#
+		# The `innerPath` arg is expanded to be the full module.class 
+		# path that will be launched by `cls.process()`.
+		#
+		return cls.process(cls.innerpath(innerPath), *a, **k)
+	
+	
+	#
+	#
+	# ---- CONFIG / JSON ----------------------------------------------
+	#
+	#
+	
+	# CONFIG
+	@classmethod
+	def config(cls, config=None, **k):
+		"""
+		If `config` is given as a dict, the dict is updated with any 
+		given keyword arguments and returned.
+		
+		If `config` is the path to a JSON or ast-parsable text file, the
+		file is parsed and the resulting structure is returned. In this
+		case, any keyword args are passed to the JConfig constructor.
+		
+		>>> trix.config("trix/app/config/app.conf")
+		>>> trix.config(None, x=9)
+		>>> trix.config(y='x')
+		>>> trix.config({'y':'x'}, y="X") # kwargs replace dict keys
+		>>> trix.config()
+		"""
+		if config == None:
+			return dict(k)
+		try:
+			# by dict 
+			config.update(**k)
+		except AttributeError:
+			# by path...
+			jconf = cls.jconfig(config, **k)
+			config = jconf.obj
+		return config
+	
+	
+	# N-CONFIG
+	@classmethod
+	def nconfig(cls, config=None, **k):
+		"""
+		Same as `trix.config`, but file paths must be given as partial
+		paths starting within the trix package directory.
+		
+		>>> # See trix.config, above, for more usage examples.
+		>>> trix.nconfig("app/config/app.conf")
+		"""
+		if config == None:
+			return dict(k)
+		if isinstance(config, dict):
+			config.update(k)
+			return config
+		return cls.config(trix.innerfpath(config), **k)
+	
+	
+	
+	# J-CONFIG
+	@classmethod
+	def jconfig(cls, filepath, **k):
+		"""
+		Pass string `filepath` to a JSON (or ast-parsable) config file. 
+		Optional `default` kwarg identies file path containing default 
+		contents for a new config file in case no file exists at 
+		`filepath`. Use `ndefault` kwarg instead for the internal path
+		(within the trix directory) to a default file.
+		
+		A `util.JConfig` object is returned.
+		
+		NOTES:
+		 * The default path should point to a static default config file
+		   (in ast or json format).
+		 * If default path is given, affirm defaults to "touch".
+		 * Be careful that your default filepath is not unintentionally
+		   set to the same path as the `filepath` argument, or your
+		   original default file may be overwritten.
+		
+		>>> jc = trix.jconfig("trix/app/config/app.conf")
+		>>> print (jc.config)
+		"""
+		default = k.get('default', cls.npath(k.get('ndefault')).path)
+		k['default'] = default
+		
+		# This should protect against most (if not all) unintentional
+		# overwriting of the default file.
+		if default and (default == filepath):
+			raise ValueError("Matching target and default paths.", xdata(
+					default=default, filepath=filepath, k=k
+				))
+		m = cls.nmodule("util.jconfig")
+		return m.JConfig(filepath, **k)
+	
+	
+	# J-PARSE
+	@classmethod
+	def jparse(cls, jsonstr, **k):
+		"""
+		Parse json to object.
+		
+		>>> trix.jparse('{"a": 1, "b": 9, "c": 4}')
+		"""
+		try:
+			return json.loads(jsonstr)
+		except TypeError:
+			k.setdefault('encoding', DEF_ENCODE)
+			return json.loads(jsonstr.decode(**k))
+	
+	
+	#
+	#
+	# ---- GENERAL UTILITY --------------------------------------------
+	#
+	#
 	
 	# K-COPY
 	@classmethod
@@ -421,8 +629,30 @@ class trix(object):
 		return r
 	
 	
+	# PROXIFY
+	@classmethod
+	def proxify(cls, obj):
+		"""
+		Return a proxy for `obj`. If `obj` is already a proxy, returns
+		the proxy `obj` itself.
+		
+		>>> def test(): print("Testing 1 2 3");
+		>>> prxy = trix.proxify(test)
+		>>> prxy()
+		>>> trix.proxify(prxy)
+		"""
+		try:
+			return cls.create('weakref.proxy', obj)
+		except BaseException:
+			return obj
 	
-	# ---- display/debug -----
+	
+	
+	#
+	#
+	# ---- DISPLAY/DEBUG ----------------------------------------------
+	#
+	#
 	
 	
 	# FORMATTER (default, JDisplay)
@@ -502,6 +732,126 @@ class trix(object):
 		>>> xdata(a=1, b=9, c=4)
 		"""
 		return xdata(cls, data, **k)
+	
+	
+	# LOG
+	@classmethod
+	def log(cls, *a, **k):
+		"""
+		Returns Loglet for this process. Pass args/kwargs to log. The
+		trix.Logging class variable determines the output:
+		
+		 * 1  = Log to file
+		 * 0  = Logging turned off (the default)
+		 * -1 = Print log entries to the terminal
+		
+		Calling this method with trix.Logging set to 1 generates a log 
+		file named for the process ID. This is helpful for debugging 
+		multi-process situations.
+		
+		#
+		# Check your working directory for log files after this example!
+		# They can really fill up a directory quickly if you forget.
+		#
+		>>> trixc = trix.trixc()
+		>>> dbg = trixc.Logging
+		>>> trixc.Logging = 1
+		>>> trixc.log('a', 'b', 'c', x=1)
+		>>> trixc.Logging = dbg
+		
+		#
+		# NOTE: 
+		#  - The `trix.trixc()` method is necessary here because this 
+		#    example must get and set the trix.Logging class variable,
+		#    while `trix` may refer either to the trix class or the trix
+		#    module.
+		#    
+		#    While this may seem a silly distinction, it serves to make
+		#    this example work regardless of how you imported trix.
+		#    
+		#    One of the primary goals of the trix project is ease of use
+		#    from the python interpreter. With `trix.trixc()`, we need
+		#    never suffer an error because we typed `import trix` rather
+		#    than `from trix import *` (or vice-versa).
+		#
+		"""
+		if cls.Logging < 0:
+			with thread.allocate_lock():
+				a = list(a)
+				a.append(k)
+				cls.display(a)
+		elif cls.Logging > 0:
+			with thread.allocate_lock():
+				try:
+					cls.__log(*a, **k)
+				except:
+					cls.__log = cls.ncreate('util.loglet.Loglet', cls.__m)
+					cls.__log(*a, **k)
+	
+	
+	@classmethod
+	def trixc(cls):
+		"""
+		Returns the trix class.
+		
+		This may be necessary when scripting outside the library in a 
+		situation where you don't know whether the trix library was 
+		imported as "import trix" or "from trix import *".
+		"""
+		return cls
+	
+	
+	
+	# ---- signal management ------------------------------------------
+	
+	@classmethod
+	def signals(cls):
+		"""Manage the handling of signals. See `trix.util.signals`."""
+		try:
+			return cls.__signals
+		except:
+			cls.__signals = trix.nvalue("util.signals.Signals")
+			return cls.__signals
+
+
+
+# -------------------------------------------------------------------
+#
+#
+# CONVENIENCE
+#
+#
+# -------------------------------------------------------------------
+
+config     = trix.config
+create     = trix.create
+debug      = trix.debug
+display    = trix.display
+innerpath  = trix.innerpath
+innerfpath = trix.innerfpath
+formatter  = trix.formatter
+jconfig    = trix.jconfig
+jparse     = trix.jparse
+kcopy      = trix.kcopy
+kpop       = trix.kpop
+log        = trix.log
+module     = trix.module
+nconfig    = trix.nconfig
+ncreate    = trix.ncreate
+nmodule    = trix.nmodule
+nprocess   = trix.nprocess
+nvalue     = trix.nvalue
+path       = trix.path
+npath      = trix.npath
+pid        = trix.pid
+popen      = trix.popen
+process    = trix.process
+proxify    = trix.proxify
+#signals    = trix.signals
+start      = trix.start
+tracebk    = trix.tracebk
+trixc      = trix.trixc
+value      = trix.value
 	
 
 
