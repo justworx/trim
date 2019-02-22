@@ -36,6 +36,7 @@ from . import lineq
 from . import matheval
 from . import mime
 from . import runner
+from . import urlinfo
 
 
 
