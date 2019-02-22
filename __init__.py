@@ -336,22 +336,23 @@ class trix(object):
 		Return an fs.Path object at `path`.
 		
 		>>> p = trix.path().path
-		>>> trix.path().dir().ls()
-		>>> trix.path("trix/app/config/app.conf").reader().readline()
+		>>> r = trix.path("trix/app/config/app.conf").reader()
+		>>> d = trix.path("trix").dir()
+		
+		If argument `path` is a directory, an fs.Dir class (which is
+		based on fs.Path) is returned instead.
+		
+		>>> d = trix.path('trix')
+		>>> d.ls()
 		"""
 		try:
-			return cls.__FPath(path, *a, **k)
+			p = cls.__FPath(path, *a, **k)
 		except:
 			# requires full module path, so pass through innerpath()
 			cls.__FPath = cls.module(cls.innerpath('fs')).Path
-			return cls.__FPath(path, *a, **k)
-	
-	
-	# DIR
-	@classmethod
-	def dir(cls, path=None, *a, **k):
-		"""Like trix.path, but returns a Dir object."""
-		return cls.path(path, *a, **k).dir()
+			p = cls.__FPath(path, *a, **k)
+		
+		return p.dir() if p.isdir() else p
 	
 	
 	#
@@ -815,6 +816,8 @@ class trix(object):
 
 
 
+
+
 # -------------------------------------------------------------------
 #
 #
@@ -826,6 +829,7 @@ class trix(object):
 config     = trix.config
 create     = trix.create
 debug      = trix.debug
+display    = trix.display
 display    = trix.display
 innerpath  = trix.innerpath
 innerfpath = trix.innerfpath
@@ -855,9 +859,13 @@ value      = trix.value
 	
 
 
+# -------------------------------------------------------------------
+#
 #
 # LOADER (and NLoader)
 #
+#
+# -------------------------------------------------------------------
 
 class Loader(object):
 	"""Intended for internal use."""
@@ -914,9 +922,13 @@ class NLoader(Loader):
 		Loader.__init__(self, module, value, loader=trix.nmodule)
 
 
+# -------------------------------------------------------------------
+#
 #
 # COMPATABILITY
 #
+#
+# -------------------------------------------------------------------
 
 # common python 2/3 typedefs
 try:
@@ -969,12 +981,17 @@ except:
 
 
 
+
+
+# -------------------------------------------------------------------
 #
 # EXTENDED DEBUGGING
 #  - This package provides extensive debugging information in raised
 #    exceptions, so a little extra formatting is needed to help make
 #    sense of some of the things that might go wrong.
 #
+# -------------------------------------------------------------------
+
 class xdata(dict):
 	"""Package extensive exception data into a dict."""
 
