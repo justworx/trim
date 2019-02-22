@@ -43,6 +43,11 @@ class propx(object):
 		member variable self.__o.
 		
 		On all calls, self.__o is returned.
+		
+		REMEMBER:
+		The __call__ method *MUST NOT* be overridden by subclasses unless
+		it's to make necessary subclass-specifi manipulations or additions
+		before calling the `propx.__call__` method.
 		"""
 		try:
 			return self.__o
@@ -57,11 +62,16 @@ class propx(object):
 			return self.__o
 	
 	
+	def __iter__(self):
+		"""Return an iterator this object's list."""
+		return trix.ncreate('util.xiter', self.o)
+	
+	
 	@property
 	def o(self):
 		"""
-		Return this property's actual object value (as calculated
-		by `self.__call__()`).
+		Return this property's actual object value, as originally
+		calculated by `self.__call__()`.
 		"""
 		try:
 			return self.__o
@@ -69,26 +79,33 @@ class propx(object):
 			self.__o = self.__call__(*self.a, **self.k)
 			return self.__o
 	
+	
+	# UTILITY
 	@property
 	def compenc(self):
-		"""Loads and returns the compenc module."""
+		"""Loads, stores, and returns the compenc module on first use."""
 		try:
 			return self.__compenc
 		except:
 			self.__compenc = trix.nmodule("util.compenc")
 			return self.__compenc
 	
-	#
-	#
-	# Methods that can handle pretty much any data type
-	#
-	#
+	@property
+	def param(self):
+		"""Loads, stores, and returns the compenc module on first use."""
+		try:
+			return self.__Param
+		except:
+			self.__Param = trix.nvalue("data.param", "Param")
+			return self.__Param
+	
+	
+	# ---- Methods that can handle pretty much any data type -----
 	
 	# DISPLAY
 	def display(self, *a, **k):
 		"""Display using trix.fmt; default: f='JDisplay'"""
 		trix.display(self.o, *a, **k)
-	
 	
 	# FORMATTING
 	def json(self, *a, **k):
@@ -99,10 +116,7 @@ class propx(object):
 		k.setdefault('f', 'JCompact')
 		return trix.formatter(*a, **k).format(self.o)
 	
-	
-	#
-	# CURSOR, PDQ
-	#
+	# CURSOR
 	def cursor(self, **k):
 		"""
 		Return a cursor containing self.o; any given keyword arguments
@@ -110,22 +124,25 @@ class propx(object):
 		"""
 		return trix.ncreate("data.cursor.Cursor", self.o, **k)
 	
+	# PDQ
 	def pdq(self, **k):
 		"""
 		Return a python data Query object given self.o and any kwargs.
 		"""
 		return trix.ncreate("data.pdq.Query", self.o, **k)
 	
-
-
-
-#
-# STRING or BYTES
-#
-class propseq(propx):
-
+	# DB-GRID
+	def dbgrid(self, tableName, **k):
+		"""
+		Return a dbgrid() object with this list's data stored as
+		`tableName`. (Additional name/values may be passed by kwarg.)
+		"""
+		g = trix.ncreate('data.dbgrid', **k)
+		g.add(tableName, self.o)
+		return g
+	
 	#
-	# ENCODING / COMPRESSION
+	# ENCODING , COMPRESSION
 	#
 	def b64(self, **k):
 		"""Return self.o as (compact) JSON bytes encoded to base64."""
@@ -160,7 +177,6 @@ class propseq(propx):
 
 
 
-
 #
 #
 # PROP-LIST
@@ -173,7 +189,10 @@ class proplist(propx):
 	"""
 	
 	def __getitem__(self, key):
-		return self.o[key]
+		return type(self)(self.o[key])
+	
+	def __setitem__(self, key, v):
+		self.o[key] = v
 	
 	
 	@property
@@ -193,6 +212,20 @@ class proplist(propx):
 			yield (str(line))
 	
 	
+	
+	"""
+	def slice(self, start=None, stop=None, step=None):
+		return type(self)
+		return type(self)(self.o[start:end])
+	
+	def top(self, start):
+		return self.__slice(start)
+	
+	def tail(self, end):
+		return self.__slice(None, end)
+	"""
+	
+	
 	#def datagrid(self):
 	#	"""Return a DataGrid object loaded with self.o."""
 	#	return trix.ncreate('data.datagrid.DataGrid', self.o)
@@ -200,11 +233,19 @@ class proplist(propx):
 	
 	def each(self, fn, *a, **k):
 		"""
-		For each item in self.o execute callable `fn` given the item
+		For each item in self.o execute callable `fn` given:
+		 1) the item wrapped in a Param object
+		 2) any specified args
+		 3) any specified kwargs
 		and any specified args/kwargs.
 		"""
+		i = 0
+		Param = self.param
 		for item in self.o:
-			fn(item, *a, **k)
+			fn(Param(item, i), *a, **k)
+			i += 1
+		
+		return self
 	
 	
 	def filter(self, fn, *a, **k):
