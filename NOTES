@@ -1,18 +1,75 @@
 
+
+# -------------------------------------------------------------------
 #
 # UTIL - Import Consistency
 #
+# -------------------------------------------------------------------
 
 Some modules in the util package import other trix modules from 
 outside util. For now, it's only ok for util modules to import 
 from `trix` and `trix.fmt`. I've moved the following from util 
 to `trix.app`: [event, process, jconfig]
 
-There may be more such modules in the util package. When I encounter 
-them, I'll add them to the list above.
 
 
 
+# -------------------------------------------------------------------
+#
+# APP.TEST
+#
+# -------------------------------------------------------------------
+
+There's a good start here, but still many modules to cover, and the
+ones currently covered don't do complete tests of all features. This
+project is going to take a long time to finish.
+
+You can run the test using python 2 or 3. Eg.,
+```
+python3
+import trix.test
+
+```
+
+You can also test using `python -m trix test`.
+
+It's probably easiest to use the x/test.sh script (see below).
+
+
+
+
+# -------------------------------------------------------------------
+#
+# SCRIPTS
+#
+# -------------------------------------------------------------------
+
+I've added a few scripts that I find very useful. You have to cd into
+the trix directory to run them. 
+ 
+1) pull.sh pulls the latest changes from the git server.
+   
+   ```
+   cd trix
+   sh ./x/pull.sh
+   ```
+  
+2) test.sh runs the current app.test suite in python3 then python2.
+   Any exception
+   will cause the script to stop running.
+   
+   ```
+   cd trix
+   sh ./x/test.sh
+   ```
+  
+3) clean.sh clears out all the .pyc files and __pycache__ directories,
+   which is very nice after running test.sh!
+   
+   ```
+   cd trix
+   sh ./x/clean.sh
+   ```
 
 
 
