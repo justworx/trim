@@ -18,6 +18,19 @@ class Chain(object):
 		"""Return a new Chain (or subclass) with given arguments."""
 		return type(self)(*a)
 	
+	def __getitem__(self, key):
+		return self.v[key]
+	
+	def __setitem__(self, key, v):
+		self.v[key] = v
+	
+	def each(self, fn, *a, **k):
+		for x in range(len(self.v)):
+			self.procx(fn, x, *a, **k)
+	
+	def procx(self, fn, x, *a, **k):
+		self.v[x] = fn(x, *a, **k)
+	
 	def proc(self, fn, *a, **k):
 		"""
 		Set this object's self.v to the result of the callable argument
@@ -88,6 +101,7 @@ class Chain(object):
 		"""Set index (or key) `x` with value `v`."""
 		self.v[x] = v
 		return self
+	
 
 
 
