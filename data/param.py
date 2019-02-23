@@ -19,17 +19,21 @@ class Chain(object):
 		return type(self)(*a)
 	
 	def __getitem__(self, key):
+		"""Return item `key` from `self.v`."""
 		return self.v[key]
 	
 	def __setitem__(self, key, v):
+		"""Set item `key` in `self.v`."""
 		self.v[key] = v
 	
 	def each(self, fn, *a, **k):
-		for x in range(len(self.v)):
-			self.procx(fn, x, *a, **k)
-	
-	def procx(self, fn, x, *a, **k):
-		self.v[x] = fn(x, *a, **k)
+		"""
+		Pass a callable that accepts Param object `p`, index (or key) `i`,
+		and the value of p[i], `v`.
+		"""
+		for x in enumerate(self.v):
+			fn(self, x[0], x[1], *a, **k)
+		return self
 	
 	def proc(self, fn, *a, **k):
 		"""
@@ -38,6 +42,13 @@ class Chain(object):
 		when you want to set self.v to the callable's result.
 		"""
 		self.v = fn(*a, **k)
+		return self
+	
+	def procx(self, x, fn, *a, **k):
+		"""
+		Set item `x` in `self.v` to the result
+		"""
+		self.v[x] = fn(x, *a, **k)
 		return self
 	
 	def call(self, fn, *a, **k):
@@ -76,24 +87,30 @@ class Chain(object):
 	def pad(self, mlen, val=''):
 		"""
 		Pad a sequence with `val` items to a minimum length of `mlen`.
+		This method allows the expansion of string values to a minimum
+		length (eg., for visual formatting of grids in a terminal).
 		""" 
 		val = val if len(str(val)) else ' '
 		while len(self.v) < mlen:
 			self.v.append(val)
 		return self
 
-	def strip(self, c=None, x=0):
-		"""Strip characters in `c`, or whitespace, if c==None."""
-		if x < 0:
+	def strip(self, c=None, alignment=0):
+		"""
+		Strip characters matching `c`, or whitespace, if c==None.
+		If `alignment` < 0, only left-stripping is done using `lstrip()`. 
+		If it's > 0, `rstrip()` is used. Default is 0, `strip()`
+		"""
+		if alignment < 0:
 			self.v = self.v.lstrip(c)
-		elif x > 0:
+		elif alignment > 0:
 			self.v = self.v.rstrip(c)
 		else:
 			self.v = self.v.strip(c)
 		return self
 	
 	def set(self, v):
-		"""Set this value directly."""
+		"""Set `self.v` directly."""
 		self.v = v
 		return self
 	
@@ -102,6 +119,20 @@ class Chain(object):
 		self.v[x] = v
 		return self
 	
+	
+	# util
+	def output(self, v=None, *a):
+		"""Print `self.v`; for testing."""
+		print(v if v else self.v, *a)
+		return self
+	
+	@property
+	def null(self):
+		"""
+		Tack this method to the end of a chain of calls to return None.
+		Eg., Param(["Hello", "World"]).output().null
+		"""
+		return None
 
 
 
