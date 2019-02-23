@@ -1,10 +1,10 @@
 #
-# Copyright 2018 justworx
+# Copyright 2018-2019 justworx
 # This file is part of the trix project, distributed under the terms 
 # of the GNU Affero General Public License.
 #
 
-from .... import *
+from ... import *
 
 
 p = trix.nprocess("net.server.Server", 0).launch('run')
