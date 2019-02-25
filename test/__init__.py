@@ -66,6 +66,9 @@ trix.nmodule('test.fmt')
 
 
 
-
-
+#
+# Do this after data-generating methods have been tested... basically,
+# it's the last test that should be run, afaik.
+#
+trix.nmodule('test.propx')
 
