@@ -6,7 +6,7 @@
 
 from .. import *
 
-class propx(object):
+class propbase(object):
 	"""
 	Wraps objects with a set of methods convenitent for manipulation,
 	query, display, and compression.
@@ -62,11 +62,6 @@ class propx(object):
 			return self.__o
 	
 	
-	def __iter__(self):
-		"""Return an iterator this object's list."""
-		return trix.ncreate('util.xiter', self.o)
-	
-	
 	@property
 	def o(self):
 		"""
@@ -80,7 +75,9 @@ class propx(object):
 			return self.__o
 	
 	
+	#
 	# UTILITY
+	#
 	@property
 	def compenc(self):
 		"""Loads, stores, and returns the compenc module on first use."""
@@ -90,17 +87,16 @@ class propx(object):
 			self.__compenc = trix.nmodule("util.compenc")
 			return self.__compenc
 	
-	@property
-	def param(self):
-		"""Loads, stores, and returns the compenc module on first use."""
-		try:
-			return self.__Param
-		except:
-			self.__Param = trix.nvalue("data.param", "Param")
-			return self.__Param
-	
 	
 	# ---- Methods that can handle pretty much any data type -----
+	
+	def param(self, o=None):
+		"""Returns arg `o` or `self.o` wrapped in a Param object."""
+		try:
+			return self.__Param(o or self.o)
+		except:
+			self.__Param = trix.nvalue("data.param", "Param")
+			return self.__Param(o or self.o)
 	
 	# DISPLAY
 	def display(self, *a, **k):
@@ -131,15 +127,6 @@ class propx(object):
 		"""
 		return trix.ncreate("data.pdq.Query", self.o, **k)
 	
-	# DB-GRID
-	def dbgrid(self, tableName, **k):
-		"""
-		Return a dbgrid() object with this list's data stored as
-		`tableName`. (Additional name/values may be passed by kwarg.)
-		"""
-		g = trix.ncreate('data.dbgrid', **k)
-		g.add(tableName, self.o)
-		return g
 	
 	#
 	# ENCODING , COMPRESSION
@@ -175,131 +162,56 @@ class propx(object):
 	
 
 
+#
+# CONVENIENCE
+#  - Easy access to subclasses defined in other modules within
+#    this package.
+#
 
 
-#
-#
-# PROP-LIST
-#
-#
-class proplist(propx):
-	"""
-	Wrap objects in a proplist to provide a variety of useful features
-	for manipulation and display.
-	"""
-	
-	def __getitem__(self, key):
-		return type(self)(self.o[key])
-	
-	def __setitem__(self, key, v):
-		self.o[key] = v
-	
-	
-	@property
-	def sorted(self):
-		"""Return a proplist with sorted content."""
-		return type(self)(sorted(self.o))
-	
-	@property
-	def reversed(self):
-		"""Return a proplist with reversed content."""
-		return type(self)(reversed(self.o))
-	
-	@property
-	def lines(self):
-		"""Generate string items (lines)."""
-		for line in self.o:
-			yield (str(line))
-	
-	
-	
-	"""
-	def slice(self, start=None, stop=None, step=None):
-		return type(self)
-		return type(self)(self.o[start:end])
-	
-	def top(self, start):
-		return self.__slice(start)
-	
-	def tail(self, end):
-		return self.__slice(None, end)
-	"""
-	
-	
-	#def datagrid(self):
-	#	"""Return a DataGrid object loaded with self.o."""
-	#	return trix.ncreate('data.datagrid.DataGrid', self.o)
-	
-	
-	def each(self, fn, *a, **k):
-		"""
-		For each item in self.o execute callable `fn` given:
-		 1) the item wrapped in a Param object
-		 2) any specified args
-		 3) any specified kwargs
-		and any specified args/kwargs.
-		"""
-		i = 0
-		Param = self.param
-		for item in self.o:
-			fn(Param(item, i), *a, **k)
-			i += 1
-		
-		return self
-	
-	
-	def filter(self, fn, *a, **k):
-		"""
-		Pass callable `fn` that returns False for items that should not
-		be selected. Optional args/kwargs are received by fn.
-		
-		Returns filter object.
-		"""
-		return filter(fn, self.o, *a, **k)
-	
-	
-	def filtered(self, fn, *a, **k):
-		"""
-		Return a proplist containing results filtered by function `fn`.
-		
-		Eg.
-		d = trix.path('~').dir()
-		d.list.filtered(lambda x: x[1]=='f').o
-		"""
-		return proplist(list(self.filter(fn,*a,**k)))
-	
-	
-	def text(self, glue=None):
-		"""
-		Join list items into lines of text. Pass optional `glue` value, 
-		the char(s) on which to join list items (Default: '').
-		"""
-		try:
-			g = glue or ''
-			return g.join(self.o)
-		except TypeError:
-			g = glue or b''
-			return g.join(self.o)
-	
+def propx(x, *a, **k):
+	"""Try to calculate and return the correct wrapper."""
 	
 	#
-	# DISPLAY
-	#  - Display lists as json or in grids/tables/lists
+	# ORDER IS IMPORTANT HERE
+	#  - Checking setitem must come before checking __getitem__,
+	#    followed by __iter__ and generator.
 	#
-	def grid(self, *a, **k):
-		"""Display as Grid."""
-		k['f'] = 'Grid'
-		trix.display(self.o, *a, **k)
+	#  - TO DO: Try to add a propdict class.
+	#
 	
-	def list(self, *a, **k):
-		"""Display as List."""
-		k['f'] = 'List'
-		trix.display(self.o, *a, **k)
+	try:
+		if x.__setitem__:
+			return trix.ncreate("propx.proplist.proplist", x, *a, **k)
+	except:
+		pass
 	
-	def table(self, *a, **k):
-		"""Display as Table. Pass keyword argument 'width'."""
-		k['f'] = 'Table'
-		trix.display(self.o, *a, **k)
-
-
+	try:
+		if x.__getitem__:
+			try:
+				if x.upper:
+					return trix.ncreate("propx.propseq.propseq", x, *a, **k)
+			except:
+				return trix.ncreate("propx.propseq.propset", x, *a, **k)
+	except:
+		pass
+	
+	try:
+		if x.__iter__ or (type(x).__name__ == 'generator'):
+			return trix.ncreate("propx.propiter.propiter", iter(x), *a, **k)
+	except:
+		pass
+	
+	"""
+	try:
+		# untested...
+		if (type(x).__name__ == 'generator'):
+			return trix.ncreate("propx.propiter.propiter",iter(x), *a, **k)
+	except:
+		pass
+	"""
+	
+	# anything else...
+	return propbase(x, *a, **k)
+	
 
