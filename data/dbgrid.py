@@ -4,7 +4,7 @@
 # of the GNU Affero General Public License.
 #
 
-from ..propx import *
+from ..propx.proplist import *   # trix, propgrid, et al
 import sqlite3
 
 
@@ -13,7 +13,8 @@ class DBGrid(object):
 	
 	def __init__(self, **k):
 		"""
-		Initialize grid database.
+		Initialize grid database. See the `add()` method for details on
+		how to create tables.
 		"""
 		self.con = sqlite3.connect(":memory:")
 		self.__T = []
@@ -23,9 +24,10 @@ class DBGrid(object):
 			self.add(table, k[table])
 	
 	
-	def __call__(self, sql=None, *a, **k):
+	def __call__(self, sql, *a, **k):
 		"""
-		Shortcut for `select()`. Returns a DataGrid containing results.
+		Shortcut for `select()`. Returns a DataGrid containing results
+		of valid sqlite3 queries.
 		"""
 		return self.select(sql, *a, **k)
 	
@@ -81,7 +83,7 @@ class DBGrid(object):
 		self.__T.append(table_name)
 	
 	
-	def rmv(self, tableName):
+	def remove(self, tableName):
 		"""
 		Remove table `tableName` from the temporary database.
 		
@@ -115,20 +117,20 @@ class DBGrid(object):
 	
 	def select(self, sql, *a, **k):
 		"""
-		Execute select query `sql`.	Returns a proplist loaded with the
+		Execute select query `sql`.	Returns a propgrid loaded with the
 		query result. A column name list is prepended by default, unless
 		you pass the kwarg header=False.
 		
 		NOTE: Passing an statement that does not select data will return
-		      a proplist containing an empty list.
+		      a propgrid containing an empty list.
 		"""
 		newgrid = self.query(sql, *a)
 		if k.get('h', k.get('header', True)):
 			r = [self.get_column_names()]
 			r.extend(newgrid)
-			return proplist(r)
+			return propgrid(r)
 		else:
-			return proplist(newgrid)
+			return propgrid(newgrid)
 	
 	
 	def get_column_names(self):
@@ -140,3 +142,13 @@ class DBGrid(object):
 			return colnames
 		except:
 			raise
+	
+	#
+	# ALIASES
+	#  - Helpful for use in lambda callbacks.
+	#  - Note that the alias for select is the `__call__()` method
+	#
+	q = query
+	tt = tables
+	rm = remove
+	ex = execute
