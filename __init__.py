@@ -813,8 +813,15 @@ class trix(object):
 		except:
 			cls.__signals = trix.nvalue("util.signals.Signals")
 			return cls.__signals
-
-
+	
+	
+	# ---- testing - experimental -------------------------------------
+	
+	# This belongs with utility methods, if it turns out to be useful.
+	@classmethod
+	def propx(cls, x, *a, **k):
+		"""Return a PropBase subclass suitable to object argument `x`."""
+		return cls.nvalue('propx.propx')(x, *a, **k)
 
 
 
@@ -851,7 +858,8 @@ pid        = trix.pid
 popen      = trix.popen
 process    = trix.process
 proxify    = trix.proxify
-#signals    = trix.signals
+propx      = trix.propx
+signals    = trix.signals
 start      = trix.start
 tracebk    = trix.tracebk
 trixc      = trix.trixc
