@@ -5,12 +5,14 @@
 #
 
 from . import *
-from ..propx import *
+from ..propx.proplist import *
 import os, glob
 
 
 class Dir(Path):
-	"""Directory functionality."""
+	"""
+	Directory functionality.
+	"""
 	
 	def __init__(self, path=None, **k):
 		"""
@@ -70,7 +72,7 @@ class Dir(Path):
 		When called as though it were a method, this property returns
 		the list of items in this directory.
 		
-		  ```Dir().ls() # returns list of items in this directory```
+		```Dir().ls() # returns list of items in this directory```
 		
 		This property actually returns a proplist containing the 
 		directory listing. See `help(Dir().ls)` for more options.
@@ -83,8 +85,24 @@ class Dir(Path):
 		"""
 		When called as though it were a method, this property returns
 		a list of lists, items  in this directory.
+		
+		```
+		dir_list = trix.list()
+		```
+		
+		When called as a property, it returns a propgrid object that
+		features additional properties and methods for manipulating and
+		displaying data from the directory listing.
+		
+		```
+		plist = trix.path(trix.innerfpath()).list
+		plist.grid()
+		```
+		
+		See `help(Dir().ls)` for more details.
+		
 		"""
-		return proplist(self.listlong)
+		return propgrid(self.listlong)
 	
 	
 	#
@@ -202,6 +220,15 @@ class Dir(Path):
 		#  - ff = contained files;
 		#
 		rlist = []
+		
+		#
+		# NOTE: Replace with something like this to prevent os from 
+		#       being loaded until necessary:
+		# ```
+		# walker = trix.create('os.walk')
+		# for d,dd,ff in walker(pattern, **k)...
+		# ```
+		#
 		for d, dd, ff in self._walk(path):
 			rlist.extend(self.match(os.path.join(d, pattern)))
 		
