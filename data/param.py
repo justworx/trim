@@ -30,9 +30,26 @@ class Chain(object):
 		"""
 		Pass a callable that accepts Param object `p`, index (or key) `i`,
 		and the value of p[i], `v`.
+		
+		p = Param([1,2,3])
+		q = p.each(lambda p,i,v: p.setx(i, v))
 		"""
 		for x in enumerate(self.v):
+			#
+			# Here, self is this param object, x[0] is the index `i`, and
+			# x[1] is the value, `v`, so... callable `fn` receives p,i,v.
+			#
 			fn(self, x[0], x[1], *a, **k)
+		return self
+	
+	def cast(self, T):
+		"""Type-cast self.v."""
+		self.v = T(self.v)
+		return self
+	
+	def castx(self, x, T):
+		"""Type-cast self.v."""
+		self.v = T(self.v[x])
 		return self
 	
 	def proc(self, fn, *a, **k):
@@ -50,6 +67,19 @@ class Chain(object):
 		"""
 		self.v[x] = fn(x, *a, **k)
 		return self
+	
+	def set(self, v):
+		"""Set `self.v` directly."""
+		self.v = v
+		return self
+	
+	def setx(self, x, v):
+		"""Set index (or key) `x` with value `v`."""
+		try:
+			self.v[x] = v
+			return self
+		except BaseException as ex:
+			raise type(ex)(xdata(po=self.v, x=x, v=v))
 	
 	def call(self, fn, *a, **k):
 		"""
@@ -109,18 +139,9 @@ class Chain(object):
 			self.v = self.v.strip(c)
 		return self
 	
-	def set(self, v):
-		"""Set `self.v` directly."""
-		self.v = v
-		return self
-	
-	def setx(self, x, v):
-		"""Set index (or key) `x` with value `v`."""
-		self.v[x] = v
-		return self
-	
 	
 	# util
+	
 	def output(self, v=None, *a):
 		"""Print `self.v`; for testing."""
 		print(v if v else self.v, *a)
