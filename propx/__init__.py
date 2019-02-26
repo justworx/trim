@@ -26,9 +26,9 @@ class propbase(object):
 		value will be calculated and stored as self.o (even if it's the
 		first calling of property `self.o`).
 		"""
-		self.p = o
-		self.a = a
-		self.k = k
+		self.__p = o
+		self.__a = a
+		self.__k = k
 	
 	
 	def __call__(self, *a, **k):
@@ -53,11 +53,11 @@ class propbase(object):
 			return self.__o
 		except:
 			try:
-				# if self.p is callable...
-				self.__o = self.p(*a, **k)
+				# if self.__p is callable...
+				self.__o = self.__p(*a, **k)
 			except TypeError:
-				# or, self.p must be an object/value
-				self.__o = self.p
+				# or, self.__p must be an object/value
+				self.__o = self.__p
 			
 			return self.__o
 	
@@ -71,8 +71,18 @@ class propbase(object):
 		try:
 			return self.__o
 		except:
-			self.__o = self.__call__(*self.a, **self.k)
+			self.__o = self.__call__(*self.__a, **self.__k)
 			return self.__o
+	
+	@property
+	def a(self):
+		"""Returns arguments given to constructor."""
+		return self.__a
+	
+	@property
+	def k(self):
+		"""Returns keyword args given to constructor."""
+		return self.__k
 	
 	
 	#

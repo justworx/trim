@@ -1,4 +1,93 @@
 
+# propx
+
+The propx package contains a set of modules defining classes that
+each wraps suitable objects with a set of appropriate convinence
+properties and methods.
+
+The propx function, defined in propx.__init__.py, receives any object
+and wraps it in the most suitable available subclass of `propbase`.
+For example, list objects passed to `propx()` would be wrapped inside
+a	`proplist` object, which provides methods and properties convenient
+for manipulation and display of list objects.
+
+#### propx classes
+
+The following classes are currently available.
+
+ * propbase - a catchall that provides encoding, compression, and
+              display methods. 
+ * propiter - adds methods suitable to iterable objects
+ * propseq  - methods suitable to any sequence item (based on propset) 
+   propset  - read-only methods for tuple and set
+ * proplist - methods for list manipulation/display
+   propgrid - proplist subclass for list of lists of equal length 
+
+
+#### propx use in the trix package
+
+The propx objects are currently used by the fs.dir module to enhance
+the return values of directory listings and search results.
+
+```
+python3
+
+import trix
+d = trix.path('trix') # <-- CREATE A `Dir` OBJECT
+
+d.ls()                # <-- RETRIEVE THE STANDARD `ls` RESULT LIST
+
+d.ls.table(width=4)   # <-- SHOW A GRID-FORMATTED VERSION OF THE LIST
+
+```
+
+The long `dir.list` property's __call__() method works the same way, 
+but provides the features of a grid rather than a list.
+
+```
+python3
+
+import trix
+d = trix.path('trix') # <-- CREATE A `Dir` OBJECT
+d.list()
+d.list.grid()
+
+```
+
+
+
+Try in both python (2.7) and python3...
+
+python
+python3
+
+```
+from trix.propx.propiter import *
+
+# FILTER
+pi = propiter([])
+list( pi.filter(lambda x: x<3, [1,2,3,4,5]) )
+
+# FILTERFALSE
+list( propiter.filterfalse(lambda x: x<3, [1,2,3,4,5]) )
+
+# ZIP
+i = propiter([])
+ii = i.zip('ABCD', 'xy')
+list(ii)
+
+```
+
+
+
+
+
+
+
+
+
+
+
 
 Get some data to play with...
 
@@ -49,82 +138,9 @@ of any given line.
 
 ```
 
-pd.update(lambda x: list(x))
+pp.update(lambda x: list(x))
 
 ```
-
-
-# No... #q = pd.each(lambda p,i,v: p.setx(i, list(v)))
-
-
-
-```python3
-
-from trix.data.dbgrid import *
-
-q = DBGrid(trix=trix.path('trix').list()) # get the trix dir list
-pp = q('select * from trix')              # returns proplist
-
-pp.grid()
-
-pd = pp[1:] # param data rows only, no heading 
-pd.grid()
-
-pd.each(lambda o: 
-
-
-```
-
-
-
-
-
-
-
-
-
-
-
-# FAIL
-
-use=lambda p:Param(p.v).cast(list).setx(5,int(p.v)).v if p.i else None
-c = p.create('data.cursor.Cursor', pp.o, use=use)
-
-#pp[1:].each(lambda p,i,v: p.setx(i, int(v)))
-
-from trix.data.dbgrid import *
-q = DBGrid(trix=trix.path('trix').list())
-pp = q('select * from trix')
-
-pp.grid()
-
-pp.pdq().update(
-		lambda p: p.setx(5, int(p.v[5])) , 
-		
-		where=lambda p: p.i > 1
-
-	)
-
-
-
-
-
-# more stuff
-
-from trix.data.dbgrid import *
-
-q = DBGrid(trix=trix.path('trix').list())
-pp = q('select * from trix') # returns proplist
-
-pp.param(pp.o[1:])[0]
-
-
-
-
-
-
-
-
 
 
 

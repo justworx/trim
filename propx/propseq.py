@@ -13,35 +13,15 @@ class propset(propiter):
 	
 	The propset class is superclass to propseq, defined below. Because
 	sets and tuples are immutable, this is the class that should be
-	their wrapper. Other sequence types should be contained in  
-	
-	NOTE: The `propset` class is experimental.
-	      
-	      I think maybe this class isn't needed. These functions
-	      probably belong in propseq, and will move there if/when I 
-	      discover there's no use for an iterator without a sequence.
-	      
-	      First I want to make sure it can't useful to pass an iterator
-	      and let values be generated that way.
+	their wrapper. Mutable sequence types should be wrapped in propseq. 
 	"""
 	
 	def __iter__(self):
 		"""Return an iterator this object's list."""
-		return trix.ncreate('util.xiter', self.gen())
-	
-	#
-	# CHECK THIS...
-	#  - Should this be a property? Don't i usually make it a property?
-	#    I can't remember... I need to check it so as to be consistent.
-	#
-	def gen(self):
-		for x in self.o:
-			yield(x)
-	
+		return trix.ncreate('util.xiter.xiter', self.gen)
 	
 	def __getitem__(self, key):
 		return type(self)(self.o[key])
-	
 	
 	@property
 	def sorted(self):
@@ -70,22 +50,6 @@ class propseq(propset):
 	
 	def __setitem__(self, key, v):
 		self.o[key] = v
-	
-	
-	
-	#
-	# DB-GRID
-	#  - this will be moved to an intermediate class between 
-	#    propx and proplist
-	#
-	def dbgrid(self, tableName, **k):
-		"""
-		Return a dbgrid() object with this list's data stored as
-		`tableName`. (Additional name/values may be passed by kwarg.)
-		"""
-		g = trix.ncreate('data.dbgrid.DBGrid', **k)
-		g.add(tableName, self.o)
-		return g
 	
 	
 	#

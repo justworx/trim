@@ -193,6 +193,7 @@ class Dir(Path):
 	#  - search() returns results
 	#  - each() does actions
 	#
+	@property
 	def search(self, pattern=None, **k):
 		"""
 		Search directories recursively starting at this directory path. 
@@ -209,40 +210,7 @@ class Dir(Path):
 		         BEFORE using it with a function.
 		"""
 		
-		path = self.path
-		pattern = pattern or '*.*'
-		
-		#
-		# Walk the directory path collecting results.
-		# At each step:
-		#  - d = current dir path;
-		#  - dd = contained dir;
-		#  - ff = contained files;
-		#
-		rlist = []
-		
-		#
-		# NOTE: Replace with something like this to prevent os from 
-		#       being loaded until necessary:
-		# ```
-		# walker = trix.create('os.walk')
-		# for d,dd,ff in walker(pattern, **k)...
-		# ```
-		#
-		for d, dd, ff in self._walk(path):
-			rlist.extend(self.match(os.path.join(d, pattern)))
-		
-		# Handle action provided by kwarg `fn` (see WARNING above!)
-		if 'fn' in k:
-			fn = k['fn']
-			for fpath in rlist:
-				rr = {}
-				aa = k.get('args', [])
-				fn(fpath, *aa)
-		
-		# or, if no function was provided, just return the list.
-		else:
-			return rlist
+		return proplist(self.listsearch, pattern, **k)
 	
 	
 	#
@@ -342,3 +310,40 @@ class Dir(Path):
 		
 		return rr
 
+	
+	def listsearch(self, pattern=None, **k):
+		
+		path = self.path
+		pattern = pattern or '*.*'
+		
+		#
+		# Walk the directory path collecting results.
+		# At each step:
+		#  - d = current dir path;
+		#  - dd = contained dir;
+		#  - ff = contained files;
+		#
+		rlist = []
+		
+		#
+		# NOTE: Replace with something like this to prevent os from 
+		#       being loaded until necessary:
+		# ```
+		# walker = trix.create('os.walk')
+		# for d,dd,ff in walker(pattern, **k)...
+		# ```
+		#
+		for d, dd, ff in self._walk(path):
+			rlist.extend(self.match(os.path.join(d, pattern)))
+		
+		# Handle action provided by kwarg `fn` (see WARNING above!)
+		if 'fn' in k:
+			fn = k['fn']
+			for fpath in rlist:
+				rr = {}
+				aa = k.get('args', [])
+				fn(fpath, *aa)
+		
+		# or, if no function was provided, just return the list.
+		else:
+			return rlist
