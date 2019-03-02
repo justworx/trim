@@ -31,26 +31,6 @@ class Dir(Path):
 		self._walk = os.walk
 	
 	
-	# CALL
-	def __call__(self, item):
-		"""
-		Calling a Dir object as a function returns a new Dir object 
-		that points to its path "merged" with the (required) given 
-		`item`. Eg., `dfiles = Dir('files')`
-		
-		For `Dir` objects, the given `item` may also be the 
-		integer offset into the directory listing. Eg., `list=D[0].ls()`
-		
-		In either case, the result is a new Path object.
-		"""
-		try:
-			# this works if item is an integer index into this directory
-			return Dir(Path.__call__(self, self[item]))
-		except TypeError:
-			# this works if item is a string path
-			return Dir(Path.__call__(self, self.merge(item)))
-	
-	
 	# GET ITEM - retrieve item path (string) by offset in directory.
 	def __getitem__(self, key):
 		"""

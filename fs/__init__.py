@@ -32,10 +32,20 @@ class Path(object):
 	# CALL
 	def __call__(self, path=None):
 		"""
-		Returns a new Path object representing this path "merged" with the
-		(required) given `path`.
+		Returns a new Path object representing this path "merged" with 
+		the (required) given `path`.
 		"""
-		return Path(self.merge(path or self.path))
+		#
+		# I'm getting rid of the FileBase and Dir __call__ methods and
+		# just letting Path handle this the same way for all subclasses.
+		#
+		#return Path(self.merge(path) or self.path)
+		#
+		with Path(self.merge(path) or self.path) as p:
+			try:
+				return p.dir()
+			except ValueError:
+				return p
 	
 	
 	# ENTER/EXIT
@@ -430,6 +440,9 @@ class Path(object):
 class FileBase(Path, EncodingHelper):
 	"""Common methods fs.file.File and subclasses will need."""
 	
+	#
+	# INIT
+	#
 	def __init__(self, path=None, **k):
 		"""Pass file path with optional keyword arguments."""
 		
@@ -452,31 +465,9 @@ class FileBase(Path, EncodingHelper):
 			self.touch()
 	
 	
-	def __call__(self, item='.'):
-		"""Returns path from containing directory."""
-		p = Path(self.merge('..'))
-		try:
-			# this works if item is an integer index into this directory
-			return p.__call__(self[item])
-		except TypeError:
-			# this works if item is a string path
-			return p.__call__(item)
-	
-	
-	# SET PATH - prevent changing path
-	def setpath(self, path):
-		"""Prevents changing of this file wrapper's path. """
-		raise ValueError('fs-immutable-path', xdata())
-
-	
-	# TOUCH - touch file without possibility of "merging" the path.
-	def touch(self, times=None):
-		"""Touch this file."""
-		with open(self.path, 'a'):
-			os.utime(self.path, times)  
-	
-	
+	#
 	# DIR
+	#
 	def dir(self, path=None):
 		"""
 		Return a dir.Dir object for the directory containing this file. 
@@ -485,7 +476,27 @@ class FileBase(Path, EncodingHelper):
 		"""
 		return trix.ncreate('fs.dir.Dir', self.merge('..')).dir(path)
 	
+	
+	#
+	# SET PATH - prevent changing path
+	#
+	def setpath(self, path):
+		"""Prevents changing of this file wrapper's path. """
+		raise ValueError('fs-immutable-path', xdata())
+
+	
+	#
+	# TOUCH - touch file without possibility of "merging" the path.
+	#
+	def touch(self, times=None):
+		"""Touch this file."""
+		with open(self.path, 'a'):
+			os.utime(self.path, times)  
+	
+	
+	#
 	# COPY
+	#
 	def copy(self, dest, **k):
 		src = self.path
 		dst = self.dir().merge(dest)
@@ -498,8 +509,12 @@ class FileBase(Path, EncodingHelper):
 		except Exception as ex:
 			raise type(ex)(ex.args, xdata(src=src, dst=dst, dest=dest, k=k))
 	
+
+	#
 	# MOVE
+	#
 	def move(self, dest):
+		"""Move this file from it's current location to path `dest`."""
 		src = self.path
 		dst = self.expand(self.dir().merge(dest))
 		try:
@@ -508,8 +523,12 @@ class FileBase(Path, EncodingHelper):
 		except Exception as ex:
 			raise type(ex)(ex.args, xdata(src=src, dst=dst, dest=dest))
 	
+
+	#
 	# RENAME
+	#
 	def rename(self, dest):
+		"""Rename this file (moving it, if appropriate)."""
 		src = self.path
 		dst = self.dir().merge(dest)
 		try:
@@ -518,8 +537,12 @@ class FileBase(Path, EncodingHelper):
 		except Exception as ex:
 			raise type(ex)(ex.args, xdata(src=src, dst=dst, dest=dest))
 	
+
+	#
 	# REMOVE
+	#
 	def remove(self):
+		"""Delete this file."""
 		os.remove(self.path)
 
 
