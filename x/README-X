@@ -1,0 +1,11 @@
+
+X - Experimental Code/Files
+
+The `x` package is meant to contain files/code that 
+ * are experimental and may or may not become part of trix 
+ * are under construction and may take a long time to update
+ * may be useful later but is not currently needed
+
+Basically it's a shared staging area, backed up on the git server,
+for volatile, experimental content.
+
