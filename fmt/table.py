@@ -18,7 +18,7 @@ class Table(Grid):
 		Grid's constructor.
 		"""
 		Grid.__init__(self, **k)
-		self.__width = k.get('width', 1)
+		self.__width = k.get('w', k.get('width', 1))
 		if self.__width < 1:
 			raise Exception ('invalid-width')
 	
