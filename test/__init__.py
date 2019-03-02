@@ -1,74 +1,49 @@
 #
-# Copyright 2018-2019 justworx
-# This file is part of the trix project, distributed under
-# the terms of the GNU Affero General Public License.
+# Copyright 2019 justworx
+# This file is part of the trix project, distributed under the terms 
+# of the GNU Affero General Public License.
 #
 
-
-# -------------------------------------------------------------------
-#
-# TRIX -> test trix class methods
-#
-# -------------------------------------------------------------------
-
-# import trix
 from .. import *
 
 
-# Test nmodule() [ + module(), innerpath() ] 
-test = trix.nmodule('util.enchelp')
+def banner(text):
+	"""Pass text to display in a banner"""
+	print("\n*\n*\n* TESTING: %s\n*" % text)
 
-match = "<module 'trix.util.enchelp'"
-assert(repr(test)[:27] == match)
-
-# Test nvalue() [ + value() ]
-test = repr(trix.nvalue('util.enchelp', 'EncodingHelper'))
-match = "<class 'trix.util.enchelp.EncodingHelper'>"
-assert(test == match)
-
-# Test ncreate() [ + create() ]
-test = trix.ncreate('util.enchelp.EncodingHelper', encoding='utf_8')
-match = "<trix.util.enchelp.EncodingHelper"
-assert(repr(test)[:33] == match)
+def footer():
+	print("* --> OK\n*\n*\n")
 
 
+banner("Module: `trix`")
+from . import trix
+footer()
 
-# Test proxify()
-class TestP(object):
-	def __init__(self, v):
-		self.v = v
+banner("Package: `app`")
+from . import app
+footer()
 
-tp = TestP(9)
-assert(trix.proxify(tp).v == tp.v)
+banner("Package: `data`")
+from . import data
+footer()
 
+banner("Package: `fmt`")
+from . import fmt
+footer()
 
-# Test kcopy, kpop
-assert(trix.kpop(dict(a=1,b=9,c=4), 'a c') == dict(a=1,c=4))
-assert(trix.kpop(dict(a=1,b=9,c=4), ['a', 'c']) == dict(a=1,c=4))
-assert(trix.kcopy(dict(a=1,b=9,c=4), 'b') == dict(b=9))
-assert(trix.kcopy(dict(a=1,b=9,c=4), ['b']) == dict(b=9))
+banner("Package: `fs`")
+from . import fs
+footer()
 
+banner("Package: `net`")
+from . import net
+footer()
 
-print("\n* Module `trix`      : OK")
+banner("Package: `propx`")
+from . import net
+footer()
 
-
-# -------------------------------------------------------------------
-#
-# TEST TRIX SUB-PACKAGES
-#
-# -------------------------------------------------------------------
-
-trix.nmodule('test.util')
-trix.nmodule('test.fmt')
-
-
-
-
-
-
-#
-# Do this after data-generating methods have been tested... basically,
-# it's the last test that should be run, afaik.
-#
-trix.nmodule('test.propx')
+banner("Package: `util`")
+from . import util
+footer()
 

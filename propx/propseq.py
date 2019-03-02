@@ -6,40 +6,12 @@
 
 from .propiter import *
 
-
-class propset(propiter):
-	"""
-	Superclass for iterable subclasses.
-	
-	The propset class is superclass to propseq, defined below. Because
-	sets and tuples are immutable, this is the class that should be
-	their wrapper. Mutable sequence types should be wrapped in propseq. 
-	"""
-	
-	def __iter__(self):
-		"""Return an iterator this object's list."""
-		return trix.ncreate('util.xiter.xiter', self.gen)
-	
-	def __getitem__(self, key):
-		return type(self)(self.o[key])
-	
-	@property
-	def sorted(self):
-		"""Return a proplist with sorted content."""
-		return type(self)(sorted(self.o))
-	
-	@property
-	def reversed(self):
-		"""Return a proplist with reversed content."""
-		return type(self)(type(self.o)(reversed(self.o)))
-
-
 #
 # PROP-SEQ
 #  - NOTE: be sure to check whether xrange should be wrapped with
 #          propseq, propset, or propiter.
 #
-class propseq(propset):
+class propseq(propiter):
 	"""
 	Use this class to wrap objects that implement str, unicode, list, 
 	tuple, bytearray, or buffer.
@@ -71,20 +43,20 @@ class propseq(propset):
 	def select (self, fn, *a, **k):
 		"""
 		Argument `fn` is a callable that selects/alters items one at
-		a time. This object's data
+		a time.
 		
-		Returns the resulting list.
+		Returns an object of this type with the new dataset as `self.o`.
 		
 		```
 		from trix.propx import *
 		pl = proplist([1,2,3])
-		pl.select(lambda o: o*9) 
+		pl.select(lambda o: o*9).o
 		```
 		"""
 		r = []
 		for v in self.o:
 			r.append(fn(v, *a, **k))
-		return r
+		return self.T(r)
 
 	
 	
@@ -98,4 +70,20 @@ class propseq(propset):
 			return g.join(self.o)
 		except TypeError:
 			g = glue or b''
-			return g.join(self.o)
+			return propstr(g.join(self.o))
+	
+	
+	def list(self):
+		return proplist(list(self.o))
+	
+	"""
+	def grid(self):
+		try:
+			l = len(self.o[0])
+			self.each(lambda x: assert(len(x)==l))
+			return propgrid(self.o)
+		except BaseException as ex:
+			raise type(ex)(xdata(error='err-grid-fail', reason="not-a-grid"
+					english="Grid rows must be of equal lenght."
+				))
+	"""

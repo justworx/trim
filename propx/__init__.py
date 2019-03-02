@@ -45,9 +45,9 @@ class propbase(object):
 		On all calls, self.__o is returned.
 		
 		REMEMBER:
-		The __call__ method *MUST NOT* be overridden by subclasses unless
-		it's to make necessary subclass-specifi manipulations or additions
-		before calling the `propx.__call__` method.
+		The __call__ method *MUST NOT* be overridden by subclasses except
+		to make necessary subclass-specific manipulations or additions
+		before calling the superclass `__call__` method.
 		"""
 		try:
 			return self.__o
@@ -84,6 +84,13 @@ class propbase(object):
 		"""Returns keyword args given to constructor."""
 		return self.__k
 	
+	@property
+	def T(self):
+		return type(self)
+	
+	@property
+	def To(self):
+		return type(self.o)
 	
 	#
 	# UTILITY
@@ -100,20 +107,17 @@ class propbase(object):
 	
 	# ---- Methods that can handle pretty much any data type -----
 	
-	def param(self, o=None):
-		"""Returns arg `o` or `self.o` wrapped in a Param object."""
-		try:
-			return self.__Param(o or self.o)
-		except:
-			self.__Param = trix.nvalue("data.param", "Param")
-			return self.__Param(o or self.o)
-	
+	#
 	# DISPLAY
+	#
 	def display(self, *a, **k):
 		"""Display using trix.fmt; default: f='JDisplay'"""
 		trix.display(self.o, *a, **k)
 	
+	
+	#
 	# FORMATTING
+	#
 	def json(self, *a, **k):
 		"""
 		Return self.o as json text. Default format is compact json. 
@@ -121,6 +125,18 @@ class propbase(object):
 		"""
 		k.setdefault('f', 'JCompact')
 		return trix.formatter(*a, **k).format(self.o)
+	
+	
+	#
+	# DATA MANIPULATION
+	# 
+	def param(self, o=None):
+		"""Returns arg `o` or `self.o` wrapped in a Param object."""
+		try:
+			return self.__Param(o or self.o)
+		except:
+			self.__Param = trix.nvalue("data.param", "Param")
+			return self.__Param(o or self.o)
 	
 	# CURSOR
 	def cursor(self, **k):
@@ -173,9 +189,11 @@ class propbase(object):
 
 
 #
+#
 # CONVENIENCE
 #  - Easy access to subclasses defined in other modules within
 #    this package.
+#
 #
 
 
@@ -199,10 +217,10 @@ def propx(x, *a, **k):
 	try:
 		if x.__getitem__:
 			try:
-				if x.upper:
-					return trix.ncreate("propx.propseq.propseq", x, *a, **k)
+				if x.encode:
+					return trix.ncreate("propx.propstr.propstr", x, *a, **k)
 			except:
-				return trix.ncreate("propx.propseq.propset", x, *a, **k)
+				return trix.ncreate("propx.propseq.propseq", x, *a, **k)
 	except:
 		pass
 	
