@@ -15,11 +15,9 @@ for manipulation and display of list objects.
 
 The following classes are currently available.
 
- * propbase - a catchall that provides encoding, compression, and
-              display methods. 
+ * propbase - generic encoding, compression, and display methods. 
  * propiter - adds methods suitable to iterable objects
  * propseq  - methods suitable to any sequence item (based on propset) 
-   propset  - read-only methods for tuple and set
  * proplist - methods for list manipulation/display
    propgrid - proplist subclass for list of lists of equal length 
 
