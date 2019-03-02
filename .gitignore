@@ -1,17 +1,5 @@
 
 
-#
-# UNDER CONSTRUCTION
-#
-
-TEST
-TODO
-data/vector/
-data/vector.py
-data/matrix.py
-soxy/
-
-
 
 # these shouldn't be posted with the project
 doc
@@ -28,16 +16,6 @@ bu/
 *.bu.py
 *.bu.md
 
-
-
-#
-# Files/directories marked with 'x' are experimental and/or under
-# construction.
-#
-*.x.*
-*/x/*
-*_x.py
-x_*.py
 
 
 #
