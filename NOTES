@@ -11,6 +11,17 @@ outside util. For now, it's only ok for util modules to import
 from `trix` and `trix.fmt`. I've moved the following from util 
 to `trix.app`: [event, process, jconfig]
 
+#
+# FMT - sigh...
+#
+I'm considering moving fmt to util. I wish I'd put it there in the
+beginning. I'm considering some serious changes to `fmt`. I've 
+recently realized that the Grid and Table classes are misnamed - 
+their names should be switched (which would require careful 
+examination of all code!) They, and List, need a lot of improvements,
+too - all needing a "Cell" system to provide better formatting and 
+more understandable code.
+
 
 
 

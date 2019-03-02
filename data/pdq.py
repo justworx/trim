@@ -50,7 +50,7 @@ class Query(object):
 			self.__data = data
 		
 		# if 'encoding' is specified, decode bytes only
-		if self.__encoding and isinstance(self.__data, pxbytes):
+		if self.__encoding:
 			self.__data = self.__data.decode(self.__encoding)
 		
 		# prep undo
