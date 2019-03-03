@@ -9,10 +9,10 @@ from .. import *
 
 def banner(text):
 	"""Pass text to display in a banner"""
-	print("\n*\n*\n* TESTING: %s\n*" % text)
+	print("\n*\n* TESTING: %s" % text)
 
 def footer():
-	print("* --> OK\n*\n*\n")
+	print("* --> OK\n*\n")
 
 
 banner("Module: `trix`")
