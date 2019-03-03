@@ -108,23 +108,6 @@ class proplist(propseq):
 		return type(self)(r)
 	
 	
-	def update (self, fn, *a, **k):
-		"""
-		Create an updated copy of `self.o` one item at a time and then
-		replace `self.o` with the result. 
-		
-		Returns `self`.
-		
-		```
-		from trix.propx import *
-		pl = proplist(trix.path('trix').grid.)
-		pl.select(lambda o: o*9) 
-		```
-		"""
-		self.o = self.select(fn, *a, **k)
-		return self
-	
-	
 	#
 	#
 	# DISPLAY
@@ -178,7 +161,6 @@ class proplist(propseq):
 #
 #
 # PROP-GRID 
-#  - I'm really starting to regret that whole "header" thing, below.
 #
 #
 # -------------------------------------------------------------------
@@ -194,6 +176,46 @@ class propgrid(proplist):
 	      (list of lists) that's not prepended with column titles.
 	"""
 	
+	def __call__(self, *a, **k):
+		"""
+		The __call__ method overridden to separate the header from the
+		data portion of this grid.
+		
+		When the class is propgrid, all calls to .o are returned from 
+		propgrid.o, and all calls to __call__ are returned from here - 
+		even when it's superclasses (or even subclasses)  making the
+		call - so it's OK to have a different self.__o.
+		"""
+		try:
+			return self.__o
+		except:
+			#
+			# get the grid from the propx.__call__ method, where it will
+			# be created from stored constructor args.
+			#
+			grid = proplist.__call__(self, *a, **k)
+			
+			# now split the grid header from grid data (if necessary)
+			self.__o = grid
+			if self.has_header:
+				self.__o = grid
+				self.__h = self.k.get('header')
+			else:
+				self.__h = grid[0]
+				self.__o = grid[1:]
+				return self.__o
+	
+	
+	@property
+	def gen(self):
+		#
+		# Generates the header row and all data rows.
+		#
+		yield(self.header)
+		for r in self.o:
+			yield(r)
+
+	
 	@property
 	def has_header(self):
 		"""
@@ -205,38 +227,6 @@ class propgrid(proplist):
 		except:
 			self.__hh = bool(self.k.get('header'))
 			return self.__hh
-	
-	@property
-	def o(self):
-		"""
-		Return this property's actual object value, as originally
-		calculated by `self.__call__()`.
-		"""
-		try:
-			return self.__o
-		except:
-			o = self.__call__(*self.a, **self.k)
-			self.__oupdate(o)
-	
-	@o.setter
-	def o(self, grid):
-		"""
-		Set the value of `self.o`. Given `grid` must be a list of lists
-		of equal length, with header row prepended.
-		"""
-		self.__hh = False
-		self.__oupdate(grid)
-	
-	
-	def __oupdate(self, grid):
-		self.__o = grid
-		if self.has_header:
-			self.__o = grid
-			self.__h = self.k.get('header')
-		else:
-			self.__h = grid[0]
-			self.__o = grid[1:]
-			return self.__o
 		
 	
 	@property
@@ -244,12 +234,6 @@ class propgrid(proplist):
 		"""
 		Return a proplist containing grid header (column names).
 		Call as a function to return the header list.
-		
-		```
-		self.header()
-		self.update(lambda x: str(x).upper())
-		
-		```
 		"""
 		try:
 			return proplist(self.__h)  # return that header
@@ -258,19 +242,10 @@ class propgrid(proplist):
 			self.o
 			return proplist(self.__h)
 	
-	@property
-	def gen(self):
-		#
-		# Generates the header row and all data rows.
-		#
-		yield(self.header)
-		for r in self.o:
-			yield(r)
-	
 	
 	def grid(self, *a, **k):
 		"""
-		Display as Grid.
+		Display this data formatted as a grid.
 		
 		Overrides `proplist.grid` to expose the header, which propgrid
 		separates from the data for easier data-manipulation.

@@ -20,10 +20,6 @@ class propseq(propiter):
 	      Whether iterators can be used that way, i'm not sure.
 	"""
 	
-	def __setitem__(self, key, v):
-		self.o[key] = v
-	
-	
 	#
 	# EACH / SELECT
 	#  - Use/selection of `self.o` data

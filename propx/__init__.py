@@ -86,8 +86,10 @@ class propbase(object):
 		try:
 			return self.__o
 		except:
-			self.__o = self.__call__(*self.__a, **self.__k)
-			return self.__o
+			# __call__ sets self.__o
+			return self.__call__(*self.__a, **self.__k)
+			#self.__o = self.__call__(*self.__a, **self.__k)
+			#return self.__o
 	
 	@property
 	def a(self):
