@@ -33,13 +33,24 @@ class Tar(Archive):
 	
 	@property
 	def names(self):
-		"""List names."""
+		"""
+		Member names in a proplist. Call this property as a function to
+		return the list of names. See `trix.propx.proplist` for more
+		options.
+		
+		```
+		arch = trix.path("my_archive.tar.gz")
+		arch.names()                             # returns list
+		arch.wrapper.names.sorted.table(width=2) # displays member paths
+		
+		```
+		"""
 		try:
-			return self.__names
+			return proplist(self.__names)
 		except:
 			with self.archopen('r|*') as f:
 				self.__names = f.getnames()
-			return self.__names
+			return proplist(self.__names)
 	
 	@property
 	def members(self):
