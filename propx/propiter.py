@@ -9,11 +9,11 @@ from . import *
 
 class propiter(propbase):
 	"""
-	Base for iterable subclasses. Pass an iterator or iterable object.
+	Base for iterable subclasses. Pass an iterable object.
 	"""
 	
 	def __iter__(self):
-		"""Return an iterator this object's list."""
+		"""Return an iterator."""
 		return trix.ncreate('util.xiter.xiter', self.o)
 	
 	
