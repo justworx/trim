@@ -81,6 +81,23 @@ class Chain(object):
 		except BaseException as ex:
 			raise type(ex)(xdata(po=self.v, x=x, v=v))
 	
+	def setxx(self, xx, fn, *a, **k):
+		"""
+		Pass a list of item keys (p.i) as `xx`; each item's value is then
+		passed to callable `fn`, the result replacing the corresponding
+		item's current value.
+		
+		```
+		# Change a directory listing's floats to ints (for brevity).
+		dlist = ['trix', 'd', '1551543158.9558208', '1551543136.5832613']
+		p = Param(dlist)
+		p.setxx([2,3], lambda p,x: int(float(p.v[x])))
+		
+		```  
+		"""
+		for x in xx:
+			self.setx(x, fn(self, x, *a, **k))
+	
 	def call(self, fn, *a, **k):
 		"""
 		Same as `proc`, but does not set self.v; Use this (rather than
