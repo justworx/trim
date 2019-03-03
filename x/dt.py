@@ -28,7 +28,8 @@ class dt(object):
 	
 	d = trix.path()
 	d.list.grid()
-	d.select(lambda p: p.set(
+	
+	#d.select(lambda p: p.setxx([2,3], lambda p,x: int(float(p.v[x])))
 	
 	```
 	"""
@@ -46,6 +47,16 @@ class dt(object):
 		else:
 			self.dt = time.time()
 	
+	@property
+	def struct(self):
+		"""Local time - struct."""
+		return time.localtime(self.dt)
+	
+	@property
+	def float(self):
+		"""Local time - struct."""
+		return time.localtime(self.dt)
+		
 	
 	#
 	# local time
