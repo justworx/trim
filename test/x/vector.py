@@ -11,13 +11,5 @@ v = vector({1:11, 4:44})
 assert(v.row == [0, 11, 0, 0, 44])
 assert(v.width == 5)
 
-#
-# This isn't actually in trix.data yet, it's in trix.x - however,
-# I wanted to build the test file while developing the classes.
-#
 
-#
-# ALSO: This filename may change to "matrix.py", or it may become
-#       a `data.matrix` package with various files.
-#
-
+m = matrix([{1:11, 4:44}, {2:22}, {3:33}])
