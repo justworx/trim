@@ -14,8 +14,23 @@ class propbase(object):
 	
 	#
 	# INIT
-	#  - Pass value or callback `o`, plus args/kwargs needed for 
+	#
+	# There are two ways to create any propbase object:
+	#  * Pass value or callback `o`, plus args/kwargs needed for 
 	#    callback.
+	#  * Pass an instance of the object the callback would have created.
+	#
+	#  The reason both these methods are need is that sometimes it's
+	#  more convenient to return a propbase subclass using a property.
+	#  This allows the property to act like a method, returning the
+	#  "normal" expected value, while still allowing the property to
+	#  be called as a property to give access to the extra methods 
+	#  propbase (and subclasses) provide. Eg., see `fs.Dir.list`.
+	#
+	#  ```
+	#  trix.path().list()
+	#  trix.path().list.table(width=3)
+	#  ```
 	#
 	def __init__(self, o=None, *a, **k):
 		"""
@@ -220,6 +235,9 @@ def propx(x, *a, **k):
 				if x.encode:
 					return trix.ncreate("propx.propstr.propstr", x, *a, **k)
 			except:
+				
+				# REM: probably should have "bytes" option here.
+				
 				return trix.ncreate("propx.propseq.propseq", x, *a, **k)
 	except:
 		pass
@@ -230,14 +248,6 @@ def propx(x, *a, **k):
 	except:
 		pass
 	
-	"""
-	try:
-		# untested...
-		if (type(x).__name__ == 'generator'):
-			return trix.ncreate("propx.propiter.propiter",iter(x), *a, **k)
-	except:
-		pass
-	"""
 	
 	# anything else...
 	return propbase(x, *a, **k)
