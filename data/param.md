@@ -74,7 +74,7 @@ p.setx(0, "Hello again,").v    # (append .v to print the result)
 
 ###### Manipulate Each Item
 
-Here's a combination scenerio. The `each` method passes the Param
+Here's a combination scenerio. The `each` method passes `p` the Param
 object and an enumeration of the offset and items of `self.v` so that 
 each item in a list, dict, or sequence of any kind can be operated on 
 individually.
@@ -89,6 +89,32 @@ p.each(lambda p,i,v: p.output([i,v])).null # print each, return None
 
 ```
 
+
+###### Manipulate Portions of Each Item
+
+```python3
+
+from trix.data.param import *
+
+d = trix.path('trix') # create and show a long directory listing
+d.list.grid()         # notice the float time values
+
+for x in d.list[1:]:
+  
+  # get rid of the micro-milli-billi-seconds
+  p = Param(d.list()) 
+  p.setxx([5,6,7], lambda p,x: int(float(p.v[x])))
+  
+
+#
+# Change a directory listing's floats to ints (for brevity).
+dlist = ['trix', 'd', '1551543158.9558208', '1551543136.5832613']
+p = Param(dlist)
+p.setxx([2,3], lambda p,x: int(float(p.v[x])))
+#
+#
+
+```
 
 
 
