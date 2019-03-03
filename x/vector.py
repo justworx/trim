@@ -22,7 +22,7 @@ class vector(object):
 		self.__mx = 0  # current maximum vector length
 		
 		# set nodes values defined in argument dict `x`.
-		self.__v = None
+		self.__v = {}
 		self.set(x)
 		
 	
