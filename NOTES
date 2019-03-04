@@ -1,4 +1,22 @@
 
+I need to create (and implement) some rules regarding writing 
+output. It's going to cause some fairly significant changes in 
+behavior, but that's what rough drafts are for I guess.
+
+Tentative Rules:
+ * output methods rely on util.output and only print output when
+   the Output.paused class variable is set to True. When False
+   any given output is buffered and printed when pause is changed
+   to True.
+ * write always writes immediately to a stream.
+ * display always prints immediately to the terminal... I think.
+
+There are a lot of classes that use these names in various ways.
+I want to edit each of them to make sure they're consistent in
+future versions - and that they each have as many as possible of
+the three output-related terms.
+
+
 
 # -------------------------------------------------------------------
 #
