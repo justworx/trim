@@ -40,13 +40,6 @@ from . import urlinfo
 
 
 
-#
-# END TEST
-#
-print("* Module `trix.util` : OK")
-
-
-
 
 #
 # NOTES:

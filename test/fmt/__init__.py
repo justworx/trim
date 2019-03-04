@@ -20,17 +20,19 @@ assert(expanded_bytes == b"bob's, your, Uncle!")
 
 # JSON
 d = {'a':1, 'b':9, 'c':4}
-k = dict(sort_keys=True)
+k = dict(sort_keys=True) # <------------------------------ SORTED!
 assert(JSON(**k).format(d) == '{"a": 1, "b": 9, "c": 4}')
 assert(JCompact(**k).format(d)=='{"a":1,"b":9,"c":4}')
 
+
 #
 # UNFORTUNATELY...
-# Python 2 and 3 format results slightly differently. We can fix tyis
-# by jparse-ing the results and comparing the dicts... Later...
+#  - This needs a check of python version...
 #
-#assert(JDisplay(**k).format(d)=='{\n  "a": 1,\n  "b": 9,\n  "c": 4\n}')
-
+if sys.version_info[0] == 3:
+	assert(JDisplay(**k).format(d)=='{\n  "a": 1,\n  "b": 9,\n  "c": 4\n}')
+else:
+	assert(JDisplay(**k).format(d)=='{\n  "a": 1, \n  "b": 9, \n  "c": 4\n}')
 
 
 #LIST/GRID/TABLE
@@ -38,10 +40,3 @@ assert(List().format("a b c".split()) == '1  a\n2  b\n3  c')
 assert(Grid().format([[1,2],[3,4]]) == '1  2\n3  4')
 assert(Table(width=2).format([1,2,3,4,5])=='1  2\n3  4\n5   ')
 
-
-
-
-#
-# END TEST
-#
-print("* Module `trix.fmt`  : OK\n")
