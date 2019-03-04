@@ -4,7 +4,7 @@
 # of the GNU Affero General Public License.
 #
 
-
+from ..util.output import *
 from ..util.enchelp import *
 
 
@@ -161,14 +161,16 @@ class Chain(object):
 	
 	def output(self, v=None, *a):
 		"""Print `self.v`; for testing."""
-		print(v if v else self.v, *a)
+		v = v or self.v
+		BaseOutput().output(v%a)
 		return self
+	
 	
 	@property
 	def null(self):
 		"""
 		Tack this method to the end of a chain of calls to return None.
-		Eg., Param(["Hello", "World"]).output().null
+		Eg., Param("Hello, World").output().null
 		"""
 		return None
 
