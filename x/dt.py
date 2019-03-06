@@ -24,12 +24,13 @@ class dt(object):
 			try:
 				self.__time = float(dt)  # int/float
 			except TypeError:
+				self.__struct = dt
 				self.__time = time.mktime(dt) # struct
 		else:
 			self.__time = time.time()
 	
 	@property
-	def time(self):
+	def float(self):
 		"""
 		Time stored in this object, in float seconds (ala time.time()).
 		"""
@@ -40,7 +41,11 @@ class dt(object):
 		"""
 		A DateTime struct created from this object's self.time.
 		"""
-		return time.localtime(self.__time)
+		try:
+			return self.__struct
+		except:
+			self.__struct = time.localtime(self.__time)
+			return self.__struct
 	
 	
 	def format(self, fmt=None):
