@@ -9,7 +9,7 @@ from .. import *
 
 def banner(text):
 	"""Pass text to display in a banner"""
-	print("\n*\n* TESTING: %s" % text)
+	print("*\n* TESTING: %s" % text)
 
 def footer():
 	print("* --> OK\n*\n")
