@@ -38,8 +38,8 @@ class loc(cline):
 		rdict = {}
 		
 		# think about joining all these dicts into one...
-		rdict['sig'] = sig
-		rdict['localeconv'] = locale.localeconv()
+		rdict['locale'] = sig
+		rdict['loconv'] = locale.localeconv()
 		rdict['format'] = {
 			"datetime" : locale.nl_langinfo(locale.D_T_FMT),
 			"date" : locale.nl_langinfo(locale.D_FMT),

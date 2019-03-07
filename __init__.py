@@ -832,15 +832,23 @@ class trix(object):
 		Pass a locale string, eg., "en_US.UTF_8", etc... Returns a new
 		`trix.x.loc` object containing locale format methods and data.
 		"""
-		locmod = trix.module("locale")
-		locstr = locale or ".".join(locmod.getlocale())
-		py_ver = 'python3' if sys.version_info[0]==3 else "python"
-		cline = "%s -m %s loc %s" % (py_ver, cls.innerfpath(), locstr)
+		# default is system default locale
+		if not locale:
+			locale = ".".join(trix.module("locale").getlocale())
 		
-		proc = cls.popen(cline)
-		jsonb = proc.communicate()[0]
-		jsons = jsonb.decode("UTF_8")
-		return trix.ncreate("trix.x.loc.Locale", trix.jparse(jsons))
+		try:
+			# if `locale` already exists in the dict, return it
+			return cls.__dlocale[locale]
+		except KeyError:
+			# if the dict exists but not the locale, create the locale and
+			# then return it.
+			cls.__dlocale[locale] = trix.ncreate("x.loc.Locale", locale)
+			return cls.__dlocale[locale]
+		except AttributeError:
+			# if the locale dict itself does not exist, create it then 
+			# call this method recursively and return the result
+			cls.__dlocale = {}
+			return cls.loc(locale)
 	
 
 
