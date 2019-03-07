@@ -828,6 +828,10 @@ class trix(object):
 	
 	@classmethod
 	def loc(cls, locale=None):
+		"""
+		Pass a locale string, eg., "en_US.UTF_8", etc... Returns a new
+		`trix.x.loc` object containing locale format methods and data.
+		"""
 		locmod = trix.module("locale")
 		locstr = locale or ".".join(locmod.getlocale())
 		py_ver = 'python3' if sys.version_info[0]==3 else "python"
@@ -835,10 +839,8 @@ class trix(object):
 		
 		proc = cls.popen(cline)
 		jsonb = proc.communicate()[0]
-		#j_enc = locmod.nl_langinfo(locale.CODESET)
-		#jsons = jsonb.decode(jsone)
-		jsons = jsonb.decode()
-		return trix.jparse(jsons)
+		jsons = jsonb.decode("UTF_8")
+		return trix.ncreate("trix.x.loc.Locale", trix.jparse(jsons))
 	
 
 

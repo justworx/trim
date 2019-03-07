@@ -1,4 +1,4 @@
-+#
+#
 # Copyright 2019 justworx
 # This file is part of the trix project, distributed under the terms 
 # of the GNU Affero General Public License.
@@ -18,11 +18,28 @@ class loc(cline):
 	"""
 	
 	def __init__(self):
+		
 		cline.__init__(self)
-		locale.setlocale(locale.LC_ALL, self.args[0])
+		
+		xsig = sig = self.args[0]
+		try:
+			LC,Enc = sig.split(".")
+			LS = LC.split("_")
+			LC = "%s_%s" % (LS[0].lower(), LS[1].upper())
+			Enc = trix.ncreate("util.enchelp.EncodingHelper", encoding=Enc)
+			sig = "%s.%s" % (LC, Enc.encoding)
+		except Exception as ex:
+			raise ValueError("Invalid Signature", xdata(pyerr=str(ex),
+					original_signature=xsig, sig=sig
+				))
+		
+		locale.setlocale(locale.LC_ALL, sig)
 		
 		rdict = {}
-		rdict['convert'] = locale.localeconv()
+		
+		# think about joining all these dicts into one...
+		rdict['sig'] = sig
+		rdict['localeconv'] = locale.localeconv()
 		rdict['format'] = {
 			"datetime" : locale.nl_langinfo(locale.D_T_FMT),
 			"date" : locale.nl_langinfo(locale.D_FMT),
@@ -30,25 +47,6 @@ class loc(cline):
 			"ampm" : locale.nl_langinfo(locale.T_FMT_AMPM),
 			"era" : locale.nl_langinfo(locale.ERA)
 		}
-		trix.display()
-
-	#
-	# Formats
-	#  - This section returns format strings
-	#
-	#
-	def datetime(self):
-		"""Localized datetime format string."""
-		return self.info(locale.D_T_FMT)
-	
-	def date(self):
-		"""Localized date format string."""
-		return self.info(locale.D_FMT)
-	
-	def time(self):
-		"""Localized time format string."""
-		return self.info(locale.T_FMT)
-	
-	def ampm(self):
-		"""Localized AM/PM strings."""
-		return self.info(locale.T_FMT_AMPM)
+		
+		trix.display(rdict)
+		
