@@ -395,7 +395,7 @@ class trix(object):
 	
 	# POPEN
 	@classmethod
-	def popen (cls, *a, **k):
+	def popen (cls, cmd, *a, **k):
 		"""
 		Open a subprocess and return a Popen object created with the given
 		args and kwargs. This functions exactly as would calling the popen
@@ -420,7 +420,11 @@ class trix(object):
 		# set defaults and run the process
 		k.setdefault("stdout", m.PIPE)
 		k.setdefault("stderr", m.PIPE)
-		return m.Popen(*a, **k)
+		try:
+			return m.Popen(cmd, *a, **k)
+		except FileNotFoundError:
+			cmd = cmd.split()
+			return m.Popen(cmd, *a, **k)
 	
 	
 	# PROCESS
@@ -803,7 +807,9 @@ class trix(object):
 	
 	
 	
-	# ---- signal management ------------------------------------------
+	
+	
+	# ---- testing - experimental -------------------------------------
 	
 	@classmethod
 	def signals(cls):
@@ -814,15 +820,26 @@ class trix(object):
 			cls.__signals = trix.nvalue("util.signals.Signals")
 			return cls.__signals
 	
-	
-	# ---- testing - experimental -------------------------------------
-	
-	# This belongs with utility methods, if it turns out to be useful.
 	@classmethod
 	def propx(cls, x, *a, **k):
 		"""Return a PropBase subclass suitable to object argument `x`."""
 		return cls.nvalue('propx.propx')(x, *a, **k)
-
+		# This belongs with utility methods.
+	
+	@classmethod
+	def loc(cls, locale=None):
+		locmod = trix.module("locale")
+		locstr = locale or ".".join(locmod.getlocale())
+		py_ver = 'python3' if sys.version_info[0]==3 else "python"
+		cline = "%s -m %s loc %s" % (py_ver, cls.innerfpath(), locstr)
+		
+		proc = cls.popen(cline)
+		jsonb = proc.communicate()[0]
+		#j_enc = locmod.nl_langinfo(locale.CODESET)
+		#jsons = jsonb.decode(jsone)
+		jsons = jsonb.decode()
+		return trix.jparse(jsons)
+	
 
 
 # -------------------------------------------------------------------
@@ -845,6 +862,7 @@ jconfig    = trix.jconfig
 jparse     = trix.jparse
 kcopy      = trix.kcopy
 kpop       = trix.kpop
+loc        = trix.loc
 log        = trix.log
 module     = trix.module
 nconfig    = trix.nconfig
