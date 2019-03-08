@@ -13,8 +13,7 @@ wiki/
 bu
 bu/
 *.bu
-*.bu.py
-*.bu.md
+*.bu.*
 
 
 
