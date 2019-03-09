@@ -812,25 +812,37 @@ class trix(object):
 	# ---- testing - experimental -------------------------------------
 	
 	@classmethod
-	def signals(cls):
-		"""Manage the handling of signals. See `trix.util.signals`."""
-		try:
-			return cls.__signals
-		except:
-			cls.__signals = trix.nvalue("util.signals.Signals")
-			return cls.__signals
-	
-	@classmethod
 	def propx(cls, x, *a, **k):
-		"""Return a PropBase subclass suitable to object argument `x`."""
+		"""
+		EXPERIMENTAL - UNDER CONSTRUCTION - EXPECT CHANGES
+		
+		Pass any object type, or a callable that will produce an object
+		on demand (along with any required args/kwargs). Iterators or 
+		generators, sequences, and lists will return the object wrapped
+		in `propiter`, `propseq`, or `proplist`, respectively. Other 
+		object types will return the default `PropBase` class object.
+		
+		```
+		import trix
+		li = trix.propx([[1,2,3],[4,5,6],[7,8,9]])
+		li.o
+		li()
+		li.grid()
+		help(li) # See object's "help" for more details
+		"""
 		return cls.nvalue('propx.propx')(x, *a, **k)
 		# This belongs with utility methods.
 	
 	@classmethod
 	def loc(cls, locale=None):
 		"""
-		Pass a locale string, eg., "en_US.UTF_8", etc... Returns a new
-		`trix.x.loc` object containing locale format methods and data.
+		EXPERIMENTAL - UNDER CONSTRUCTION - EXPECT SWEEPING CHANGES
+		
+		Pass a locale string, eg., "en_US.UTF_8"; Default is the current
+		system default locale values.
+		
+		Returns a new `trix.x.loc` object containing locale format 
+		methods and data.
 		"""
 		# default is system default locale
 		if not locale:
@@ -850,6 +862,19 @@ class trix(object):
 			cls.__dlocale = {}
 			return cls.loc(locale)
 	
+	@classmethod
+	def signals(cls):
+		"""
+		Manage the handling of signals. See `trix.util.signals`.
+		
+		EXPERIMENTAL - UNDER CONSTRUCTION; ** CURRENTLY BROKEN! **
+		"""
+		try:
+			return cls.__signals
+		except:
+			cls.__signals = trix.nvalue("x.signals.Signals")
+			return cls.__signals
+	
 
 
 # -------------------------------------------------------------------
@@ -863,7 +888,6 @@ class trix(object):
 config     = trix.config
 create     = trix.create
 debug      = trix.debug
-display    = trix.display
 display    = trix.display
 innerpath  = trix.innerpath
 innerfpath = trix.innerfpath
@@ -1122,7 +1146,7 @@ def debug_hook(t, v, tb):
 			
 			# turn off debugging and re-raise the exception
 			debug(False)
-			print ("# - Debug Hook is Disabled.")
+			print ("# - Debug Hook is Disabled.\n#\n")
 			raise
 		finally:
 			if tb:
