@@ -1,0 +1,8 @@
+
+The loc class is changing significantly, so the dt class must
+remain in holding until that's all sorted out.
+
+If the loc changes don't work out, well, we'll see what happens.
+It's pretty clear there's a need for better locale handling than
+that which comes built-in. Hopefully I can come up with something.
+
