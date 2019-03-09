@@ -15,10 +15,13 @@ class propseq(propiter):
 	"""
 	Use this class to wrap objects that implement str, unicode, list, 
 	tuple, bytearray, or buffer.
-	
-	NOTE: I'm not sure, but I think xrange would belong in propiter...
-	      Whether iterators can be used that way, i'm not sure.
 	"""
+	
+	def __getitem__(self, key):
+		return type(self)(self.o[key])
+	
+	def __setitem__(self, key, v):
+		self.o[key] = v
 	
 	#
 	# EACH / SELECT
@@ -69,17 +72,17 @@ class propseq(propiter):
 			return propstr(g.join(self.o))
 	
 	
-	def list(self):
+	def proplist(self):
 		return proplist(list(self.o))
 	
-	"""
-	def grid(self):
-		try:
-			l = len(self.o[0])
-			self.each(lambda x: assert(len(x)==l))
-			return propgrid(self.o)
-		except BaseException as ex:
-			raise type(ex)(xdata(error='err-grid-fail', reason="not-a-grid"
-					english="Grid rows must be of equal lenght."
-				))
-	"""
+	
+	def propgrid(self):
+		return propgrid(self.o)
+		# try:
+			# l = len(self.o[0])
+			# self.each(lambda x: assert(len(x)==l)) # <-- windows blows up
+			# return propgrid(self.o)
+		# except BaseException as ex:
+			# raise type(ex)(xdata(error='err-grid-fail', reason="not-a-grid"
+					# english="Grid rows must be of equal lenght."
+				# ))
