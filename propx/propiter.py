@@ -12,10 +12,26 @@ class propiter(propbase):
 	Base for iterable subclasses. Pass an iterable object.
 	"""
 	
+	def __getitem__(self, key):
+		"""
+		Get a slice of the remaining items.
+		Note that once an item has been passed, it can no longer be 
+		accessed.
+		
+		Repeatedly calling propiter[0] will return items one at at time
+		until the iterator is exhausted.
+		
+		```
+		ii = propiter(iter(range(0,100)))
+		ii[1:5] # [1, 2, 3, 4]
+		ii[95:]
+		"""
+		# this is probably a bad idea...
+		return type(self)(list(self.islice(key.start,key.stop,key.step)))
+	
 	def __iter__(self):
 		"""Return an iterator."""
 		return trix.ncreate('util.xiter.xiter', self.o)
-	
 	
 	@property
 	def gen(self):
@@ -33,7 +49,6 @@ class propiter(propbase):
 		"""Return a proplist with reversed content."""
 		return self.T(reversed(self.o))
 	
-	
 	#
 	# FILTERS THAT CHANGED
 	#  - These filters always behave as though in python3. Even when
@@ -44,7 +59,7 @@ class propiter(propbase):
 	
 	@classmethod
 	def itertool(cls, name):
-		"""Loads the itertools on demand and returns  object `name`."""
+		#Loads the itertools on demand and returns  object `name`.
 		try:
 			return cls.__itools(name)
 		except:
@@ -55,7 +70,7 @@ class propiter(propbase):
 	
 	#
 	# ITER-TOOLS CLASSMETHODS
-	#  - classmethod filters should NOT wrap return value in type(self)
+	#  - classmethod filters must NOT wrap return value in type(self)
 	#
 	
 	@classmethod
@@ -66,7 +81,7 @@ class propiter(propbase):
 			try:
 				cls.__map = cls.itertools('imap') #py 2
 			except:
-				cls.__map = map #py3 `filter`; py2 `itertools.ifilter`
+				cls.__map = map #py3
 			
 			return cls.__map(fn(*a,**k), self.o)
 	
@@ -82,12 +97,12 @@ class propiter(propbase):
 			return cls.__zip(*iterables)
 	
 	
-	#
+	# -----------------------------------------------------------------
 	#
 	# ITER-TOOLS
 	#  - These operate on self *or* given `iterable` object.
 	#
-	#
+	# -----------------------------------------------------------------
 	
 	def filter(self, fn, iterable=None):
 		# Call a filter function that behaves as it would in python3.
@@ -117,27 +132,65 @@ class propiter(propbase):
 	
 	
 	#
-	# As far as I can see, the remaining itertools objects are 
-	# consistent in py2 and py3. If we find anymore, let's append them
-	# to the "FILTERS THAT CHANGED" section above.
+	# I think the rest of the itertools can be included here pretty
+	# cheaply. Going to think about this - maybe later. I have some 
+	# other stuff to figure out first.
 	#
+	"""
+	def accumulate(self, iterable=None, func=operator.add):
+		return self.itertool('accumulate')(iterable or self.o, func)
 	
-	#
-	# I think the above filtering methods could be simplified greatly.
-	# I don't like the way this is done. Have to think about this.....
-	# 
-	# The itertool() classmethod is OK, but everything below it - to
-	# this point, is way overcomplicated. I don't think the likely
-	# number of times each of these would be called warrants the
-	# creation of a new class variable for each method. These objects
-	# will probably turn out to be very shortlived, in most cases.
-	#
-	# It might be interesting, however, to develop a class that handles
-	# this sort of thing - something that could be coded as a property
-	# returning a __call__ method that holds the variable. WAIT... 
-	# don't Loader and NLoader do this? They'd keep the speed of stored
-	# method calls while reducing the code complexity quite well. Maybe
-	# something to consider. The name of the object to load would be
-	# the only real variable in this. OH.. and it's module path.
-	#
+	def chain(self, *iterables):
+		return self.chain(*iterables)
+	
+	def combinations(self, iterable, r):
+		pass
+	
+	def combinations_with_replacement(self, iterable, r):
+		pass
+	
+	def compress(self, data, selectors):
+		pass
+	
+	def count(self, start=0, step=1):
+		pass
+	
+	def cycle(self, iterable):):
+		pass
+	
+	def dropwhile(self, predicate, iterable):
+		pass
+	
+	def groupby(self, iterable, key=None):
+		pass
+	
+	def permutations(self, iterable, r=None):
+		pass
+	
+	def product(self, *iterables, repeat=1):
+		pass
+	
+	def repeat(self, object[, times]):
+		pass
+	
+	def starmap(self, function, iterable):
+		pass
+	
+	def takewhile(self, predicate, iterable):
+		pass
+	
+	def tee(self, iterable, n=2):
+		pass
+	
+	def zip_longest(self, *iterables, fillvalue=None):
+		pass
+	
+	
+	
+	
+	"""
+	
+	
+	
+
 
