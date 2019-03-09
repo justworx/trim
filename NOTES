@@ -1,4 +1,23 @@
 
+
+
+CURRENTLY NEED TO SOLVE
+ * Loc vs Locale
+ * URL.HEAD
+ * SIGNALS
+
+
+
+
+TESTING
+
+Now that I have a Windows pc, test scripts are even more important.
+
+
+
+
+OUTPUT RULES
+
 I need to create (and implement) some rules regarding writing 
 output. It's going to cause some fairly significant changes in 
 behavior, but that's what rough drafts are for I guess.
