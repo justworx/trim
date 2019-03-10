@@ -4,7 +4,7 @@
 # the terms of the GNU Affero General Public License.
 #
 
-import sys, time, traceback, json
+import sys, time, traceback, locale, json
 try:
 	import thread
 except:
@@ -38,6 +38,27 @@ AUTO_DEBUG = True #True/False
 #    'utf_8'.
 #
 DEF_ENCODE = sys.getdefaultencoding() or 'utf_8'
+
+#
+# DEF_LOCALE - Under Construction
+#  - This default locale setting is here for any strange and unusual
+#    cases in which it might need to be switched to a specific value.
+#    The default given here is `None`, which causes trix to use the
+#    locale set as the default for the system on which this software
+#    is running. For most cases, unless you *really* know what you're
+#    doing, it's probably best to leave it set to None.
+#
+#  - IMPORTANT: Many trix features make use of threading, so typically
+#               this value must not change over the life of the 
+#               process. A system for gaining thread-safe access to 
+#               alternate locale data is currently under construction.
+#               Use the trix.loc() method (pass locale signatures 
+#               (Eg., 'en_US.UTF_8') to access alternate locale data
+#               formats. This system is not yet complete, but does
+#               provide for most formatting needs and will continue 
+#               to grow as time passes.
+#
+DEF_LOCALE = None
 
 #
 # DEF_NEWL
@@ -75,8 +96,9 @@ DEF_LOGLET = "./loglet"
 class trix(object):
 	"""Utility, debug, import; object, thread, and process creation."""
 	
-	__m  = __module__
+	__m = __module__
 	__mm = sys.modules
+	__loc = locale.setlocale(locale.LC_ALL, DEF_LOCALE)
 	
 	Logging = 0 #-1=print; 0=None; 1=log-to-file
 	
@@ -833,6 +855,7 @@ class trix(object):
 		return cls.nvalue('propx.propx')(x, *a, **k)
 		# This belongs with utility methods.
 	
+	
 	@classmethod
 	def loc(cls, locale=None):
 		"""
@@ -846,21 +869,23 @@ class trix(object):
 		"""
 		# default is system default locale
 		if not locale:
-			locale = ".".join(trix.module("locale").getlocale())
+			locsig = ".".join(trix.module("locale").getlocale())
 		
 		try:
 			# if `locale` already exists in the dict, return it
-			return cls.__dlocale[locale]
+			return cls.__dlocale[locsig]
 		except KeyError:
 			# if the dict exists but not the locale, create the locale and
 			# then return it.
-			cls.__dlocale[locale] = trix.ncreate("x.loc.Locale", locale)
-			return cls.__dlocale[locale]
+			cls.__dlocale[locsig] = trix.ncreate("x.loc.Locale", locsig)
+			return cls.__dlocale[locsig]
 		except AttributeError:
-			# if the locale dict itself does not exist, create it then 
-			# call this method recursively and return the result
+			# if the locale dict itself does not exist, create it first,
+			# then get and return the `Locale` object.
 			cls.__dlocale = {}
-			return cls.loc(locale)
+			cls.__dlocale[locsig] = trix.ncreate("x.loc.Locale", locsig)
+			return cls.__dlocale[locsig]
+	
 	
 	@classmethod
 	def signals(cls):
