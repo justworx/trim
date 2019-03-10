@@ -191,7 +191,7 @@ class Locale(object):
 		"""
 		locmod = trix.module("locale")
 		locstr = locale or ".".join(locmod.getlocale())
-		py_ver = 'python3' if sys.version_info[0]==3 else "python"
+		py_ver = sys.executable
 		cline = "%s -m %s loc %s" % (py_ver, trix.innerfpath(), locstr)
 		
 		proc = trix.popen(cline)
