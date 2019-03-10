@@ -15,3 +15,18 @@ assert (c.fetch() == [3,4])
 assert (c.fetch.i == 1)
 
 
+
+#
+# Test the `use` kwarg.
+#
+c = Cursor([[1,2], [3,4]], use=lambda p: p.v[0] == 3)
+
+fetched = c.fetch()
+
+assert (fetched != [1,2])
+assert (fetched == [3,4])
+
+
+# need to test each param method next
+
+

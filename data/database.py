@@ -4,13 +4,13 @@
 # the terms of the GNU Affero General Public License.
 # 
 
-
 from .. import *
 
 
 class Database(object):
-	"""Wrapper for DB-API 2.0 database access."""
-	
+	"""
+	Wrapper for DB-API 2.0 database access, plus additional features.
+	"""
 	
 	@classmethod
 	def fetchn(cls, cursor, n=None):
@@ -26,7 +26,6 @@ class Database(object):
 			while n > 0:
 				r.append(cursor.fetchone())
 			return r
-	
 	
 	
 	def __init__(self, conf=None, *a, **k):
@@ -63,14 +62,11 @@ class Database(object):
 		# get the configuration
 		conf = conf or {}
 		try:
+			#
+			# REM: DB path is *NOT* required - some db-api-2 modules don't
+			#      want it!
+			#
 			conf.update(k)
-			"""
-			# this was a mistake.. some dbms don't require a path
-			if not 'path' in conf:
-				raise ValueError('db-init-fail', xdata(detail='path-required',
-						reason='db-path-required', config=conf, k=k, a=a
-					))
-			"""
 			path = conf.get('path')
 		
 		except AttributeError:
@@ -209,8 +205,8 @@ class Database(object):
 		Initialize database using the "create" category of the sql dict
 		defined in config. This category is a list of sql statements
 		intended to define tables and indices, and to populate tables
-		if needed. Also creates a __corectl table with one field whose
-		value is set to the current __corectl version, 3.
+		if needed. Also creates a __meta table with one field whose
+		value is set to the current __meta version, 3.
 		"""
 		cr = self.cat("create")
 		if cr:
@@ -422,5 +418,9 @@ class Database(object):
 		if self.path:
 			d['path'] = self.path
 		return xdata(d, **k)
-
+	
+	
+	# EXPERIMENTAL
+	def master(self, sql, *a, **k):
+		pass
 

@@ -4,7 +4,7 @@
 # of the GNU Affero General Public License.
 #
 
-from .. import *
+from .. import *  # trix
 
 
 def banner(text):
@@ -13,37 +13,4 @@ def banner(text):
 
 def footer():
 	print("* --> OK\n*\n")
-
-
-banner("Module: `trix`")
-from . import trix
-footer()
-
-banner("Package: `app`")
-from . import app
-footer()
-
-banner("Package: `data`")
-from . import data
-footer()
-
-banner("Package: `fmt`")
-from . import fmt
-footer()
-
-banner("Package: `fs`")
-from . import fs
-footer()
-
-banner("Package: `net`")
-from . import net
-footer()
-
-banner("Package: `propx`")
-from . import net
-footer()
-
-banner("Package: `util`")
-from . import util
-footer()
 
