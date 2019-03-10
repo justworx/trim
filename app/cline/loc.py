@@ -27,18 +27,16 @@ class loc(cline):
 		except IndexError:
 			self.sig = '.'.join(locale.getlocale()) # default to System
 		
+		
 		#
 		# SET THE LOCAL
 		#
-		locale.setlocale(self.sig)
+		locale.setlocale(locale.LC_ALL, self.sig)
 		
-		# output value format
-		if 'c' in self.flags:
-			self.rfmt = 'JCompact'
-		else:
-			self.rfmt = 'JDisplay'
+		# output value format/compression
+		self.rfmt = 'JCompact' if 'c' in self.flags else 'JDisplay'
+		#self.rcmp = True if 'x' in self.flags else False
 		
-		# specialized function call - must be compacted
 		if 'currency' in self.kwargs:
 			# TEST
 			k = self.kwargs
@@ -46,7 +44,10 @@ class loc(cline):
 				c = k.get('currency')
 				print (locale.currency(float(c)))
 			
-			#sortlist = trix.jparse(self.arg[0])
+		#elif 'sorted' in self.kwargs:
+		#	c = k.get('sorted')
+		#	sortlist = trix.jparse(c)
+		# ... I don't know how to do this yet ...
 		
 		else:
 			# return locale info dict
