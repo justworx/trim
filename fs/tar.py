@@ -45,27 +45,19 @@ class Tar(Archive):
 		
 		```
 		"""
-		try:
-			return proplist(self.__names)
-		except:
-			with self.archopen('r|*') as f:
-				self.__names = f.getnames()
-			return proplist(self.__names)
+		with self.archopen('r|*') as f:
+			self.__names = f.getnames()
+		return trix.propx(self.__names)
 	
 	@property
 	def members(self):
 		"""Dict with member name : member file info."""
-		try:
-			return self.__members
-		except:
-			rr = {}
-			with self.archopen('r|*') as f:
-				mm = f.getmembers()
-				for m in mm:
-					rr[m.name] = m
-			self.__members = rr
-			return self.__members
-	
+		rr = {}
+		with self.archopen('r|*') as f:
+			mm = f.getmembers()
+			for m in mm:
+				rr[m.name] = m
+			return rr
 	
 	@property
 	def compression(self):

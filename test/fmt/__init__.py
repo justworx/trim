@@ -4,6 +4,10 @@
 # the terms of the GNU Affero General Public License.
 #
 
+
+from .. import *
+
+
 from ...fmt import *
 
 
@@ -16,6 +20,8 @@ assert(compact_bytes == b"eJxLyk9SL9ZRqMwvLdJRCM1LzklVBABAAgZN")
 
 expanded_bytes = f.expand(b"eJxLyk9SL9ZRqMwvLdJRCM1LzklVBABAAgZN")
 assert(expanded_bytes == b"bob's, your, Uncle!")
+
+report("Format: OK")
 
 
 # JSON
@@ -34,9 +40,18 @@ if sys.version_info[0] == 3:
 else:
 	assert(JDisplay(**k).format(d)=='{\n  "a": 1, \n  "b": 9, \n  "c": 4\n}')
 
+report("JSON suite: OK")
+
 
 #LIST/GRID/TABLE
 assert(List().format("a b c".split()) == '1  a\n2  b\n3  c')
 assert(Grid().format([[1,2],[3,4]]) == '1  2\n3  4')
 assert(Table(width=2).format([1,2,3,4,5])=='1  2\n3  4\n5   ')
+
+report("List/Grid/Table: OK")
+
+
+
+
+report("fmt package: OK")
 

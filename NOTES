@@ -1,22 +1,28 @@
 
+# -------------------------------------------------------------------
+#
+# LOTSA PROBLEMS
+#
+# -------------------------------------------------------------------
+
+Finding/Fixing lots of bugs while adding to the test script.
 
 
-CURRENTLY NEED TO SOLVE
- * Loc vs Locale
+...EVENTUALLY NEED TO SOLVE
+ 
+ * THE LOCALE STUFF
  * URL.HEAD
  * SIGNALS
 
 
 
 
-TESTING
 
-Now that I have a Windows pc, test scripts are even more important.
-
-
-
-
-OUTPUT RULES
+# -------------------------------------------------------------------
+#
+# OUTPUT RULES
+#
+# -------------------------------------------------------------------
 
 I need to create (and implement) some rules regarding writing 
 output. It's going to cause some fairly significant changes in 
@@ -34,6 +40,7 @@ There are a lot of classes that use these names in various ways.
 I want to edit each of them to make sure they're consistent in
 future versions - and that they each have as many as possible of
 the three output-related terms.
+
 
 
 

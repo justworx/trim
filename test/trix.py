@@ -4,9 +4,7 @@
 # of the GNU Affero General Public License.
 #
 
-
-# import trix
-from .. import *
+from . import *
 
 
 # Test nmodule() [ + module(), innerpath() ] 

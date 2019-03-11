@@ -4,11 +4,98 @@
 # of the GNU Affero General Public License.
 #
 
+from .. import *
 from ...fs import *
 
+# clear the directory
+for f in test.path().search("*"):
+	test.path(f).wrapper().remove()
 
+
+
+# BZIP
 d = Path(trix.innerpath()).dir()
 assert("LICENSE" in d.ls())
 
+# check path.exists false
+assert (test.path("foo.txt").exists()==False)
 
+# make a file and assert it exists
+w = test.path("foo.txt").wrapper(affirm='touch')
+assert (w.exists() == True)
+
+# write some content and affirm read matches
+T = b"This is a test!\n"
+w.write(T)
+assert (w.read() == T)
+
+# do it again with encoding
+w = test.path("foo.txt").wrapper(affirm='touch', encoding="utf_8")
+T = "This is a test!\n"
+w.write(T)
+assert (w.read() == T)
+
+# now remove the file
+w.remove()
+assert(w.exists()==False)
+
+
+
+# BZIP
+bz = test.path("foo.bz2").wrapper(affirm='touch')
+T = b"B-zip-ity doo dah..."
+bz.write(T)
+assert(bz.read() == T)
+
+bz.remove()
+assert(bz.exists()==False)
+
+
+
+# GZIP
+gz = test.path("foo.gzip").wrapper(affirm='touch', encoding='utf8')
+T = "G-zip-ity doo dah..."
+gz.write(T)
+assert(gz.read() == T)
+
+gz.remove()
+assert(gz.exists()==False)
+
+
+
+# ZIP
+z = test.path("foo.zip").wrapper(affirm='touch')
+M = "testmember"
+T = b"Zip-ity doo dah\nZiping is fun!\n"
+z.write(M, T)
+
+# The content is there before flush but the name isn't because only
+# existing names are read into the names property.
+assert(z.read(M) == T)
+assert(z.names() == [])
+
+z.flush()
+assert(z.read(M) == T)
+assert(z.names() == [M])
+
+z.remove()
+assert(z.exists()==False)
+
+
+
+# TAR.GZ
+t = test.path("foo.tar.gz").wrapper(affirm='touch')
+M = "testmember"
+T = b"I'm gettin' tar'd...\n...of writing test scripts.\n"
+
+t.write(M, T)
+assert(t.read(M) == T)
+assert(t.names() == [])
+
+t.flush()
+assert(t.read(M) == T)
+assert(t.names() == [M])
+
+t.remove()
+assert(t.exists()==False)
 

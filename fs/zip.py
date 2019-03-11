@@ -42,9 +42,11 @@ class Zip(Archive):
 	@property
 	def names(self):
 		"""
-		Member names in a proplist. Call this property as a function to
-		return the list of names. See `trix.propx.proplist` for more
-		options.
+		Member names in a proplist. Returns only the names of members
+		currently existing in the archive.
+		
+		Call this property as a function to return the list of names. 
+		See `trix.propx.proplist` for more calling options.
 		
 		```
 		arch = trix.path("my_archive.zip")
@@ -55,7 +57,8 @@ class Zip(Archive):
 		"""
 		with self.archopen() as z:
 			try:
-				return propx(z.namelist())
+				nlist = z.namelist()
+				return propx(nlist)
 			finally:
 				z.close()
 	

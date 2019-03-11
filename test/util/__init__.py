@@ -5,10 +5,11 @@
 #
 
 
+from .. import *
+
 #
 #	TEST ALL
-#  - Test all available modules from each of the trix
-#    subpackages.
+#  - Test all testable modules from `trix.util`.
 #
 
 #
@@ -21,6 +22,8 @@ from . import convert
 from . import dq
 from . import enchelp
 from . import encoded
+
+report("Testable Util Modules: OK")
 
 
 #
@@ -42,30 +45,47 @@ from . import urlinfo
 
 
 #
-# NOTES:
+# X-ITER
+#  - Testing of this alone is very limited, as its implementation is
+#    typically tied to whatever object it's covering.
+#  - It will certainly be tested with data.scan and udata.query.
 #
-"""
-#
+from ...util.xiter import *
+ii = xiter([1,2])
+assert (ii.next()==1)
+# 
+# try:
+# 	next(ii)
+# except NameError:
+# 	# could be a version of python2 that doesn't support the next(ii)
+# 	# calling convention... I'm not sure about this - I'll have to
+#   # do some checking to see whether all python 2.7 versions support
+#   # it.
+# 
+
 #
 # -------- TEMPORARILY OR PERMANENTLY UN-TESTABLE --------
 #
+# The following can't really be tested, but should be loaded to make
+# sure there are no compile errors.
 #
 
 #
 # UTIL.LOGLET
 #
-from . import loglet
+from ...util import loglet
 
 #
 # UTIL.FORM
 # - I can't think of a way to automatically test Form.
 #
-from . import form
+from ...util import form
 
 #
 # UTIL.NETWORK
 # - I can't think of a way to automatically test this one, either.
 #
+from ...util import network
 
 #
 # UTIL.OPEN 
@@ -74,17 +94,20 @@ from . import form
 #    syntax is 2.7, where `io` is available.
 #  - Need to consider getting rid of util.open.
 #
+from ...util import open
 
 #
 # SAK
 #  - This one's more of a debug tool; something you'd have to eyeball
 #    test, anyway.
 #
+from ...util import sak
 
 #
 # X-INPUT
 #  - Due to its nature, this is not prone to automated testing.
 #
+from ...util import xinput
 
 #
 # X-INSPECT
@@ -92,23 +115,19 @@ from . import form
 #    or vice-versa. Some testing of Wrap/Inspect functionality is
 #    implicit in the util_runner test... it's incomplete, though.
 #
-
-#
-# X-ITER
-#  - Testing of this alone is impossible as its implementation is
-#    tied to whatever object it's covering.
-#  - It will certainly be tested with data.scan and udata.query.
-#
+from ...util import xinspect
 
 #
 # X-JSON
 #  - Too generic and ubiquitous to be "stand-alone" tested.
 #
+from ...util import xjson
 
 #
 # X-QUEUE
 #  - just a simple pair of import statement for py2/3 compatibility.
 #
+from ...util import xqueue
 
 
 #
@@ -121,5 +140,6 @@ from . import form
 #
 
 
-"""
+report("Untestable util modules: Loaded.")
+
 

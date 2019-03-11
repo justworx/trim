@@ -142,6 +142,14 @@ pp.update(lambda x: list(x))
 
 
 
+#### Moving to `trix.util`
+
+Though far from complete, I'm moving `trix.propx` to util and 
+delaying any further development there for now. The classes that
+currently return propx objects will continue to do so, but until
+the current bugs are fixed (and a proper test suite is complete)
+I'll hold off adding anymore to the propx package.
+
 
 
 

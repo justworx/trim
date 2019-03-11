@@ -4,25 +4,45 @@
 # of the GNU Affero General Public License.
 #
 
+from .. import *
+
+
+#
+# --- PREP FOR TESTING --- 
+#
+
 from ...data.database import *
 
-try:
-	trix.path("~/.cache/trix/test/dbtest.sqlite3").wrapper().remove()
-except:
-	pass
+def remove_test_databases():
+	# Remove any existing database test files
+	try:
+		path = testpath("dbtest.sqlite3")
+		trix.path(path).wrapper().remove()
+	except FileNotFoundError:
+		pass
+	except BaseException as ex:
+		raise type(ex)(ex.args, xdata(path=path))
+	
+	try:
+		path = testpath("dbtest2.sqlite3")
+		trix.path(path).wrapper().remove()
+	except FileNotFoundError:
+		pass
+	except BaseException as ex:
+		raise type(ex)(ex.args, xdata(path=path))
 
-try:
-	trix.path("~/.cache/trix/test/dbtest2.sqlite3").wrapper().remove()
-except:
-	pass
 
+# initial cleanup
+remove_test_databases()
 time.sleep(0.1)
 
 
-# --- SIMPLE TEST FIRST ---
+#
+# --- TEST SIMPLE FEATURES ---
+#
 
 # create/open a database
-db1 = Database("~/.cache/trix/test/dbtest.sqlite3")
+db1 = Database(testpath("dbtest.sqlite3"))
 db1.open()
 
 assert(db1.active)
@@ -37,14 +57,14 @@ db1.close()
 assert(db1.active == False)
 
 
+
 # --- TEST COMPLEX FEATURES ---
 
-# test with a config dict
+# test creation of Database with a config dict
 from trix.data.database import *
 
-# test with a config dict
 config = {
-	"path" : "~/.cache/trix/test/dbtest2.sqlite3",
+	"path" : testpath("dbtest2.sqlite3"),
 	"sql" : {
 		"create" : ["create table animals (animal, food)"],
 		"op" : {
@@ -72,22 +92,13 @@ r = sorted(list(c.fetchall()))
 assert(r == [('does', 'oats'),('lambs', 'ivy'),('mares', 'oats')])
 
 
-try:
-	db1.close()
-except:
-	pass
-try:
-	trix.path("~/.cache/trix/test/dbtest.sqlite3").wrapper().remove()
-except:
-	pass
 
-try:
-	db2.close()
-except:
-	pass
-try:
-	trix.path("~/.cache/trix/test/dbtest2.sqlite3").wrapper().remove()
-except:
-	pass
-"""
-"""
+
+#
+# --- CLEANUP, REPORT --- 
+#
+remove_test_databases()
+report("database: OK")
+
+
+

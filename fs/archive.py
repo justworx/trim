@@ -277,7 +277,7 @@ class Archive(FileBase):
 				#  - If there's an older backup file, remove it so we can 
 				#    replace it with the current file.
 				#
-				BACKUP = ".bu.%s" % self.name
+				BACKUP = "%s/.%s.bu" % (Path(TRUEPATH).parent, self.name)
 				x = FileBase(BACKUP)
 				if x.exists():
 					x.remove()
@@ -315,7 +315,13 @@ class Archive(FileBase):
 				self.__writers={}
 				self.__readers={}
 				self.__deleted=[]
-			
+				
+				# Now that there's been no exception, it's time to delete
+				# the backup file.
+				x = FileBase(BACKUP)
+				if x.exists():
+					x.remove()
+				
 			except Exception as ex:
 				#
 				# I'm not too sure what needs to be done in the case of an

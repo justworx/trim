@@ -98,7 +98,7 @@ class trix(object):
 	
 	__m = __module__
 	__mm = sys.modules
-	__loc = locale.setlocale(locale.LC_ALL, DEF_LOCALE)
+	#__loc = locale.setlocale(locale.LC_ALL, DEF_LOCALE)
 	
 	Logging = 0 #-1=print; 0=None; 1=log-to-file
 	
@@ -853,52 +853,53 @@ class trix(object):
 		help(li) # See object's "help" for more details
 		"""
 		return cls.nvalue('propx.propx')(x, *a, **k)
-		# This belongs with utility methods.
+		# This belongs with utility methods, once I'm satisfied it's
+		# quality is OK.
 	
 	
-	@classmethod
-	def loc(cls, locale=None):
-		"""
-		EXPERIMENTAL - UNDER CONSTRUCTION - EXPECT SWEEPING CHANGES
+	#@classmethod
+	#def loc(cls, locale=None):
+		#"""
+		#EXPERIMENTAL - UNDER CONSTRUCTION - EXPECT SWEEPING CHANGES
 		
-		Pass a locale string, eg., "en_US.UTF_8"; Default is the current
-		system default locale values.
+		#Pass a locale string, eg., "en_US.UTF_8"; Default is the current
+		#system default locale values.
 		
-		Returns a new `trix.x.loc` object containing locale format 
-		methods and data.
-		"""
-		# default is system default locale
-		if not locale:
-			locsig = ".".join(trix.module("locale").getlocale())
+		#Returns a new `trix.x.loc` object containing locale format 
+		#methods and data.
+		#"""
+		## default is system default locale
+		#if not locale:
+			#locsig = ".".join(trix.module("locale").getlocale())
 		
-		try:
-			# if `locale` already exists in the dict, return it
-			return cls.__dlocale[locsig]
-		except KeyError:
-			# if the dict exists but not the locale, create the locale and
-			# then return it.
-			cls.__dlocale[locsig] = trix.ncreate("x.loc.Locale", locsig)
-			return cls.__dlocale[locsig]
-		except AttributeError:
-			# if the locale dict itself does not exist, create it first,
-			# then get and return the `Locale` object.
-			cls.__dlocale = {}
-			cls.__dlocale[locsig] = trix.ncreate("x.loc.Locale", locsig)
-			return cls.__dlocale[locsig]
+		#try:
+			## if `locale` already exists in the dict, return it
+			#return cls.__dlocale[locsig]
+		#except KeyError:
+			## if the dict exists but not the locale, create the locale and
+			## then return it.
+			#cls.__dlocale[locsig] = trix.ncreate("x.loc.Locale", locsig)
+			#return cls.__dlocale[locsig]
+		#except AttributeError:
+			## if the locale dict itself does not exist, create it first,
+			## then get and return the `Locale` object.
+			#cls.__dlocale = {}
+			#cls.__dlocale[locsig] = trix.ncreate("x.loc.Locale", locsig)
+			#return cls.__dlocale[locsig]
 	
 	
-	@classmethod
-	def signals(cls):
-		"""
-		Manage the handling of signals. See `trix.util.signals`.
+	#@classmethod
+	#def signals(cls):
+		#"""
+		#Manage the handling of signals. See `trix.util.signals`.
 		
-		EXPERIMENTAL - UNDER CONSTRUCTION; ** CURRENTLY BROKEN! **
-		"""
-		try:
-			return cls.__signals
-		except:
-			cls.__signals = trix.nvalue("x.signals.Signals")
-			return cls.__signals
+		#EXPERIMENTAL - UNDER CONSTRUCTION; ** CURRENTLY BROKEN! **
+		#"""
+		#try:
+			#return cls.__signals
+		#except:
+			#cls.__signals = trix.nvalue("x.signals.Signals")
+			#return cls.__signals
 	
 
 
@@ -921,7 +922,7 @@ jconfig    = trix.jconfig
 jparse     = trix.jparse
 kcopy      = trix.kcopy
 kpop       = trix.kpop
-loc        = trix.loc
+#loc        = trix.loc
 log        = trix.log
 module     = trix.module
 nconfig    = trix.nconfig
@@ -936,7 +937,7 @@ popen      = trix.popen
 process    = trix.process
 proxify    = trix.proxify
 propx      = trix.propx
-signals    = trix.signals
+#signals    = trix.signals
 start      = trix.start
 tracebk    = trix.tracebk
 trixc      = trix.trixc
