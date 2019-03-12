@@ -16,10 +16,9 @@ class test(object):
 		p = trix.path(TEST_DIR)
 		return p(testpath) if testpath else p
 
-
 # test file path
 def testpath(testpath):
-	"""For creation of files within a test directory."""
+	#For creation of files within a test directory.
 	return trix.path(TEST_DIR)(testpath).path
 
 

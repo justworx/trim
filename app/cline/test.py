@@ -9,10 +9,9 @@ from . import *
 
 class test(cline):
 	"""
-	Run basic compilation test.
+	Tests until error is encountered. No error means no problems!
 	
-	Loads all modules and prints a report listing modules and a brief
-	error message, if any.
+	NOTE: This test suite is incomplete!
 	"""
 	def __init__(self):
 		cline.__init__(self)

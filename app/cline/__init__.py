@@ -13,6 +13,20 @@ class cline(object):
 	
 	@classmethod
 	def handle(cls):
+		"""
+		The trix.__main__.py module calls cline handle to create the
+		proper command-line handler, which will automatically perform
+		its task immediately.
+		
+		If you're trying to track down a bug, your next step is probably
+		to open the module (within the cline directory) that has the same
+		module and class name as the command being executed. 
+		
+		NOTE: Every cline class name matches its module name, so the 
+		      last two items in the "ncreate" method's argument match. 
+		      EG., app.cline.test.test, app.cline.http.http, etc...
+		
+		"""
 		cls.app = sys.argv[0]
 		cls.cmd = sys.argv[1] if len(sys.argv) > 1 else ''
 		if cls.cmd:

@@ -8,14 +8,17 @@ from .. import *
 from ...fs import *
 
 # clear the directory
-for f in test.path().search("*"):
-	test.path(f).wrapper().remove()
+for f in trix.path(TEST_DIR).search():
+	trix.path(f).wrapper().remove()
 
 
-
-# BZIP
+# TXT
 d = Path(trix.innerpath()).dir()
-assert("LICENSE" in d.ls())
+try:
+	assert("LICENSE" in d.ls())
+except:
+	raise Exception("Trix Package LICENSE file is missing!")
+
 
 # check path.exists false
 assert (test.path("foo.txt").exists()==False)
@@ -98,4 +101,5 @@ assert(t.names() == [M])
 
 t.remove()
 assert(t.exists()==False)
+
 
