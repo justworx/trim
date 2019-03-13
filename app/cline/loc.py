@@ -4,12 +4,12 @@
 # of the GNU Affero General Public License.
 #
 
-from . import *
 import locale
+from .cix import *
 
-class loc(cline):
+class loc(cix): #loc(cline):
 	"""
-	Return a locale conversion dict for the given language.
+	Return a locale conversion dict for the given language. (*nix only)
 	
 	```
 	python3 -m trix loc en_CA.UTF_8
@@ -21,7 +21,8 @@ class loc(cline):
 		"""Handle loc requests."""
 		
 		# create object base, and self.sig signature (Eg., "en_US.utf_8")
-		cline.__init__(self)
+		#cline.__init__(self)
+		cix.__init__(self)
 		try:
 			self.sig = self.args[0]
 		except IndexError:
@@ -34,7 +35,7 @@ class loc(cline):
 		locale.setlocale(locale.LC_ALL, self.sig)
 		
 		# output value format/compression
-		self.rfmt = 'JCompact' if 'c' in self.flags else 'JDisplay'
+		self.rfmt = 'JCompact' if ('c' in self.flags) else 'JDisplay'
 		#self.rcmp = True if 'x' in self.flags else False
 		
 		if 'currency' in self.kwargs:
@@ -89,7 +90,7 @@ class loc(cline):
 		rdict['ERA_D_FMT'] = locale.nl_langinfo(locale.ERA_D_FMT)
 		rdict['ERA_T_FMT'] = locale.nl_langinfo(locale.ERA_T_FMT)
 		
-		trix.display(rdict, f=self.rfmt)
+		self.display(rdict, f=self.rfmt)
 	
 	
 	# -----------------------------------------------------------------

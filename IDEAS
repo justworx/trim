@@ -1,0 +1,18 @@
+	
+For trix.trix:
+
+	@classmethod
+	def cline(self, exc_path, *a, **k):
+		"""
+		This classmethod is intended to generate correct command line for
+		the current python version to call the trix.app.cline command line
+		handlers and receive their response using `trix.popen()`.
+		
+		Pass the executable file path.
+		
+		Any args/kwargs are translated to value indicators recognized by
+		`trix.app.cline` and its subclasses. If you're calling native 
+		system apps/scripts, you must pass any arguments as part of the
+		`exc_path` string.
+		"""
+		
