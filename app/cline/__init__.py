@@ -73,4 +73,14 @@ class cline(object):
 			else:
 				self.args.append(a)
 		
-		return
+		#DBG print (str(seelf.args), str(self.flags), str(self.kwargs))
+	
+	
+	def write(self, result):
+		print (result)
+	
+	
+	def display(self, result, *a, **k):
+		trix.display(result, *a, **k)
+
+

@@ -4,17 +4,20 @@
 # the terms of the GNU Affero General Public License.
 #
 
-from . import *
+from .cix import *
 import time
 
-class portscan(cline):
-	"""
-	Scan local ports. This may take several seconds.
-	"""
+
+class portscan(cix):
+	"""Scan local ports. This may take several seconds."""
+	
 	def __init__(self):
+		cix.__init__(self)
+		
 		t = time.time()
-		print ("Scanning local ports...")
 		n = trix.ncreate('util.network.Host')
 		r = n.portscan() 
-		trix.display(r)
-		print ("scan-time:", time.time()-t)
+		self.display({
+			'active-ports' : r,
+			'scan-time:'   : time.time()-t
+		})

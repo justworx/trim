@@ -16,6 +16,35 @@ Finding/Fixing lots of bugs while adding to the test scripts.
 
 
 
+#
+# WINDOWS PROBLEMS
+#
+
+I've recently gotten my old Windows PC running and started testing
+trix there. Here are some notes to follow when coding:
+
+ * There can be only one locale set on Windows. Even in subprocesses
+   you can't `setlocale()` to anything but the locale selected in
+   Windows' systen preferences.
+   
+   Even if this is no longer true, there are probably lots of older 
+   PCs still in use. I don't see the profit (for MS) in fixing this
+   deficiency, so I'll assume for now it hasn't (and never will) 
+   change.
+ 
+ * Don't put `assert` in a lambda. It causes an exception on Windows.
+   I'll have to find another way around this - haven't thought about 
+   how to do it yet.
+   
+ * There's some quirk - maybe in method inherritance? - that causes
+   `trix.test.test.path()` to return paths incorrectly. I'll have to
+   investigate that further (after this headache goes away).
+
+The above list is from only a few minutes of testing. I can't imagine
+what I'm going to face when I jump into it seriously. I may just have
+to present trix as a linux-only app. Guess we'll see.
+
+
 
 
 # -------------------------------------------------------------------
@@ -29,12 +58,12 @@ output. It's going to cause some fairly significant changes in
 behavior, but that's what rough drafts are for I guess.
 
 Tentative Rules:
- * output methods rely on util.output and only print output when
-   the Output.paused class variable is set to True. When False
+ * `output` methods rely on util.output and only print output when
+   the Output.paused class variable is set to False. When paused,
    any given output is buffered and printed when pause is changed
-   to True.
- * write always writes immediately to a stream.
- * display always prints immediately to the terminal... I think.
+   to False.
+ * `write` always writes immediately to a stream.
+ * `display` always prints immediately to the terminal... I think.
 
 There are a lot of classes that use these names in various ways.
 I want to edit each of them to make sure they're consistent in
@@ -82,7 +111,7 @@ project is going to take a long time to finish.
 You can run the test using python 2 or 3. Eg.,
 ```
 python3
-import trix.test
+import trix.test.testall
 
 ```
 
