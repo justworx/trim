@@ -50,6 +50,15 @@ except ImportError:
 
 
 
+# ------------------------------------------------------------------
+#
+#
+# FUNCTIONS
+#
+#
+# ------------------------------------------------------------------
+
+
 def parse(url, **k):
 	"""Parse url and return urlinfo object."""
 	try:
@@ -58,10 +67,6 @@ def parse(url, **k):
 		from . import urlinfo
 		return urlinfo.urlinfo(url, **k)
 
-
-#
-# FUNCTIONS
-#
 
 def open(url, *a, **k):
 	"""
@@ -76,23 +81,115 @@ def open(url, *a, **k):
 
 def head(url):
 	"""
-	Returns a UResponse with just the head for the given url.
+	Returns a HResponse with just the head for the given url.
 	
 	from net import url
 	h = url.head(someUrl)
-	print (h.info())
+	trix.display( h.info() )
 	"""
-	request = Request(url)
-	request.get_method = lambda : 'HEAD'
-	return UResponse(request)
+	#request = Request(url)
+	#request.get_method = lambda : 'HEAD'
+	return HResponse(url)
+
+
+
+
+
+# ------------------------------------------------------------------
+#
+#
+# RESPONSE OBJECTS
+#
+#
+# ------------------------------------------------------------------
+
+
+#
+# SHARED RESPONSE DATA ACCESS (Request and Head responses)
+#
+class ResponseInfo(object):
+	
+	def __init__(self, info):
+		self.__info = info
+	
+	# INFO
+	def info(self):
+		"""Message objects, as returned by python's urlopen()."""
+		try:
+			return self.__info
+		except:
+			self.__info = self.__file.info()
+			return self.__info
+	
+	
+	# INFO PROPERTIES
+	@property
+	def contenttype(self):
+		"""The content type, as given by 'info'."""
+		return MessageMerge.contenttype(self.info())
+	
+	@property
+	def contentenc(self):
+		"""..."""
+		return MessageMerge.contentenc(self.info())
+	
+	@property
+	def maintype(self):
+		"""The main type, as given by 'info'."""
+		return MessageMerge.maintype(self.info())
+	
+	@property
+	def subtype(self):
+		"""The sub-type, as given by 'info'."""
+		return MessageMerge.subtype(self.info())
+	
+	# PARAM
+	def param(self, name):
+		"""Param, as from the info Message object."""
+		return MessageMerge.param(self.info(), name)
+	
+	
+	# GET URL
+	def geturl(self):
+		"""The actual URL of the resource retrieved."""
+		return self.__file.geturl()
+	
+	# GET CODE
+	def getcode(self):
+		"""Response code."""
+		return self.__file.getcode()
+	
+	# DISPLAY
+	def display(self):
+		"""Print r.info()"""
+		print (str(self.info()))
+	
 
 
 
 #
-# URL - DOWNLOAD
+# HEAD RESPONSE
 #
+class HResponse(ResponseInfo):
+	
+	def __init__(self, *a, **k):
+		"""Arguments are the same as for urllib.urlopen()"""
+		
+		q = Request(*a)
+		if k:
+			for header in k:
+				q.add_header(header, k[header])
+		
+		ResponseInfo.__init__(self, urlopen(q).info())
+		
+	
 
-class UResponse(object):
+
+
+#
+# FULL REQUEST RESPONSE - (Both info and data access)
+#
+class UResponse(ResponseInfo):
 	"""Response object for the url.open() function."""
 	
 	MxEncSeek = 16384
@@ -110,6 +207,9 @@ class UResponse(object):
 		
 		self.__file = urlopen(q)
 		self.__info = self.__file.info()
+		
+		# pass info to ResponseInfo superclass
+		ResponseInfo.__init__(self, self.__info)
 		
 		# buffer type
 		TBuffer = trix.nvalue('util.stream.buffer.Buffer')
@@ -174,31 +274,9 @@ class UResponse(object):
 	
 	
 	@property
-	def contenttype(self):
-		"""The content type, as given by 'info'."""
-		return MessageMerge.contenttype(self.info())
-	
-	@property
-	def contentenc(self):
-		"""..."""
-		return MessageMerge.contentenc(self.info())
-	
-	@property
-	def maintype(self):
-		"""The main type, as given by 'info'."""
-		return MessageMerge.maintype(self.info())
-	
-	@property
-	def subtype(self):
-		"""The sub-type, as given by 'info'."""
-		return MessageMerge.subtype(self.info())
-	
-	@property
 	def charset(self):
 		"""Return the document's encoding."""
 		return self.__charset
-		
-	
 	
 	# READER
 	def reader(self, **k):
@@ -206,35 +284,5 @@ class UResponse(object):
 		if self.__charset:
 			k.setdefault('encoding', self.__charset)
 		return self.__buf.reader(**k)
-	
-	# DISPLAY
-	def display(self):
-		"""Print r.info()"""
-		print (str(self.info()))
-	
-	
-	# GET URL
-	def geturl(self):
-		"""The actual URL of the resource retrieved."""
-		return self.__file.geturl()
-	
-	# GET CODE
-	def getcode(self):
-		"""Response code."""
-		return self.__file.getcode()
-	
-	# INFO
-	def info(self):
-		"""Message objects, as returned by python's urlopen()."""
-		try:
-			return self.__info
-		except:
-			self.__info = self.__file.info()
-			return self.__info
-	
-	# PARAM
-	def param(self, name):
-		"""Param, as from the info Message object."""
-		return MessageMerge.param(self.info(), name)
 
 
