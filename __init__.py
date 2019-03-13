@@ -830,8 +830,41 @@ class trix(object):
 	
 	
 	
-	
 	# ---- testing - experimental -------------------------------------
+	
+	
+	@classmethod
+	def signals(cls, ):
+		"""
+		EXPERIMENTAL - TESTING
+		
+		Manage the handling of signals. 
+		* Call classmethod `add` passing int `signal` and a function,
+		  method, or other callable to be triggered when the specified
+		  `signal` is detected.
+		* Use classmethod `rmv` to remove the signal when the target 
+		  should no longer receive notification of this signal.
+		
+		```
+		def on_interrupt(signum, stackframe):
+			print ("Signal %i!" % signum)
+		
+		SIGINT = 2
+		trix.signals().add(SIGINT, lambda i,sf: on_interrupt(i,sf))
+			
+		```
+		
+		See `trix.util.signals` for more information.
+		
+		URGENT: SIGNALS MUST BE ADDED *ONLY* FROM THE MAIN THREAD!
+		"""
+		try:
+			return cls.__signals
+		except:
+			cls.__signals = trix.nvalue("x.signals.Signals")
+			return cls.__signals
+	
+	
 	
 	@classmethod
 	def propx(cls, x, *a, **k):
@@ -850,6 +883,7 @@ class trix(object):
 		li.o
 		li()
 		li.grid()
+		
 		help(li) # See object's "help" for more details
 		"""
 		return cls.nvalue('propx.propx')(x, *a, **k)
@@ -887,20 +921,6 @@ class trix(object):
 			#cls.__dlocale[locsig] = trix.ncreate("x.loc.Locale", locsig)
 			#return cls.__dlocale[locsig]
 	
-	
-	#@classmethod
-	#def signals(cls):
-		#"""
-		#Manage the handling of signals. See `trix.util.signals`.
-		
-		#EXPERIMENTAL - UNDER CONSTRUCTION; ** CURRENTLY BROKEN! **
-		#"""
-		#try:
-			#return cls.__signals
-		#except:
-			#cls.__signals = trix.nvalue("x.signals.Signals")
-			#return cls.__signals
-	
 
 
 # -------------------------------------------------------------------
@@ -937,7 +957,7 @@ popen      = trix.popen
 process    = trix.process
 proxify    = trix.proxify
 propx      = trix.propx
-#signals    = trix.signals
+signals    = trix.signals
 start      = trix.start
 tracebk    = trix.tracebk
 trixc      = trix.trixc
