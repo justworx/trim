@@ -22,103 +22,6 @@ class proplist(propseq):
 	for manipulation and display.
 	"""
 	
-	@property
-	def sorted(self):
-		"""
-		Return a proplist with sorted content.
-		"""
-		return type(self)(sorted(self.o))
-	
-	@property
-	def reversed(self):
-		"""Return a proplist with reversed content."""
-		return type(self)(reversed(self.o))
-	
-	@property
-	def lines(self):
-		"""Generate string items (lines)."""
-		for line in self.o:
-			yield (str(line))
-	
-	
-	#
-	#
-	# SIMPLE - iterators, data values
-	#
-	#
-	def filter(self, fn, *a, **k):
-		"""
-		Pass callable `fn` that returns False for items that should not
-		be selected. Optional args/kwargs are received by fn.
-		
-		Returns filter object.
-		"""
-		return filter(fn, self.o, *a, **k)
-	
-	
-	def filtered(self, fn, *a, **k):
-		"""
-		Return a proplist containing results filtered by function `fn`.
-		
-		```
-		d = trix.path('~').dir()
-		d.list.filtered(lambda x: x[1]=='f').o
-		```
-		"""
-		return proplist(list(self.filter(fn,*a,**k)))
-	
-	
-	#
-	#
-	# COMPLEX - Use, select, and manipulate list data.
-	#
-	#	
-	def each (self, fn, *a, **k):
-		"""
-		Argument `fn` is a callable that operates on items from `self.o` 
-		in place, one item at a time. 
-		
-		Returns `self`.
-		"""
-		for v in self.o:
-			fn(v, *a, **k)
-		return self
-	
-	
-	def select (self, fn, *a, **k):
-		"""
-		Argument `fn` is a callable that selects/alters  items one at a 
-		time, storing them in an xprop wrapper and returning the result.
-		
-		```
-		from trix.propx import *
-		pl = proplist([1,2,3])
-		pl.select(lambda o: o*9) 
-		```
-		"""
-		r = []
-		for v in self.o:
-			r.append(fn(v, *a, **k))
-		return type(self)(r)
-	
-	
-	def update (self, fn, *a, **k):
-		"""
-		Create an updated copy of `self.o` one item at a time and then
-		replace `self.o` with the result. 
-		
-		Returns `self`.
-		
-		```
-		from trix.propx import *
-		pl = proplist(trix.path('trix').grid.)
-		pl.select(lambda o: o*9) 
-		```
-		"""
-		self.o = self.select(fn, *a, **k)
-		return self
-	
-	
 	#
 	#
 	# DISPLAY
@@ -203,7 +106,8 @@ class propgrid(proplist):
 	
 	@property
 	def o(self):
-		# ~ Override default `self.o` to reflect value custom to this class.
+		# Override default `self.o` to reflect value custom to this 
+		# class. That is, the header in grids.
 		try:
 			return self.__o
 		except:

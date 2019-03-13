@@ -49,6 +49,37 @@ class propiter(propbase):
 		"""Return a proplist with reversed content."""
 		return self.T(reversed(self.o))
 	
+	def each (self, fn, *a, **k):
+		"""
+		Argument `fn` is a callable that operates on items from `self.o` 
+		in place, one item at a time. 
+		
+		Returns `self`.
+		"""
+		for v in self.o:
+			fn(v, *a, **k)
+		return self
+	
+	
+	def select (self, fn, *a, **k):
+		"""
+		Argument `fn` is a callable that selects/alters  items one at a 
+		time, storing them in an xprop wrapper and returning the result.
+		
+		```
+		from trix.propx import *
+		pl = proplist([1,2,3])
+		pl.select(lambda o: o*9) 
+		```
+		"""
+		r = []
+		for v in self.o:
+			r.append(fn(v, *a, **k))
+		return type(self)(r)
+	
+	
+	
+	
 	#
 	# FILTERS THAT CHANGED
 	#  - These filters always behave as though in python3. Even when
@@ -68,6 +99,8 @@ class propiter(propbase):
 			cls.__itools = cls.__wrap(itertools)
 			return cls.__itools(name)
 	
+	
+	
 	#
 	# ITER-TOOLS CLASSMETHODS
 	#  - classmethod filters must NOT wrap return value in type(self)
@@ -83,7 +116,7 @@ class propiter(propbase):
 			except:
 				cls.__map = map #py3
 			
-			return cls.__map(fn(*a,**k), self.o)
+			return propx(cls.__map(fn(*a,**k), self.o))
 	
 	@classmethod
 	def zip(cls, *iterables):
@@ -97,6 +130,7 @@ class propiter(propbase):
 			return cls.__zip(*iterables)
 	
 	
+	
 	# -----------------------------------------------------------------
 	#
 	# ITER-TOOLS
@@ -108,15 +142,16 @@ class propiter(propbase):
 		# Call a filter function that behaves as it would in python3.
 		try:
 			iterable = iterable or self.o
-			return self.T(type(iterable)(self.__filter(fn, iterable)))
+			#return self.T(type(iterable)(self.__filter(fn, iterable)))
+			return propx(self.To(self.__filter(fn, iterable)))
 		except AttributeError:
 			try:
 				self.__filter = self.itertools('ifilter') #py 2
 			except:
-				self.__filter = filter #py3 `filter` = py2 `itertools.filter`
+				self.__filter = filter #py3.filter == py2.itertools.ifilter
 			
-			return self.T(type(iterable)(self.__filter(fn, iterable)))
-			#return self.T(self.__filter(fn, iterable or self.o))
+			#return self.T(type(iterable)(self.__filter(fn, iterable)))
+			return propx(self.To(self.__filter(fn, iterable or self.o)))
 	
 	
 	def filterfalse(self, fn, iterable=None):
@@ -131,52 +166,94 @@ class propiter(propbase):
 			return self.T(type(iterable)(self.__filterfalse(fn, iterable)))
 	
 	
-	#
-	# I think the rest of the itertools can be included here pretty
-	# cheaply. Going to think about this - maybe later. I have some 
-	# other stuff to figure out first.
-	#
-	"""
-	def accumulate(self, iterable=None, func=operator.add):
-		return self.itertool('accumulate')(iterable or self.o, func)
 	
+	#
+	# Here are some methods that accept optional `*iterables` or None,
+	# which defaults to the iterable being `self.o`.
+	#
 	def chain(self, *iterables):
-		return self.chain(*iterables)
+		"""
+		Pass one or more iterables to chain together. If no iterables 
+		are given, any lists within self.o are chained.
+		"""
+		itrs = iterables or self.o
+		return self.itertool('chain')(*itrs)
 	
-	def combinations(self, iterable, r):
+	def cycle(self, iterable=None):
+		"""Cycle through `iterable`, if given, else `self.o`."""
+		return self.itertool('chain')(iterable or self.o)
+	
+	
+	
+	#
+	# For the rest here, the first argument is always a function (or
+	# some kind of scalar argument) while the second argument is always
+	# an optional iterable with default being `self.o`, making for a
+	# lot of extended functionality to propseq and proplist.
+	#
+	
+	def accumulate(self, fn=None, iterable=None):
+		fn = fn or trix.module('operator').add
+		return self.itertool('accumulate')(iterable or self.o, fn)
+	
+	
+	def dropwhile(self, fn, iterable=None):
+		return self.itertool('dropwhile')(iterable or self.o, fn)
+	
+	
+	def permutations(self, r, iterator=None):
+		"""
+		Pass r-length (and, optionally, an iterator to replace `self.o`).
+		"""
+		return self.itertool('permutations', r, iterable or self.o)
+	
+	
+	
+	
+	def starmap(self, fn, iterable=None):
+		"""
+		Pass a function to receive arguments. This will fail if self.o 
+		(or replacement `iterable`) doesn't produce tuples.
+		"""
+		return self.itertool('permutations', r, iterable or self.o)
 		pass
 	
-	def combinations_with_replacement(self, iterable, r):
-		pass
 	
-	def compress(self, data, selectors):
-		pass
+	def takewhile(self, fn, iterable=None):
+		return self.itertool('takewhile', fn, iterable or self.o)
 	
-	def count(self, start=0, step=1):
-		pass
 	
-	def cycle(self, iterable):):
-		pass
 	
-	def dropwhile(self, predicate, iterable):
-		pass
-	
+	"""
+	#
+	# I don't understand this one - need to work on it a bit
+	#
 	def groupby(self, iterable, key=None):
 		pass
 	
-	def permutations(self, iterable, r=None):
-		pass
 	
-	def product(self, *iterables, repeat=1):
-		pass
 	
+	#
+	# I'm not too sure how to implement these for propiter. I'll have
+	# to think about it for a while.
+	#
+	
+	def product(self, repeat=1, *iterables):
+		#	
+		#	product('ABCD', 'xy') --> Ax Ay Bx By Cx Cy Dx Dy
+		#	product(range(2), repeat=3) --> 000 001 010 011 100 101 110 111
+		#	
+		#	Pass integer `repeat`.... then what? How would this apply to
+		#	the propiter class?
+		#
+		pass
+
 	def repeat(self, object[, times]):
-		pass
-	
-	def starmap(self, function, iterable):
-		pass
-	
-	def takewhile(self, predicate, iterable):
+		#
+		# How to use this when `object` is an iterator? Maybe this one
+		# could go into propseq or proplist. Maybe some of the others
+		# here, too, could belong to propseq.
+		#
 		pass
 	
 	def tee(self, iterable, n=2):
@@ -185,12 +262,20 @@ class propiter(propbase):
 	def zip_longest(self, *iterables, fillvalue=None):
 		pass
 	
+	def combinations(self, iterable, r):
+		pass
+	
+	def combinations_with_replacement(self, iterable, r):
+		pass
 	
 	
 	
+	#
+	# I don't think i'll include this one - it's not really applicable
+	# to this class.
+	#
+	def count(self, start=0, step=1):
+		pass
 	"""
-	
-	
-	
 
 

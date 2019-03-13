@@ -17,46 +17,32 @@ class propseq(propiter):
 	tuple, bytearray, or buffer.
 	"""
 	
+	# Replace iter's weird getitem method with something appropriate
+	# to sequence objects.
 	def __getitem__(self, key):
 		return type(self)(self.o[key])
 	
 	def __setitem__(self, key, v):
 		self.o[key] = v
 	
-	#
-	# EACH / SELECT
-	#  - Use/selection of `self.o` data
-	#
-	def each (self, fn, *a, **k):
-		"""
-		Argument `fn` is a callable that operates on items from `self.o` 
-		in place, one item at a time. 
-		
-		Returns `self`.
-		"""
-		for v in self.o:
-			fn(v, *a, **k)
-		return self
 	
+	@property
+	def sorted(self):
+		"""
+		Return a proplist with sorted content.
+		"""
+		return type(self)(sorted(self.o))
 	
-	def select (self, fn, *a, **k):
-		"""
-		Argument `fn` is a callable that selects/alters items one at
-		a time.
-		
-		Returns an object of this type with the new dataset as `self.o`.
-		
-		```
-		from trix.propx import *
-		pl = proplist([1,2,3])
-		pl.select(lambda o: o*9).o
-		```
-		"""
-		r = []
-		for v in self.o:
-			r.append(fn(v, *a, **k))
-		return self.T(r)
-
+	@property
+	def reversed(self):
+		"""Return a proplist with reversed content."""
+		return type(self)(list(reversed(self.o)))
+	
+	@property
+	def lines(self):
+		"""Generate string items (lines)."""
+		for line in self.o:
+			yield (str(line))
 	
 	
 	def text(self, glue=None):
@@ -77,12 +63,11 @@ class propseq(propiter):
 	
 	
 	def propgrid(self):
+		ilen = len(self.o[0])
+		for i in len(self.o):
+			if i != ilen:
+				raise type(ex)(xdata(
+					error='err-grid-fail', reason="not-a-grid",
+					english="Grid rows must be of equal lenght."
+				))
 		return propgrid(self.o)
-		# try:
-			# l = len(self.o[0])
-			# self.each(lambda x: assert(len(x)==l)) # <-- windows blows up
-			# return propgrid(self.o)
-		# except BaseException as ex:
-			# raise type(ex)(xdata(error='err-grid-fail', reason="not-a-grid"
-					# english="Grid rows must be of equal lenght."
-				# ))
