@@ -5,7 +5,6 @@
 #
 
 from . import *
-#from ...fmt import *
 
 
 class compenc(cline):
@@ -108,6 +107,8 @@ class compenc(cline):
 		
 		I'll try to get to it soon! (Sooner or later.)
 		"""
+		
+		"""
 		# make sure arg is encoded to bytes
 		arg = self.args[0]
 		try:
@@ -153,7 +154,6 @@ class compenc(cline):
 			
 			
 			# I don't know what to do with these...
-			"""
 			try:
 				print ('zlib: %s' % zlib.decode(arg))
 				i += 1
@@ -165,10 +165,10 @@ class compenc(cline):
 				i += 1
 			except:
 				pass
-			"""
 			
 			
 			#
 			if not i:
 				print ("No results.")
+			"""
 		

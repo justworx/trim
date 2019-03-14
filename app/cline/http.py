@@ -77,16 +77,24 @@ class http(cline):
 		# create the server
 		s = trix.ncreate('net.server.Server', config)
 		
+		"""
 		try:
 			print ("HTTP Server running on port: %i" % s.port) 
 			print ("Open: %s" % s.url)
 			print ("Use Ctrl-c to stop.")
 			s.run()
-		except KeyboardInterrupt:
+		except BaseException as ex:
+			
 			s.shutdown()
 			print ("Server shutdown.")
+		"""
+		
+		print ("HTTP Server running on port: %i" % s.port) 
+		print ("Open: %s" % s.url)
+		print ("Use Ctrl-c to stop.")
+		s.run()
 		
 		# display debug messages after server stops
-		if ('d' in self.flags):
+		if 'd' in self.flags:
 			s.display()
 
