@@ -27,7 +27,7 @@ class propiter(propbase):
 		ii[95:]
 		"""
 		# this is probably a bad idea...
-		return type(self)(list(self.islice(key.start,key.stop,key.step)))
+		return self.T(list(self.islice(key.start,key.stop,key.step)))
 	
 	def __iter__(self):
 		"""Return an iterator."""
@@ -69,15 +69,30 @@ class propiter(propbase):
 		```
 		from trix.propx import *
 		pl = proplist([1,2,3])
-		pl.select(lambda o: o*9) 
+		pl.select(lambda o: o*9)
+		
 		```
 		"""
 		r = []
 		for v in self.o:
 			r.append(fn(v, *a, **k))
-		return type(self)(r)
+		return propx(r)
 	
 	
+	def grid(self, *a, **k):
+		"""Display as Grid."""
+		k['f'] = 'Grid'
+		trix.display(self.o, *a, **k)
+	
+	def list(self, *a, **k):
+		"""Display as List."""
+		k['f'] = 'List'
+		trix.display(self.o, *a, **k)
+	
+	def table(self, *a, **k):
+		"""Display as Table. Pass keyword argument 'width'."""
+		k['f'] = 'Table'
+		trix.display(self.o, *a, **k)
 	
 	
 	#
@@ -121,13 +136,13 @@ class propiter(propbase):
 	@classmethod
 	def zip(cls, *iterables):
 		try:
-			return cls.__zip(*iterables)
+			return propx(cls.__zip(*iterables))
 		except AttributeError: #, NameError:
 			try:
 				cls.__zip = cls.itertool('izip')
 			except Exception as ex:
 				cls.__zip = zip
-			return cls.__zip(*iterables)
+			return propx(cls.__zip(*iterables))
 	
 	
 	
@@ -143,7 +158,7 @@ class propiter(propbase):
 		try:
 			iterable = iterable or self.o
 			#return self.T(type(iterable)(self.__filter(fn, iterable)))
-			return propx(self.To(self.__filter(fn, iterable)))
+			return propx(self.__filter(fn, iterable))
 		except AttributeError:
 			try:
 				self.__filter = self.itertools('ifilter') #py 2
@@ -151,19 +166,19 @@ class propiter(propbase):
 				self.__filter = filter #py3.filter == py2.itertools.ifilter
 			
 			#return self.T(type(iterable)(self.__filter(fn, iterable)))
-			return propx(self.To(self.__filter(fn, iterable or self.o)))
+			return propx(self.__filter(fn, iterable or self.o))
 	
 	
 	def filterfalse(self, fn, iterable=None):
 		iterable = iterable or self.o
 		try:
-			return self.T(type(iterable)(self.__filterfalse(fn, iterable)))
+			return propx(self.__filterfalse(fn, iterable))
 		except:
 			try:
 				self.__filterfalse = self.itertool('filterfalse')
 			except:
 				self.__filterfalse = self.itertool('ifilterfalse')
-			return self.T(type(iterable)(self.__filterfalse(fn, iterable)))
+			return propx(self.__filterfalse(fn, iterable))
 	
 	
 	
@@ -174,14 +189,15 @@ class propiter(propbase):
 	def chain(self, *iterables):
 		"""
 		Pass one or more iterables to chain together. If no iterables 
-		are given, any lists within self.o are chained.
+		are given, `self.o` must provide only iterables or an error is
+		raised.
 		"""
 		itrs = iterables or self.o
-		return self.itertool('chain')(*itrs)
+		return propx(self.itertool('chain')(*itrs))
 	
 	def cycle(self, iterable=None):
 		"""Cycle through `iterable`, if given, else `self.o`."""
-		return self.itertool('chain')(iterable or self.o)
+		return propx(self.itertool('chain')(iterable or self.o))
 	
 	
 	
@@ -194,18 +210,18 @@ class propiter(propbase):
 	
 	def accumulate(self, fn=None, iterable=None):
 		fn = fn or trix.module('operator').add
-		return self.itertool('accumulate')(iterable or self.o, fn)
+		return propx(self.itertool('accumulate')(iterable or self.o, fn))
 	
 	
 	def dropwhile(self, fn, iterable=None):
-		return self.itertool('dropwhile')(iterable or self.o, fn)
+		return propx(self.itertool('dropwhile')(iterable or self.o, fn))
 	
 	
 	def permutations(self, r, iterator=None):
 		"""
 		Pass r-length (and, optionally, an iterator to replace `self.o`).
 		"""
-		return self.itertool('permutations', r, iterable or self.o)
+		return propx(self.itertool('permutations', r,iterable or self.o))
 	
 	
 	
@@ -215,12 +231,11 @@ class propiter(propbase):
 		Pass a function to receive arguments. This will fail if self.o 
 		(or replacement `iterable`) doesn't produce tuples.
 		"""
-		return self.itertool('permutations', r, iterable or self.o)
-		pass
+		return propx(self.itertool('permutations',r, iterable or self.o))
 	
 	
 	def takewhile(self, fn, iterable=None):
-		return self.itertool('takewhile', fn, iterable or self.o)
+		return propx(self.itertool('takewhile', fn, iterable or self.o))
 	
 	
 	

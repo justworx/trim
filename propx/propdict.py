@@ -7,7 +7,7 @@
 from .proplist import *
 
 
-class propdict(propbase):
+class propdict(propiter):
 	"""
 	Pass a dict or dict-like object.
 	"""
@@ -21,5 +21,6 @@ class propdict(propbase):
 	@property
 	def keys(self):
 		return proplist(list(self.o.keys()))
+	
 	
 	

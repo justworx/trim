@@ -21,29 +21,9 @@ class proplist(propseq):
 	Wrap objects in a proplist to provide a variety of useful features
 	for manipulation and display.
 	"""
-	
-	#
-	#
-	# DISPLAY
-	#  - Display lists as json or in grids/tables/lists
-	#
-	#
-	def grid(self, *a, **k):
-		"""Display as Grid."""
-		k['f'] = 'Grid'
-		trix.display(self.o, *a, **k)
-	
-	def list(self, *a, **k):
-		"""Display as List."""
-		k['f'] = 'List'
-		trix.display(self.o, *a, **k)
-	
-	def table(self, *a, **k):
-		"""Display as Table. Pass keyword argument 'width'."""
-		k['f'] = 'Table'
-		trix.display(self.o, *a, **k)
-
-
+	# Now what am I going to do with this? The superclasses handle
+	# everything proplist needed to do. Guess I'll just...
+	pass
 
 
 
