@@ -90,7 +90,7 @@ class loc(cix): #loc(cline):
 		rdict['ERA_D_FMT'] = locale.nl_langinfo(locale.ERA_D_FMT)
 		rdict['ERA_T_FMT'] = locale.nl_langinfo(locale.ERA_T_FMT)
 		
-		self.display(rdict, f=self.rfmt)
+		self.display(rdict)
 	
 	
 	# -----------------------------------------------------------------
