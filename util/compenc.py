@@ -81,20 +81,30 @@ def expand(data, encoding=DEF_ENCODE):
 	      bytes. The caller must decode to unicode.
 	"""
 	try:
+		# expect data given in bytes...
 		return zlib.decompress(b64.decode(data))
 	except:
+		# ...but if it's unicode, just decode it first.
 		return zlib.decompress(b64.decode(data.encode(encoding)))
 
 
+
+
+
+
+
+
+
+"""
 #
 # Experimental section.
 #
 class compenc(EncodingHelper):
 	def __init__(self, value, **k):
-		"""
-		Pass a value on which to operate. Encoding-related params must
-		be passed as kwargs.
-		"""
+		#
+		# Pass a value on which to operate. Encoding-related params 
+		# must be passed as kwargs.
+		#
 		k.setdefault('encoding', DEF_ENCODE)
 		k.setdefault('errors', 'strict')
 		EncodingHelper.__init__(self, **k)
@@ -105,4 +115,5 @@ class compenc(EncodingHelper):
 	
 	def d64(self, *a, **k):
 		return b64.decode(self.v, *a, **k)
+"""
 

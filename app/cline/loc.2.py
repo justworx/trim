@@ -34,8 +34,9 @@ class loc(cix): #loc(cline):
 		#
 		locale.setlocale(locale.LC_ALL, self.sig)
 		
-		# output value format/compression (rfmt = return format)
+		# output value format/compression
 		self.rfmt = 'JCompact' if ('c' in self.flags) else 'JDisplay'
+		#self.rcmp = True if 'x' in self.flags else False
 		
 		if 'currency' in self.kwargs:
 			# TEST
@@ -43,7 +44,7 @@ class loc(cix): #loc(cline):
 			if 'currency' in k:
 				c = k.get('currency')
 				print (locale.currency(float(c)))
-		
+			
 		#elif 'sorted' in self.kwargs:
 		#	c = k.get('sorted')
 		#	sortlist = trix.jparse(c)

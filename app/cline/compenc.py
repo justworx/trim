@@ -18,21 +18,33 @@ class compenc(cline):
 	def __init__(self):
 		cline.__init__(self)
 		
+		# get the fmt.JCompact object
 		JCompact = trix.nvalue('fmt', 'JCompact')
 		value = JCompact().format(self.args[1])
 		
+		# see if there's an encoding kwarg
 		kk = self.kwargs
 		self.encoding = kk.get('encoding', kk.get('e', DEF_ENCODE))
 		
-		# class.method or fn
+		# Use class.method or fn, as specified in command line...
+		# Eg., "compact", "b64.encode", etc...
 		xm = self.args[0].split('.')
 		if len(xm) == 2:
-			# xm is a class.method - split them up
+			#
+			# xm is "class.method", so split them up. Eg, if argument was
+			# "b16.decode", split it into the "object-dot-method" string
+			# and .append it to "util.compenc" and you get the full path,
+			# "util.compenc.b16.encode", to create the method `fn`.
+			#
 			c, m = xm
 			s = "util.compenc.%s" % c
 			fn = trix.nvalue(s, m)
 		else:
-			# xm is a function name - one item
+			#
+			# xm is a function name - one item ("compact" or "expand"),
+			# so just call nvalue the easy way without all the stirng
+			# manipulation. 
+			#
 			fn = trix.nvalue("util.compenc", xm[0])
 		
 		try:
@@ -58,6 +70,36 @@ class compenc(cline):
 		
 		self.write(value)
 		
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	def COMING_SOON(self):
 		"""

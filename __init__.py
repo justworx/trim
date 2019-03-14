@@ -98,7 +98,7 @@ class trix(object):
 	
 	__m = __module__
 	__mm = sys.modules
-	#__loc = locale.setlocale(locale.LC_ALL, DEF_LOCALE)
+	__loc = locale.setlocale(locale.LC_ALL, DEF_LOCALE)
 	
 	Logging = 0 #-1=print; 0=None; 1=log-to-file
 	
@@ -889,6 +889,36 @@ class trix(object):
 		return cls.nvalue('propx.propx')(x, *a, **k)
 		# This belongs with utility methods, once I'm satisfied it's
 		# quality is OK.
+	
+	
+	
+	# C-LINE - Command Line call
+	#@classmethod
+	#def cline (cls, cmd, *a, **k):
+		#"""
+		#EXPERIMENTAL - UNDER CONSTRUCTION - EXPECT SWEEPING CHANGES
+		
+		#Returns a command-line string to open `cmd` with trix, given
+		#any additional arguments (converted to string).
+		
+		#NOTE: Any flags must be given as string arguments. 
+		      #Eg, "-c", or "-ci", or "-c -i", etc...
+		
+		#THIS METHOD IS TOO NON-GENERIC FOR INCLUSION IN TRIX PROPER.
+		#Maybe put this in some kind of secondary module geared toward
+		#opening command line files or dealing with the operating system
+		#in general.
+		#```
+		#trix.system.cline('blah blah')
+		#trix.system.othersystemicthing('blahblahblah!')
+		#```
+		#"""
+		#ak = [cmd]
+		#ak.extend([str(a) for a in a])
+		#for item in k:
+			#ak.append("--%s=%s" % (item, str(k[item])))
+		#ak = ' '.join(ak)
+		#return "%s -m %s %s" % (sys.executable, trix.innerfpath(), ak)
 	
 	
 	#@classmethod

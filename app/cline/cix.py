@@ -27,6 +27,12 @@ class cix(cline):
 		
 	
 	def display(self, value):
+		"""
+		I think display should be used to display json only and plain
+		text strings only. If it's some kind of compressed or otherwise-
+		encoded string (Eg, from `b64.encode` or `compact`) it should 
+		just be written as bytes,
+		"""
 		
 		#print("\n # DBG: flags=%s\n" % ''.join(self.flags)), 
 		
@@ -34,12 +40,23 @@ class cix(cline):
 		xcompact = 'x' in self.flags
 		
 		if jcompact and xcompact:
-			#print ("display: cx")
 			c = trix.formatter(f="JCompact").format(value)
-			#print ("c", c)
 			x = trix.ncreate('util.compenc.compact', c)
-			#print ("x", x)
-			trix.display(x)
+			
+			# output for any value that's 
+			try:
+				print(x.decode("UTF_8"))
+			except:
+				print(x)
+			
+			#
+			#I think display should be used to display json only and plain
+			#text strings only. If it's some kind of compressed or encoded
+			#string (Eg, from `b64.encode` or `compact`) it should just be 
+			#written as bytes,
+			#
+			#trix.display(x)
+			#
 		
 		elif jcompact:
 			#print ("display: c")
@@ -54,4 +71,7 @@ class cix(cline):
 		else:
 			#print ("display: None")
 			# otherwise, just display as-is 
-			cline.display(self, value)
+			print(trix.formatter(f="JDisplay").format(value))
+			
+			# why was it this?
+			#cline.display(self, value)
