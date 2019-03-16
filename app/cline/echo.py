@@ -10,19 +10,25 @@ from .cix import *
 class echo(cix):
 	"""
 	Debug/Testing utility. Explore results with various flags.
+	
+	Echo args as a string. Flag -d for display, otherwise write is
+	used to echo the arguments.
+	
+	```
+	python3 -m trix echo '"Hello, World!"'
 	"""
 	
 	def __init__(self):
-		"""
-		Echo args as a string. Flag -d for display, otherwise write is
-		used to echo the arguments.
-		"""
 		cix.__init__(self)
 	
 		try:
 			a_out = " ".join(self.args)
 		except:
-			a_out = b" ".join(self.args)
+			try:
+				a_out = b" ".join(self.args)
+			except Exception as ex:
+				#print ("self.args:", self.args)
+				raise type(ex)(xdata(args=self.args, kwargs=self.kwargs))
 		
 		if 'd' in self.flags:
 			self.display(a_out)

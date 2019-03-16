@@ -26,20 +26,63 @@ class cix(cline):
 	        is the way to explicitly convert string values to JSON
 	        before compacting and returning them. 
 	 
-	 * i  = Not yet implemented. Reserved for cix subclasses.
+	 * i  = Replace all arguments (and, optionally, kwargs) with a
+	        compact json dict containing keys 'a' for an argument list
+	        and 'k' for a keyword argument dict.
+	        
+	        When the -i flag is set, this compact json dict may be the
+	        only argument. However, keyword args passed via the command
+	        line will override any kwargs defined in the compact json
+	        dict.
+	        
+	        ```
+	        cargs = trix.formatter().compact({'a':'Hello, World!'})
+	        trix.popen('python3 -m trix echo -i %s' % cargs)
+	        
+	        ```
 	"""
+	
+	def __init__(self):
+		
+		cline.__init__(self)
+		if "i" in self.flags:
+			if len(self.args) > 1:
+				raise ValueError("Mode -i; pass one compressed argument.")
+		
+			# cargs
+			print ("cix.__init__ - self.args", self.args)
+			cargs = trix.formatter().expand(self.args[0])    # <-- to json
+			print ("cix.__init__ - cargs", cargs)
+			
+			cargs = cargs.decode(DEF_ENCODE)
+			print ("cix.__init__ - cargs decoded", cargs)
+			
+			cargs = trix.jparse(cargs)# <-- encode
+			print ("cix.__init__ - cargs jparsed", cargs)
+		
+			# args
+			self.args = cargs.get('a') # reset self.args
+		
+			# kwargs given on command line override kwargs given in cargs
+			krgs = cargs.get('k', {})
+			for k in krgs:
+				krgs[k] = self.kwargs[k]
+		
+			# reset self.kwargs
+			self.kwargs = krgs
+	
 		
 	
 	def display(self, value):
 		"""
-		I think display should be used to display json only and plain
-		text strings only. If it's some kind of compressed or otherwise-
-		encoded string (Eg, from `b64.encode` or `compact`) it should 
-		just be written as bytes,
+		JSON display, for returning json. This should be the default
+		so we can see results nice and pretty in the terminal.
+		
+		Use the -cx flag combination when calling via popen, for slightly
+		more compressed results (of potentially large return values) to 
+		be expanded/used programatically via `popen.communicate()`. When
+		-x is used, results must be expanded using `compenc.expand()`.
 		"""
-		
-		#print("\n # DBG: flags=%s\n" % ''.join(self.flags)), 
-		
 		jcompact = 'c' in self.flags
 		xcompact = 'x' in self.flags
 		
@@ -48,22 +91,22 @@ class cix(cline):
 			c = trix.formatter(f="JCompact").format(value)
 			x = trix.ncreate('util.compenc.compact', c)
 			
-			# output for any value that's 
+			# output for any value that can
 			try:
-				print(x.decode("UTF_8"))
+				print(x.decode(trix.DEF_ENCODE))
 			except:
 				print(x)
 		
 		elif jcompact:
 			o = trix.formatter(f="JCompact").format(value)
 			try:
-				print(o.decode('UTF_8'))
+				print(o.decode(trix.DEF_ENCODE))
 			except:
 				print(o)
 				
 		else:
 			try:
 				value.decode
-				print(value.decode('UTF_8'))
+				print(value.decode(trix.DEF_ENCODE))
 			except:
 				trix.display(value)
