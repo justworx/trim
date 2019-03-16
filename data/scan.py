@@ -4,8 +4,8 @@
 # the terms of the GNU Affero General Public License.
 #
 
-from ..udata.charinfo import *
-from ...util.stream.buffer import *
+from .udata.charinfo import *
+from ..util.stream.buffer import *
 
 
 class Scanner(object):

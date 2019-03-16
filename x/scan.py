@@ -4,8 +4,8 @@
 # the terms of the GNU Affero General Public License.
 #
 
-from ..udata.charinfo import *
-from ...util.stream.buffer import *
+from ..data.udata.charinfo import *
+from ..util.stream.buffer import *
 
 
 class Scanner(object):
@@ -20,6 +20,9 @@ class Scanner(object):
 		self.__escape = k.get('escape', self.Escape)
 		self.__bufsz = k.get('bufsz', self.BufSize)
 		self.__itext = iter(iterable_text)
+		
+		# create cinfo objecct immediately
+		self.__cinfo = charinfo(self.__itext)
 		
 		# flag set to True on StopIteration
 		self.__eof = False
@@ -41,10 +44,10 @@ class Scanner(object):
 	def cc(self):
 		"""Move forward one and return the character info object."""
 		try:
-			return self.__cinfo.next()
-		except AttributeError:
-			self.__cinfo = charinfo(self.__itext)
-			return self.__cinfo.next()
+			c = self.__cinfo.next()
+			if self.__analysis:
+				self.analyze(c)
+			return c
 		except StopIteration:
 			self.__eof = True
 	

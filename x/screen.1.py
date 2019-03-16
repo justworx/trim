@@ -5,6 +5,7 @@
 #
 
 from .. import *
+from ..util.terminfo import *
 from curses import wrapper
 from curses import panel
 from curses import textpad
@@ -29,57 +30,33 @@ class Screen(object):
 		calls `self.main()`.
 		"""
 		# store args/kwargs for use below
-		self.__a = a
-		self.__k = k
-		self.__ss = None
+		self.a = a
+		self.k = k
 		
-		self.__sleep = k.get('sleep', 0.1)
-	
-	
-	def a(self):
-		return self.__a
-	
-	def k(self):
-		return self.__k
-	
-	def ss(self):
-		return self.__ss
-	
-	def sleep(self):
-		return self.__sleep
+		wrapper(self.main)
 	
 	
 	#
-	# Start the screen
+	# MAIN LOOP
 	#
-	def start(self):
-		self.__ss = wrapper(self.__main)
-		return self.__ss
-	
-	
-	def __main(self, stdscr):
+	def main(self, stdscr):
 		"""
 		Clear the screen, set self.s=stdscr, call prepare, then start 
 		calling the `io()` loop method, with a short sleep between calls.
 		"""
 		#store stdscr, clear the screen, and call prepare
-		self.__ss = stdscr
-		
-		# clear the screen
+		self.s = stdscr
 		stdscr.clear()
+		self.prepare()
 		
-		# setup; draw initial content
-		self.__prepare()
-		
-		# once prepared, start calling io every `self.sleep` second
+		# once prepared, start calling io every 1/10th second
 		while True:
 			self.io()
-			time.sleep(self.sleep)
+			time.sleep(0.1)
 			
 	
 	
-	def __prepare(self):
-		pass
+	def prepare(self):
 		"""
 		Override this method to prepare for handling the event "io" loop.
 		"""
