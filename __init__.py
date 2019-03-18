@@ -1,5 +1,5 @@
 #
-# Copyright 2018 justworx
+# Copyright 2018-2019 justworx
 # This file is part of the trix project, distributed under
 # the terms of the GNU Affero General Public License.
 #
@@ -14,7 +14,7 @@ except:
 #
 # VERSION
 #  - The official version of the `trix` package is currently
-#    "Version: zero; rough draft four; under construction".
+#    "Version: zero; rough draft five; under construction".
 #
 VERSION = 0.0000
 
@@ -26,39 +26,6 @@ VERSION = 0.0000
 #  - If you want exceptions the old-fashioned way, set it False.
 #
 AUTO_DEBUG = True #True/False
-
-#
-# DEF_ENCODE
-#  - The default encoding for the trix package is now determined by
-#    sys.getdefaultencoding(). I don't know if that method can fail,
-#    but if it does, 'utf_8' is used as a backup.
-#  - This change is experimental. DEF_ENCODE used to be set directly
-#    to 'utf_8'. I don't expect this to cause any problems, but in
-#    the event it does, I'll switch back to a hard-coded default of
-#    'utf_8'.
-#
-DEF_ENCODE = sys.getdefaultencoding() or 'utf_8'
-
-#
-# DEF_LOCALE - Under Construction
-#  - This default locale setting is here for any strange and unusual
-#    cases in which it might need to be switched to a specific value.
-#    The default given here is `None`, which causes trix to use the
-#    locale set as the default for the system on which this software
-#    is running. For most cases, unless you *really* know what you're
-#    doing, it's probably best to leave it set to None.
-#
-#  - IMPORTANT: Many trix features make use of threading, so typically
-#               this value must not change over the life of the 
-#               process. A system for gaining thread-safe access to 
-#               alternate locale data is currently under construction.
-#               Use the trix.loc() method (pass locale signatures 
-#               (Eg., 'en_US.UTF_8') to access alternate locale data
-#               formats. This system is not yet complete, but does
-#               provide for most formatting needs and will continue 
-#               to grow as time passes.
-#
-DEF_LOCALE = None
 
 #
 # DEF_NEWL
@@ -88,17 +55,55 @@ DEF_INDENT = 2
 #
 DEF_LOGLET = "./loglet"
 
+#
+# DEF_LOCALE - Under Construction
+#  - This default locale setting is here for any strange and unusual
+#    cases in which it might need to be switched to a specific value.
+#    The default specified below causes trix to use the locale set as 
+#    the default for the system on which this software is running. 
+#    For most cases, unless you *really* know what you're doing, it's
+#    probably best to leave it set to ''.
+#
+#  - IMPORTANT: Many trix features make use of threading, so typically
+#               `locale.setlocale` must not be reset over the life of 
+#               the process. However, a thread-safe system for getting
+#               alternate locale data is under construction. We'll see
+#               how that goes.
+#
+DEF_LOCALE = ''
+
+# set the locale as specified above
+locale.setlocale(locale.LC_ALL, DEF_LOCALE)
 
 
 #
+# DEF_ENCODE
+#  - The default encoding for the trix package is now determined by
+#    the locale module. I don't know if that method can fail,
+#    but if it does, 'utf_8' is used as a backup.
+#  - This change is experimental. DEF_ENCODE used to be set directly
+#    to 'utf_8'. I don't expect this to cause any problems, but in
+#    the event it does, I'll switch back to a hard-coded default of
+#    'utf_8'.
+#
+
+DEF_ENCODE = locale.getpreferredencoding() or 'utf_8'
+
+
+
+
+#
+#
+#
 # TRIX CLASS
+#
+#
 #
 class trix(object):
 	"""Utility, debug, import; object, thread, and process creation."""
 	
 	__m = __module__
 	__mm = sys.modules
-	__loc = locale.setlocale(locale.LC_ALL, DEF_LOCALE)
 	
 	Logging = 0 #-1=print; 0=None; 1=log-to-file
 	
