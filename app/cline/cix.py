@@ -44,28 +44,41 @@ class cix(cline):
 	
 	def __init__(self):
 		
+		# set up the original args values
 		cline.__init__(self)
+		
+		# if the -i flag is set, input is compact and must be expanded
 		if "i" in self.flags:
 			if len(self.args) > 1:
 				raise ValueError("Mode -i; pass one compressed argument.")
 		
 			# cargs
-			print ("cix.__init__ - self.args", self.args)
+			#print ("cix.__init__ - self.args", self.args)
 			cargs = trix.formatter().expand(self.args[0])    # <-- to json
-			print ("cix.__init__ - cargs", cargs)
+			#print ("cix.__init__ - cargs", cargs)
+			
+			"""
+			try:
+				cargs = trix.jparse(cargs) # to object
+			except:
+				pass
+			"""
 			
 			cargs = cargs.decode(DEF_ENCODE)
-			print ("cix.__init__ - cargs decoded", cargs)
+			#print (" --- cix.__init__ - cargs decoded", cargs)
+			#print (" --- cix.__init__ - cargs type...", type(cargs))
 			
-			cargs = trix.jparse(cargs)# <-- encode
-			print ("cix.__init__ - cargs jparsed", cargs)
-		
+			cargs = trix.jparse(cargs) # convert to object
+			
+			#print (" --- cix.__init__ - cargs jparsed", cargs)
+			#print (" --- cix.__init__ - cargs type...", type(cargs))
+			
 			# args
-			self.args = cargs.get('a') # reset self.args
+			self.args[0] = cargs.get('a') # reset self.args[0]
 		
 			# kwargs given on command line override kwargs given in cargs
 			krgs = cargs.get('k', {})
-			for k in krgs:
+			for k in self.kwargs:
 				krgs[k] = self.kwargs[k]
 		
 			# reset self.kwargs

@@ -13,8 +13,16 @@ TEST_DIR = "%s/test" % DEF_CACHE
 
 class test(object):
 	def path(testpath=None):
-		p = trix.path(TEST_DIR)
-		return p(testpath) if testpath else p
+		try:
+			p = trix.path(TEST_DIR, affirm='makedir')
+			return p(testpath) if testpath else p
+		except Exception as ex:
+			print ("Error creating test directory.")
+			print ("ERR :", str(ex))
+			print ("ARGS:", str(ex.args))
+			print ("DIR: ", TEST_DIR)
+			print (" ~~ testpath =", testpath)
+			raise Exception("Schtop!")
 
 # test file path
 def testpath(testpath):

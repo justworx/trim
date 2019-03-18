@@ -20,20 +20,20 @@ trix there. Here are some notes to follow when coding:
 
  * There can be only one locale set on Windows. Even in subprocesses
    you can't `setlocale()` to anything but the locale selected in
-   Windows' systen preferences.
+   Windows' system preferences.
    
    Even if this is no longer true, there are probably lots of older 
    PCs still in use. I don't see the profit (for MS) in fixing this
    deficiency, so I'll assume for now it hasn't (and never will) 
    change.
+   
+   If I can figure out all the formatting, I could build a set of JSON
+   files and use those on windows to handle many, if not all, of the
+   translations for all locales.
  
  * Don't put `assert` in a lambda. It causes an exception on Windows.
    I'll have to find another way around this - haven't thought about 
    how to do it yet.
-   
- * There's some quirk - maybe in method inherritance? - that causes
-   `trix.test.test.path()` to return paths incorrectly. I'll have to
-   investigate that further (after this headache goes away).
 
 The above list is from only a few minutes of testing. I can't imagine
 what I'm going to face when I jump into it seriously. I may just have
@@ -51,6 +51,8 @@ to present trix as a linux-only app. Guess we'll see.
 I need to create (and implement) some rules regarding writing 
 output. It's going to cause some fairly significant changes in 
 behavior, but that's what rough drafts are for I guess.
+
+REMEMBER: THESE ARE NOT FULLY IMPLEMENTED (AND MIGHT NEVER BE).
 
 Tentative Rules:
  * `output` methods rely on util.output and only print output when
@@ -74,10 +76,20 @@ the three output-related terms.
 #
 # -------------------------------------------------------------------
 
-Some modules in the util package import other trix modules from 
-outside util. For now, it's only ok for util modules to import 
-from `trix` and `trix.fmt`. I've moved the following from util 
-to `trix.app`: [event, process, jconfig]
+~ Some modules in the util package import other trix modules from 
+~ outside util. For now, it's only ok for util modules to import 
+~ from `trix` and `trix.fmt`. I've moved the following from util 
+~ to `trix.app`: [event, process, jconfig]
+
+  RELOCATION REFUSED! REDACTED - RECANTED - REGRETED. (REWOUND?)
+
+I don't like that util is importing modules from other packages, but
+changing that now is too difficult. I'll try to reorganize slowly,
+over time. For now, the event, process, and jconfig modules are back
+in util.
+
+
+
 
 #
 # FMT - sigh...

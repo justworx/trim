@@ -702,7 +702,7 @@ class trix(object):
 		>>> f.format("Hello!", ff="title")
 		>>> f.output("Hello!", ff="title")
 		"""
-		f = k.pop("f", "JDisplay")
+		f = k.pop("f", k.pop('format', "JDisplay"))
 		return cls.ncreate("fmt.%s"%f, *a, **k)
 	
 	
