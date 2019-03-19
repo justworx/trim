@@ -143,6 +143,13 @@ class propbase(object):
 		k.setdefault('f', 'JCompact')
 		return trix.formatter(*a, **k).format(self.o)
 	
+	def jparse(self, **k):
+		"""
+		Return self.o as json text. Default format is compact json. 
+		Note: Use the `display()` method for JSON in display format. 
+		"""
+		return propx(trix.jparse(str(self.o), **k))
+	
 	
 	#
 	# DATA MANIPULATION

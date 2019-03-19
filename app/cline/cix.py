@@ -26,18 +26,20 @@ class cix(cline):
 	        is the way to explicitly convert string values to JSON
 	        before compacting and returning them. 
 	 
-	 * i  = Replace all arguments (and, optionally, kwargs) with a
-	        compact json dict containing keys 'a' for an argument list
-	        and 'k' for a keyword argument dict.
+	 * i  = When the -i flag is set, only one argument may be passed -
+	        a JSON string processed by the `compenc.compact` method.
+	        (Additional flags and kwargs are ok.)
 	        
-	        When the -i flag is set, this compact json dict may be the
-	        only argument. However, keyword args passed via the command
-	        line will override any kwargs defined in the compact json
-	        dict.
+	        This flag is intended for special use by cline handlers
+	        that need to receive a large data structure for processing
+	        of some kind. Any cline handler that accepts this data
+	        should document well the exact format required.
 	        
 	        ```
-	        cargs = trix.formatter().compact({'a':'Hello, World!'})
-	        trix.popen('python3 -m trix echo -i %s' % cargs)
+	        cargs = trix.formatter().compact({'greet':'Hello, World!'})
+	        cline = 'python3 -m trix echo -i %s' % cargs.encode()
+	        p = trix.popen(cline)
+	        print (p.stdout.decode())
 	        
 	        ```
 	"""
@@ -50,39 +52,12 @@ class cix(cline):
 		# if the -i flag is set, input is compact and must be expanded
 		if "i" in self.flags:
 			if len(self.args) > 1:
-				raise ValueError("Mode -i; pass one compressed argument.")
+				raise ValueError("Flag -i allows only one argument.")
 		
-			# cargs
-			#print ("cix.__init__ - self.args", self.args)
 			cargs = trix.formatter().expand(self.args[0])    # <-- to json
-			#print ("cix.__init__ - cargs", cargs)
-			
-			"""
-			try:
-				cargs = trix.jparse(cargs) # to object
-			except:
-				pass
-			"""
-			
 			cargs = cargs.decode(DEF_ENCODE)
-			#print (" --- cix.__init__ - cargs decoded", cargs)
-			#print (" --- cix.__init__ - cargs type...", type(cargs))
-			
 			cargs = trix.jparse(cargs) # convert to object
-			
-			#print (" --- cix.__init__ - cargs jparsed", cargs)
-			#print (" --- cix.__init__ - cargs type...", type(cargs))
-			
-			# args
-			self.args[0] = cargs.get('a') # reset self.args[0]
-		
-			# kwargs given on command line override kwargs given in cargs
-			krgs = cargs.get('k', {})
-			for k in self.kwargs:
-				krgs[k] = self.kwargs[k]
-		
-			# reset self.kwargs
-			self.kwargs = krgs
+			self.args = [cargs]
 	
 		
 	

@@ -38,7 +38,6 @@ class echo(cix):
 		
 		# maybe show the kwargs, too
 		if 'k' in self.flags:
-			print("KWARGS:")
 			self.display(self.kwargs)
 		
 		"""

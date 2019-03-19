@@ -82,19 +82,25 @@ def expand(data, encoding=DEF_ENCODE):
 	"""
 	#print ("\n#\n# DATA: %s\n#\n" % str(data))
 	
+	debug = {"data":data}
 	errors = []
 	try:
 		try:
 			# expect data given in bytes...
+			debug['b64.decode'] = b64.decode(data)
 			return zlib.decompress(b64.decode(data))
+		
 		except Exception as err1:
 			# ...but if it's unicode, just decode it first.
 			errors.append("%s: %s" % (type(err1).__name__, str(err1)))
+			
+			debug['b64.encode.decode']=b64.decode(data.encode(encoding))
 			return zlib.decompress(b64.decode(data.encode(encoding)))
+	
 	except Exception as err2:
 		# other errors...
 		errors.append("%s: %s" % (type(err2).__name__, str(err2)))
-		raise Exception("error-sequence", xdata(errors=errors))
+		raise Exception("errors", xdata(errors=errors, debug=debug))
 		
 
 
