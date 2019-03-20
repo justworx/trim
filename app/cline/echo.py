@@ -9,50 +9,26 @@ from .cix import *
 
 class echo(cix):
 	"""
-	Debug/Testing utility. Explore results with various flags.
-	
-	Echo args as a string. Flag -d for display, otherwise write is
-	used to echo the arguments.
-	
-	```
-	python3 -m trix echo '"Hello, World!"'
-	```
+	Debug/Testing utility. Echos given arguments, by default as JSON.
 	
 	Echo can accept one keyword argument, "format", which must be the
 	name of a class based on fmt.Format - usually JCompact, JSON, or
 	JDisplay. Any kwargs that apply to such objects may also be passed
 	as keyword arguments.
 	
+	```
+	python3 -m trix echo '"Hello, World!"'
+	python3 -m trix echo '{"a":1, "b":9, "c":4}'
+	
+	```
+	
 	"""
 	
 	def __init__(self):
 		cix.__init__(self)
+		print (self.args)
 		
-		#print (self.args)
-		#print (self.kwargs)
-		
-		if 'd' in self.flags:
-			trix.display(self.args, **self.kwargs)
-		else:
-			self.write(self.args)
-		
-		# maybe show the kwargs, too
-		if 'k' in self.flags:
-			self.display(self.kwargs)
-		
-		"""
-		try:
-			a_out = " ".join(self.args)
-		except:
-			try:
-				a_out = b" ".join(self.args)
-			except Exception as ex:
-				#print ("self.args:", self.args)
-				raise type(ex)(xdata(args=self.args, kwargs=self.kwargs))
-		
-		if 'd' in self.flags:
-			self.display(a_out)
-		else:
-			self.write(a_out)
-		"""
-	
+		#self.display(self.args, **self.kwargs)
+
+
+

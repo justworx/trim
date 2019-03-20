@@ -1,23 +1,21 @@
-
 #
 # Copyright 2018 justworx
 # This file is part of the trix project, distributed under 
 # the terms of the GNU Affero General Public License.
 #
 
-from .cix import *
+from . import *
 
 
-class compenc(cix):
+class compenc(cline):
 	"""
 	Compression/Encoding.
 	
 	$ python3 -m trix compenc compact Test! This is a test.
-	
 	"""
 	
 	def __init__(self):
-		cix.__init__(self)
+		cline.__init__(self)
 		
 		# get the fmt.JCompact object
 		JCompact = trix.nvalue('fmt', 'JCompact')
@@ -27,11 +25,8 @@ class compenc(cix):
 		kk = self.kwargs
 		self.encoding = kk.get('encoding', kk.get('e', DEF_ENCODE))
 		
-		#
-		# GET FUNCTION/METHOD
-		#  - Use class.method or fn, as specified in command line...
-		#    Eg., "compact", "b64.encode", etc...
-		#
+		# Use class.method or fn, as specified in command line...
+		# Eg., "compact", "b64.encode", etc...
 		xm = self.args[0].split('.')
 		if len(xm) == 2:
 			#
@@ -43,7 +38,6 @@ class compenc(cix):
 			c, m = xm
 			s = "util.compenc.%s" % c
 			fn = trix.nvalue(s, m)
-		
 		else:
 			#
 			# xm is a function name - one item ("compact" or "expand"),
@@ -51,52 +45,70 @@ class compenc(cix):
 			# manipulation. 
 			#
 			fn = trix.nvalue("util.compenc", xm[0])
-
 		
 		try:
+			# i'm assuming this will always be bytes
 			value = fn(value)
-		except TypeError as ex:
+		except TypeError:
+			# but if not...
 			value = value.encode(encoding=self.encoding)
 			value = fn(value)
-		
-		
+	
 		#
-		# DECODE
-		#  - display as text, not b'text'
-		#  - I guess we always want to decode from ascii since it'll be 
-		#    ascii characters returned by the compenc functions, right?
-		#    I mean... these are asci characters A-Z plus some others 
-		#    that are also ascii - here we're just making sure they are
-		#    not displayed with a "b'" in front of them.
-		#  - So use ascii, actually, I guess. Yes.
+		# I guess we always want to decode to utf_8 since it'll be ascii
+		# characters returned by the compenc functions... right?
 		#
+		# Need to think about this I guess. Sleepy now.
+		#
+		
+		# display as text, not b'text'
 		try:
-			value = value.decode('ascii') # changed from utf_8 to ascii
+			value = value.decode('UTF_8')
 		except:
 			pass
 		
-		# boil the json string down to an object
-		value = self.jparse(value)
+		self.write(value)
 		
-		#
-		# DISPLAY THE RESULT
-		#
-		self.display(value)
-
-
-
-
-
-
-
-"""
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	def COMING_SOON(self):
-		#~ I can't make this work right now. Can't even think of a name 
-		#~ for the method!
+		"""
+		I can't make this work right now. Can't even think of a name 
+		for the method!
 		
-		#~ I'll try to get to it soon! (Sooner or later.)
+		I'll try to get to it soon! (Sooner or later.)
+		"""
 		
-		
+		"""
 		# make sure arg is encoded to bytes
 		arg = self.args[0]
 		try:
@@ -158,5 +170,5 @@ class compenc(cix):
 			#
 			if not i:
 				print ("No results.")
-"""
+			"""
 		

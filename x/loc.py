@@ -68,9 +68,13 @@ class AltLoc(BaseLocale):
 		Pass a locale string, eg., "en_US.UTF_8", etc... Returns a new
 		`trix.x.loc` object containing locale format methods and data.
 		"""
+		args = []
+		if locale:
+			if len(locale) == 2:
+				args = [".".join(locale)]
 		
 		cline = "%s -m %s loc -cx %s" % (
-				sys.executable, trix.innerfpath(), locale
+				sys.executable, trix.innerfpath(), *args
 			)
 		
 		proc = trix.popen(cline)

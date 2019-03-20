@@ -75,8 +75,13 @@ class compenc(cix):
 		except:
 			pass
 		
-		# boil the json string down to an object
-		value = self.jparse(value)
+		try:
+			# This gets rid of some extra slashes. This is kind of a hack,
+			# but I'm not too sure how else to do it.
+			while True:
+				value = trix.jparse(value)
+		except:
+			pass
 		
 		#
 		# DISPLAY THE RESULT

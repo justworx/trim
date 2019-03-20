@@ -15,8 +15,27 @@ from .. import *
 import shlex
 
 
-class ProcessHandler(object):
+class callx(object):
 	"""Creates and handles Popen calls."""
+	
+	
+	@classmethod
+	def trix(cls, cmd, **k):
+		"""
+		Pass a cline handler name and args, plus optional kwargs. Returns
+		a callx object.
+		"""
+		try:
+			a = shlex.split(cmd)
+		except:
+			a = cmd
+		
+		args = [sys.executable, '-m', trix.innerpath()]
+		args.extend(a)
+		
+		return cls(args, **k)
+	
+	
 	
 	def __init__(self, cmd, **k):
 		"""
@@ -27,6 +46,7 @@ class ProcessHandler(object):
 		
 		# pop kwargs meant for reader
 		self.__rk = trix.kpop(k, "encoding errors mode max_size")
+		self.__rk.setdefault('encoding', DEF_ENCODE)
 		
 		# remaining kwargs must be for Popen.
 		self.__k = k

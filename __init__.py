@@ -450,7 +450,15 @@ class trix(object):
 		try:
 			return m.Popen(cmd, *a, **k)
 		except FileNotFoundError:
-			cmd = cmd.split()
+			
+			try:
+				cmd = cls.__shlex.split(cmd)
+			except:
+				cls.__shlex = cls.module('shlex')
+				cmd = cls.__shlex.split(cmd)
+			
+			#cmd = cmd.split()
+			
 			return m.Popen(cmd, *a, **k)
 	
 	
@@ -491,6 +499,13 @@ class trix(object):
 		# path that will be launched by `cls.process()`.
 		#
 		return cls.process(cls.innerpath(innerPath), *a, **k)
+	
+	
+	# CALL-X
+	@classmethod
+	def callx (cls, cmd, **k):
+		return cls.ncreate('x.callx.callx', cmd, **k)
+		
 	
 	
 	#
@@ -897,6 +912,8 @@ class trix(object):
 	
 	
 	
+	
+	
 	# C-LINE - Command Line call
 	#@classmethod
 	#def cline (cls, cmd, *a, **k):
@@ -955,7 +972,9 @@ class trix(object):
 			#cls.__dlocale = {}
 			#cls.__dlocale[locsig] = trix.ncreate("x.loc.Locale", locsig)
 			#return cls.__dlocale[locsig]
-	
+
+
+
 
 
 # -------------------------------------------------------------------

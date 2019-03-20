@@ -148,7 +148,10 @@ class propbase(object):
 		Return self.o as json text. Default format is compact json. 
 		Note: Use the `display()` method for JSON in display format. 
 		"""
-		return propx(trix.jparse(str(self.o), **k))
+		try:
+			return propx(trix.jparse(str(self.o), **k))
+		except Exception as ex:
+			raise type(ex)(xdata(o=self.o, k=k))
 	
 	
 	#

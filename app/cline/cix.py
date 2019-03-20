@@ -11,37 +11,40 @@ class cix(cline):
 	"""
 	Command-line plugin for subclasses that output text.
 	
-	FLAGS:
-	 * c  = Pass flag -c to request that return values be presented in 
-	        JCompact format - that is, with the minimum of whitespace 
-	        in dict and list representations.
-	 * x  = Flag -x indicates return values be presented (returned) in
-	        `compenc.compact` format - that is, zlib-compressed in b64
-	        encoding. See `trix.util.compenc.compact()` for details.
-	        Use `trix.util.compenc.expand()` to retrieve the value.
-	        NOTE: x will convert non-string values (dict, list, float,
-	              etc.) to JSON before compacting.
-	 * cx = Flag combination -cx combines the above, doing JCompact
-	        first, then returning its result from compenc.compact. This
-	        is the way to explicitly convert string values to JSON
-	        before compacting and returning them. 
+	OUTPUT FLAGS:
+	  c  = Pass flag -c to request that return values be presented in 
+	       JCompact format - that is, with the minimum of whitespace 
+	       in dict and list representations.
 	 
-	 * i  = When the -i flag is set, only one argument may be passed -
-	        a JSON string processed by the `compenc.compact` method.
-	        (Additional flags and kwargs are ok.)
-	        
-	        This flag is intended for special use by cline handlers
-	        that need to receive a large data structure for processing
-	        of some kind. Any cline handler that accepts this data
-	        should document well the exact format required.
-	        
-	        ```
-	        cargs = trix.formatter().compact({'greet':'Hello, World!'})
-	        cline = 'python3 -m trix echo -i %s' % cargs.encode()
-	        p = trix.popen(cline)
-	        print (p.stdout.decode())
-	        
-	        ```
+	  x  = Flag -x indicates return values be presented (returned) in
+	       `compenc.compact` format - that is, zlib-compressed in b64
+	       encoding. See `trix.util.compenc.compact()` for details.
+	       Use `trix.util.compenc.expand()` to retrieve the value.
+	       NOTE: x will convert non-string values (dict, list, float,
+	             etc.) to JSON before compacting.
+	 
+	  cx = Flag combination -cx combines the above, doing JCompact
+	       first, then returning its result from compenc.compact. This
+	       is the way to explicitly convert string values to JSON
+	       before compacting and returning them. 
+	 
+	INPUT FLAGS
+	  i  = When the -i flag is set, only one argument may be passed -
+	       a JSON string processed by the `compenc.compact` method.
+	       (Additional flags and kwargs are ok.)
+	       
+	       This flag is intended for special use by cline handlers
+	       that need to receive a large data structure for processing
+	       of some kind. Any cline handler that accepts this data
+	       should document well the exact format required.
+	       
+        ```
+        cargs = trix.formatter().compact({'greet':'Hello, World!'})
+        cline = 'python3 -m trix echo -i %s' % cargs.encode()
+        p = trix.popen(cline)
+        print (p.stdout.decode())
+        
+        ```
 	"""
 	
 	def __init__(self):
@@ -49,17 +52,52 @@ class cix(cline):
 		# set up the original args values
 		cline.__init__(self)
 		
-		# if the -i flag is set, input is compact and must be expanded
+		# YES -i FLAG ... input is compact and must be expanded
 		if "i" in self.flags:
-			if len(self.args) > 1:
-				raise ValueError("Flag -i allows only one argument.")
-		
-			cargs = trix.formatter().expand(self.args[0])    # <-- to json
-			cargs = cargs.decode(DEF_ENCODE)
-			cargs = trix.jparse(cargs) # convert to object
+			
+			# make sure there's only one argument for "compact input mode"
+			if len(self.args) != 1:
+				raise ValueError(
+					"Flag -i requires exactly one compact JSON argument."
+				)
+			
+			try:
+				# arg0 is the compact string:
+				# obj-> jcompact-> zlib-> b64
+				arg0 = self.args[0]
+				#print ("\n#\n# arg0 = %s\n#\n" % arg0)
+				
+				# cargs should come out with the original object...
+				# cargs = <-obj <-jparse <-jcompact <-zlib <-b64
+				cargs = c1 = trix.formatter(f="JCompact").expand(arg0)
+			
+			except Exception as ex:
+				raise type(ex)(xdata(a=self.args))
+			
+			#print("HERE c2")
+			cargs = c2 = cargs.decode(DEF_ENCODE)
+			#print("HERE c3")
+			cargs = c3 = trix.jparse(cargs) # convert to object
+			#print("HERE self.args")
 			self.args = [cargs]
-	
+
+
+	def jparse(self, value):
+		"""
+		Here's a kind of creepy way out of the potentially multiple 
+		increases in slashes as strings go through various processes.
+		It's totally a hack, but I can't think of another way of 
+		making results come out correctly.
+		"""
+		try:
+			while True:
+				value = trix.jparse(value)
+		except:
+			pass
 		
+		return value
+	
+	
 	
 	def display(self, value):
 		"""
@@ -71,8 +109,50 @@ class cix(cline):
 		be expanded/used programatically via `popen.communicate()`. When
 		-x is used, results must be expanded using `compenc.expand()`.
 		"""
+		
+		#print ("\n#\n# display\n#  - %s\n#\n" % value)
+		
 		jcompact = 'c' in self.flags
 		xcompact = 'x' in self.flags
+		
+		if jcompact or xcompact:
+			if jcompact:
+				value = trix.formatter(f="JCompact").format(value)
+			if xcompact:
+				value = trix.ncreate('util.compenc.compact', value)
+			try:
+				print(value.decode(trix.DEF_ENCODE))
+			except:
+				print(value)
+		
+		else:
+			trix.display(value)
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		"""
+		jcompact = 'c' in self.flags
+		xcompact = 'x' in self.flags
+
 		
 		if xcompact:
 			
@@ -95,6 +175,7 @@ class cix(cline):
 		else:
 			try:
 				value.decode
-				print(value.decode(trix.DEF_ENCODE))
+				trix.display(value.decode(trix.DEF_ENCODE))
 			except:
 				trix.display(value)
+		"""

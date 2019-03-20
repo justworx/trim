@@ -21,7 +21,6 @@ class loc(cix): #loc(cline):
 		"""Handle loc requests."""
 		
 		# create object base, and self.sig signature (Eg., "en_US.utf_8")
-		#cline.__init__(self)
 		cix.__init__(self)
 		try:
 			self.sig = self.args[0]
@@ -29,14 +28,17 @@ class loc(cix): #loc(cline):
 			self.sig = '.'.join(locale.getlocale()) # default to System
 		
 		
-		#
-		# SET THE LOCAL
-		#
+		# Set the locale...
 		locale.setlocale(locale.LC_ALL, self.sig)
 		
-		# output value format/compression (rfmt = return format)
-		self.rfmt = 'JCompact' if ('c' in self.flags) else 'JDisplay'
+		# Display the full locale info dict.
+		self.get_loc_info()
 		
+		
+		"""
+		#
+		# IDEAS FOR POSSIBLE FUTURE OPTIONS...
+		#
 		if 'currency' in self.kwargs:
 			# TEST
 			k = self.kwargs
@@ -52,6 +54,7 @@ class loc(cix): #loc(cline):
 		else:
 			# return locale info dict
 			self.get_loc_info()
+		"""
 	
 	
 	
