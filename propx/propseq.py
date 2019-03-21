@@ -77,3 +77,4 @@ class propseq(propiter):
 					english="Grid rows must be of equal lenght."
 				))
 		return trix.ncreate('propx.proplist.propgrid', self.o)
+

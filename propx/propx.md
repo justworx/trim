@@ -9,18 +9,18 @@ The propx function, defined in propx.__init__.py, receives any object
 and wraps it in the most suitable available subclass of `propbase`.
 For example, list objects passed to `propx()` would be wrapped inside
 a	`proplist` object, which provides methods and properties convenient
-for manipulation and display of list objects.
+for querying, manipulation and display of list objects.
 
 #### propx classes
 
-The following classes are currently available.
+The following modules/classes are currently available.
 
  * propbase - generic encoding, compression, and display methods. 
  * propiter - adds methods suitable to iterable objects
  * propseq  - methods suitable to any sequence item (based on propset) 
  * proplist - methods for list manipulation/display
    propgrid - proplist subclass for list of lists of equal length 
-
+ * propdict - covers dict-like objects - UNDER CONSTRUCTION
 
 #### propx use in the trix package
 

@@ -29,9 +29,9 @@ class Screen(object):
 		calls `self.main()`.
 		"""
 		# store args/kwargs for use below
-		self.__a = a     # args
-		self.__k = k     # kwargs
-		self.__ss = None # stdscr
+		self.__a = a
+		self.__k = k
+		self.__ss = None
 		
 		self.__sleep = k.get('sleep', 0.1)
 	
@@ -50,14 +50,14 @@ class Screen(object):
 	
 	
 	#
-	# Start running the screen
+	# Start the screen
 	#
-	def run(self):
-		self.__ss = wrapper(self.main)
+	def start(self):
+		self.__ss = wrapper(self.__main)
 		return self.__ss
 	
 	
-	def main(self, stdscr):
+	def __main(self, stdscr):
 		"""
 		Clear the screen, set self.s=stdscr, call prepare, then start 
 		calling the `io()` loop method, with a short sleep between calls.
@@ -69,29 +69,76 @@ class Screen(object):
 		stdscr.clear()
 		
 		# setup; draw initial content
-		self.prepare()
+		self.__prepare()
 		
 		# once prepared, start calling io every `self.sleep` second
-		sleep = self.sleep
 		while True:
 			self.io()
-			time.sleep(sleep)
+			time.sleep(self.sleep)
 			
 	
 	
-	def prepare(self):
+	def __prepare(self):
 		pass
-	
+		"""
+		Override this method to prepare for handling the event "io" loop.
+		"""
+		
+		"""
+		stdscr = self.s
+		stdscr.clear()
+		stdscr.refresh()
+		win = curses.newwin(5, 60, 5, 10)
+		
+		tb = curses.textpad.Textbox(win, insert_mode=True)
+		text = tb.edit()
+		curses.flash()
+		win.clear()
+		win.addstr(0, 0, text.encode('utf-8'))
+		win.refresh()
+		
+		win.getch()
+		
+
+		
+		#
+		# seems print works, but you gotta put in your own CR
+		#
+		print("I need some better doc!")
+		print("\r")
+		
+		
+		
+		
+		# This didn't do what the doc said it would.
+		#curses.echo()
+		#curses.cbreak()
+		#stdscr.keypad(True)
+		
+		# NOPE. Sorta, but nope.
+		#trix.ncreate("util.console.Console").console()
+		
+		# experimenting
+		#self.s.addstr(self.s, 3, 3,"Hello, World!")
+		#curses.doupdate()
+		
+		"""
 	
 	
 	def io(self):
 		
 		self.s.addstr(1, 0, "LINES: %s\r" % str(curses.LINES))
 		self.s.addstr(2, 0, "COLS : %s\n\r" % str(curses.COLS))
-		
 		self.s.refresh()
-		
 		curses.doupdate()
+		
+		"""
+		print ("LINES: %s\r" % str(curses.LINES))
+		print ("COLS : %s\n\r" % str(curses.COLS))
+		curses.doupdate()
+		"""
+		
+		pass
 	
 	
 	
