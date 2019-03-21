@@ -20,12 +20,11 @@ cline calls can accept arguments, flags, and keyword arguments.
  - Normal arguments, of course, require no dashes :)
 
 The echo cline handler lets you see exactly how your input will be
-interpreted - a useful development tool. Add the echo cline handler's
--d flag to see the resulting argument list in JDisplay format.
+interpreted - a useful development tool. 
 
 ```
 python3 -m trix echo Hello, World!
-python3 -m trix echo -d "Foo Bar!"
+python3 -m trix echo '"Foo Bar!"'
 
 ```
 

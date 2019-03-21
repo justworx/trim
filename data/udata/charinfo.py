@@ -34,7 +34,7 @@ class charinfo(xiter):
 	
 	def __repr__(self):
 		char = "'%s'" % self.c if self.c else "None"
-		return "<charinfo %s>" % char
+		return "<trix/charinfo %s>" % char
 	
 	
 	# ----------------------------------------------------------------

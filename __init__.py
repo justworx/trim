@@ -22,7 +22,7 @@ VERSION = 0.0000
 # AUTO_DEBUG
 #  - Controls the formatting of raised Exceptions.
 #  - The trix package is very complex, making it really hard to
-#    track down bugs. This formatting of exceptions really helps.
+#    track down bugs. This formatting of exceptions helps a lot.
 #  - If you want exceptions the old-fashioned way, set it False.
 #
 AUTO_DEBUG = True #True/False

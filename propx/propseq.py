@@ -17,6 +17,12 @@ class propseq(propiter):
 	tuple, bytearray, or buffer.
 	"""
 	
+	def __repr__(self):
+		return "<trix/%s %s len=%i>" % (
+				self.T.__name__, self.To.__name__, len(self.o)
+			) 
+	
+	
 	# Replace iter's weird getitem method with something appropriate
 	# to sequence objects.
 	def __getitem__(self, key):
@@ -64,10 +70,10 @@ class propseq(propiter):
 	
 	def propgrid(self):
 		ilen = len(self.o[0])
-		for i in len(self.o):
-			if i != ilen:
+		for o in self.o:
+			if len(o) != ilen:
 				raise type(ex)(xdata(
 					error='err-grid-fail', reason="not-a-grid",
 					english="Grid rows must be of equal lenght."
 				))
-		return propgrid(self.o)
+		return trix.ncreate('propx.proplist.propgrid', self.o)

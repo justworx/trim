@@ -5,11 +5,14 @@
 #
 
 from ..propx.proplist import *   # trix, propgrid, et al
-import sqlite3
+import sqlite3, re
 
 
 class DBGrid(object):
 	"""Add and query a set of named, in-memory sqlite3 tables."""
+	
+	re_columns = re.compile("^[_A-Za-z0-9]*$")
+	
 	
 	def __init__(self, **k):
 		"""
@@ -24,12 +27,16 @@ class DBGrid(object):
 			self.add(table, k[table])
 	
 	
+	
+	
 	def __call__(self, sql, *a, **k):
 		"""
 		Shortcut for `select()`. Returns a DataGrid containing results
 		of valid sqlite3 queries.
 		"""
 		return self.select(sql, *a, **k)
+	
+	
 	
 	
 	@property
@@ -40,12 +47,15 @@ class DBGrid(object):
 		return list(self.__T)
 	
 	
+	
+	
 	def add(self, table_name, grid, columns=None):
 		"""
 		Pass a table name and a grid (list of lists of equal length). As
 		with DataGrid, column names must be either prepended to the grid
 		or specified as a list using the optional `columns` argument.
 		"""
+		
 		#
 		# SET UP THE INITIAL DATABASE IN MEMORY
 		#  - Copy `grid` (a list of lists) into a :memory: database.
@@ -60,9 +70,27 @@ class DBGrid(object):
 			cols = grid[0]
 			rows = grid[1:]
 		
-		self.cols = columns
+		#
+		# generate list of valid sqlite3 column names from `columns`
+		#
+		i = 0
+		valid_cols = []
+		for columnName in cols:
+			valid_chars = []
+			for c in columnName:
+				if self.re_columns.match(c):
+					valid_chars.append(c)
+			if valid_chars:
+				valid_cols.append("".join(valid_chars))
+			else:
+				valid_cols.append("COLUMN_%i" % i)
+				i+=1
 		
+		self.cols = cols = valid_cols
+		
+		#
 		# create memory database
+		#
 		sql = "create table %s (%s)" % (table_name, ','.join(cols))
 		try:
 			self.con.execute(sql)
@@ -83,6 +111,8 @@ class DBGrid(object):
 		self.__T.append(table_name)
 	
 	
+	
+	
 	def remove(self, tableName):
 		"""
 		Remove table `tableName` from the temporary database.
@@ -95,6 +125,9 @@ class DBGrid(object):
 			self.execute('drop table %s'%tablename)
 			del(self.T[tablename]) 
 	
+	
+	
+	
 	def execute(self, sql, *a):
 		"""
 		Execute an sql query on the grid data. Returns an sqlite3 cursor.
@@ -105,6 +138,8 @@ class DBGrid(object):
 			raise type(ex)(xdata(sql=sql))
 	
 	
+	
+	
 	def query(self, sql, *a):
 		"""
 		Execute an sql query on the grid data. Returns a list of lists 
@@ -113,6 +148,8 @@ class DBGrid(object):
 		cc = self.execute(sql, *a)
 		if cc:
 			return cc.fetchall()
+	
+	
 	
 	
 	def select(self, sql, *a, **k):
@@ -131,6 +168,8 @@ class DBGrid(object):
 			return propgrid(r)
 		else:
 			return propgrid(newgrid)
+	
+	
 	
 	
 	def get_column_names(self):

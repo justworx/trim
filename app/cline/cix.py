@@ -49,39 +49,39 @@ class cix(cline):
 	
 	def __init__(self):
 		
-		# set up the original args values
+		# Set up the original args values.
 		cline.__init__(self)
 		
-		# YES -i FLAG ... input is compact and must be expanded
+		# Flag -i passed, so input is compact and must be expanded.
 		if "i" in self.flags:
 			
-			# make sure there's only one argument for "compact input mode"
+			# `There can be only one` argument for compact input mode.
 			if len(self.args) != 1:
 				raise ValueError(
 					"Flag -i requires exactly one compact JSON argument."
 				)
 			
 			try:
+				#
 				# arg0 is the compact string:
 				# obj-> jcompact-> zlib-> b64
+				#
 				arg0 = self.args[0]
-				#print ("\n#\n# arg0 = %s\n#\n" % arg0)
 				
+				#
 				# cargs should come out with the original object...
 				# cargs = <-obj <-jparse <-jcompact <-zlib <-b64
+				#
 				cargs = c1 = trix.formatter(f="JCompact").expand(arg0)
 			
 			except Exception as ex:
 				raise type(ex)(xdata(a=self.args))
 			
-			#print("HERE c2")
 			cargs = c2 = cargs.decode(DEF_ENCODE)
-			#print("HERE c3")
 			cargs = c3 = trix.jparse(cargs) # convert to object
-			#print("HERE self.args")
 			self.args = [cargs]
-
-
+	
+	
 	def jparse(self, value):
 		"""
 		Here's a kind of creepy way out of the potentially multiple 
@@ -127,55 +127,4 @@ class cix(cline):
 		
 		else:
 			trix.display(value)
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		"""
-		jcompact = 'c' in self.flags
-		xcompact = 'x' in self.flags
-
-		
-		if xcompact:
-			
-			c = trix.formatter(f="JCompact").format(value)
-			x = trix.ncreate('util.compenc.compact', c)
-			
-			# output for any value that can
-			try:
-				print(x.decode(trix.DEF_ENCODE))
-			except:
-				print(x)
-		
-		elif jcompact:
-			o = trix.formatter(f="JCompact").format(value)
-			try:
-				print(o.decode(trix.DEF_ENCODE))
-			except:
-				print(o)
-				
-		else:
-			try:
-				value.decode
-				trix.display(value.decode(trix.DEF_ENCODE))
-			except:
-				trix.display(value)
-		"""
+	

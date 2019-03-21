@@ -71,7 +71,24 @@ class cline(object):
 			elif a[:1] == '-':
 				self.flags += a[1:]
 			else:
-				self.args.append(a)
+				#
+				# TESTING THIS:
+				#  - I think individual args should be converted to JSON
+				#    when possible. I'm going to test this right away to
+				#    make sure the cline handlers all work after this is 
+				#    here.
+				#
+				#  - If there are any problems, here is the original line:
+				#      # original line:
+				#      self.args.append(a)
+				#
+				try:
+					self.args.append(trix.jparse(a))
+				except:
+					self.args.append(a)
+				
+		
+		
 		
 		#DBG print (str(seelf.args), str(self.flags), str(self.kwargs))
 	

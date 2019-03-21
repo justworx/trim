@@ -46,6 +46,12 @@ class propbase(object):
 		self.__k = k
 	
 	
+	
+	def __repr__(self):
+		return "<trix/%s %s>" % (self.T.__name__, self.To.__name__) 
+	
+	
+	
 	def __call__(self, *a, **k):
 		"""
 		On first call, sets the value for the `self.o` property. On
@@ -224,44 +230,48 @@ class propbase(object):
 #
 
 
-def propx(x, *a, **k):
+def propx(o, *a, **k):
 	"""Try to calculate and return the correct wrapper."""
 	
 	#
 	# ORDER IS IMPORTANT HERE
+	#  - Checking keys/values for dict must come first.
 	#  - Checking setitem must come before checking __getitem__,
 	#    followed by __iter__ and generator.
 	#
-	#  - TO DO: Try to add a propdict class.
-	#
 	
 	try:
-		if x.__setitem__:
-			return trix.ncreate("propx.proplist.proplist", x, *a, **k)
+		if o.values and o.keys:
+			return trix.ncreate("propx.propdict.propdict", o, *a, **k)
+	except:
+		pass
+		
+	try:
+		o.encode
+		return trix.ncreate("propx.propstr.propstr", o, *a, **k)
 	except:
 		pass
 	
 	try:
-		if x.__getitem__:
-			try:
-				if x.encode:
-					return trix.ncreate("propx.propstr.propstr", x, *a, **k)
-			except:
-				
-				# REM: probably should have "bytes" option here.
-				
-				return trix.ncreate("propx.propseq.propseq", x, *a, **k)
+		o.__setitem__
+		return trix.ncreate("propx.proplist.proplist", o, *a, **k)
 	except:
 		pass
 	
 	try:
-		if x.__iter__ or (type(x).__name__ == 'generator'):
-			return trix.ncreate("propx.propiter.propiter", iter(x), *a, **k)
+		o.__getitem__
+		return trix.ncreate("propx.propseq.propseq", o, *a, **k)
+	except:
+		pass
+	
+	try:
+		if o.__iter__ or (type(o).__name__ == 'generator'):
+			return trix.ncreate("propx.propiter.propiter", iter(o),*a,**k)
 	except:
 		pass
 	
 	
 	# anything else...
-	return propbase(x, *a, **k)
+	return propbase(o, *a, **k)
 	
 

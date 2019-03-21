@@ -84,6 +84,9 @@ class propgrid(proplist):
 			return self.__o
 	
 	
+	
+	
+	
 	@property
 	def o(self):
 		# Override default `self.o` to reflect value custom to this 

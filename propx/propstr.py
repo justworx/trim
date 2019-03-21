@@ -12,16 +12,11 @@ class propstr(propseq):
 	Wrapping lots of cool features around text strings.
 	"""
 	
-	splitlines = self.o.splitlines
-	
 	@property
 	def lines(self):
-		return proplist([self.glines])
-	
-	@property
-	def glines(self):
-		for x in self.o.splitlines():
-			yield (x)
+		return trix.ncreate(
+				"propx.proplist.proplist", self.o.splitlines()
+			)
 	
 	def scanner(self, **k):
 		return trix.ncreate('data.scan.Scanner', self.o, **k)

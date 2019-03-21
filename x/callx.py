@@ -11,13 +11,12 @@
 #    executables rather than values.
 # 
 
-from .. import *
+from ..propx import *
 import shlex
 
 
 class callx(object):
 	"""Creates and handles Popen calls."""
-	
 	
 	@classmethod
 	def trix(cls, cmd, **k):
@@ -34,6 +33,7 @@ class callx(object):
 		args.extend(a)
 		
 		return cls(args, **k)
+	
 	
 	
 	
@@ -58,9 +58,13 @@ class callx(object):
 			self.__a = cmd
 	
 	
+	def __repr__(self):
+		C = " ".join(self.a)
+		E = "..." if len(C)>45 else ""
+		return "<trix/%s \"%s%s\">" % (type(self).__name__, C[:45], E) 
+	
 	
 	def __call__(self):
-		
 		try:
 			self.__x
 			return self
@@ -82,7 +86,23 @@ class callx(object):
 			self.__x = m.Popen(self.__a, **self.__k)
 		
 		return self
-		
+	
+	
+	
+	
+	def reader(self):
+		try:
+			return self.__reader
+		except:
+			self.__buffer = trix.ncreate(
+				"util.stream.buffer.Buffer", 
+				self.x.stdout.read(), **self.__rk
+			)
+			self.__reader = self.__buffer.reader()
+			return self.__reader
+	
+	
+	
 	
 	@property
 	def a(self):
@@ -103,40 +123,44 @@ class callx(object):
 			self.__call__() # self.__call__() sets `self.__x`
 			return self.__x
 	
-	def reader(self):
-		try:
-			return self.__reader
-		except:
-			self.__buffer = trix.ncreate(
-				"util.stream.buffer.Buffer", 
-				self.x.stdout.read(), **self.__rk
-			)
-			self.__reader = self.__buffer.reader()
-			return self.__reader
-	
 	@property
-	def read(self):
+	def text(self):
+		"""Returns the text received from the called process."""
+		try:
+			return propx(self.__text)
+		except:
+			r = self.reader()
+			r.seek(0)
+			self.__text = r.read()
+			return propx(self.__text)
+			
+	@property
+	def data(self):
 		"""
 		Returns a propx object. Treat `read` like a function, or explore
 		the extra propx features.
 		"""
 		try:
-			return trix.propx(self.__data)
+			return self.__data
 		except:
-			r = self.reader()
-			r.seek(0)
-			self.__data = r.read()
-			return trix.propx(self.__data)
+			# If possible, convert text to json data.
+			try:
+				#
+				# If the text does parse to json, we need to set self.__data
+				# to the appropriate propbase subclass by calling propx().
+				#
+				data = trix.jparse(self.text())
+				self.__data = propx(data)
+				return self.__data
+			except:
+				pass
+			
+			#
+			# There may be other ways to convert text to data...
+			# if so, try them here.
+			#
+			
+			# If nothing above works, just set the text as the data.
+			self.__data = trix.propx(self.__text)
+			return self.__data
 
-
-
-
-""" NO...
-class Caller(object):
-	def __init__(self, cpath, *a, **k):
-		self.a = a
-		self.k = k
-		self.w = Wrapper(trix.create(cpath))
-	
-	def __call__(
-"""
