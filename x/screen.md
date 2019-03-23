@@ -17,8 +17,9 @@ anything else.
 Use Ctrl-c to exit the following screen.
 
 ```
-from trix.x.xcurses import *
-c = Screen()
+from trix.x.screen import *
+s = Screen()
+s.start()
 
 ```
 
