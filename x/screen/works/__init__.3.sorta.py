@@ -44,11 +44,9 @@ class BaseScreen(object):
 		try:
 			return self.__ss
 		except AttributeError as ex:
-			raise type(ex)(xdata(
-					error  ="err-unstarted-screen",
-					reason ="screen-not-started", 
-					suggest="call-screen.start",
-					en     ="Call `Screen.start()` before using Screen object."
+			raise type(ex)(xdata(error="err-unstarted-screen",
+					reason="screen-not-started", suggest="call-screen.start",
+					en="Call `Screen.start()` before using Screen object."
 				))
 	
 	
@@ -62,10 +60,15 @@ class BaseScreen(object):
 		Override this to handle any preparation for operation of this 
 		object.
 		"""
+		# this will probably never be seen except when Screen is started
+		# with no other display from io().
 		print ("Screen started. Ctrl-c to exit.\r")
 		self.__ss.clear()
 	
 	
+	#
+	# RUN
+	#
 	def run(self):
 		"""
 		Calls `self.prepare()` then loops calling `self.io()`. Finally,
@@ -74,11 +77,19 @@ class BaseScreen(object):
 		self.__run()
 	
 	
+	#
+	# IO
+	#
 	def io(self):
 		"""Override this to implement screen display."""
-		pass
+		c = self.ss.getch()
+		if c:
+			self.on_event(c)
 	
 	
+	#
+	# STOP
+	#
 	def stop(self):
 		"""Stop the `io()` event loop."""
 		self.__running = True
@@ -92,6 +103,18 @@ class BaseScreen(object):
 		pass
 	
 	
+	#
+	#
+	# EVENT HANDLING
+	#
+	#
+	
+	def on_event(self, c):
+		pass
+	
+	def on_mouse(self, c):
+		pass
+
 	
 	#
 	# PRIVATE METHODS
@@ -100,7 +123,8 @@ class BaseScreen(object):
 	def __run(self):
 		"""
 		This is the actual running of a started screen. It calls 
-		`self.prepare()` then loops calling `self.io()`.
+		`self.prepare()` then loops calling `self.io()`. When stopped,
+		`self.cleanup()` is called.
 		"""
 		self.prepare()
 		self.__running = True
@@ -143,22 +167,10 @@ class Screen(BaseScreen):
 	"""
 	
 	def __init__(self, config=None, **k):
-		"""
-		Pass a config dict, updated by optional kwargs.
-		"""
+		"""Pass a config dict, updated by optional kwargs."""
 		self.config = config or {}
 		self.config.update(k)
 	
-	
-	def prepare(self):
-		#BaseScreen.prepare(self)
-		b = self.config.get('echo')
-		print ("YES!\r" if b else "NO!!! -_-\r")
-		if b:
-			curses.echo()
-			print ("curses.echo() set to True!\r")
-
-
 
 
 
