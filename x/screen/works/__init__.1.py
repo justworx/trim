@@ -1,0 +1,163 @@
+#
+# Copyright 2018-2019 justworx
+# This file is part of the trix project, distributed under
+# the terms of the GNU Affero General Public License.
+#
+
+from ... import * # trix
+from ...util.wrap import * # trix
+import curses
+
+
+class BaseScreen(object):
+	"""
+	*** EXPERIMENTAL - EXPLORATORY - UNDER CONSTRUCTION ***
+	
+	Basic screen control via curses. Create a BaseScreen object (or
+	subclass) then call the `start()` method to prepare and display
+	the screen and then begin looping through calls to `io()`.
+	
+	```
+	s = Screen()
+	s.start()
+	
+	```
+	
+	The stop method may be called to end the io loop programatically.
+	
+	
+	After stopping, the `cleanup()` method is called. Override the
+	`prepare()` and `cleanup()` methods as necessary.
+	"""
+	
+	def __init__(self, *a, **k):
+		try:
+			self.__a
+		except:
+			self.__a = a
+			self.__k = k
+			
+	
+	@property
+	def ss(self):
+		"""Return stdscr, or None if `start()` hasn't been called."""
+		try:
+			return self.__ss
+		except AttributeError as ex:
+			raise type(ex)(xdata(error="err-unstarted-screen",
+					reason="screen-not-started", suggest="call-screen.start",
+					en="Call `Screen.start()` before using Screen object."
+				))
+	
+	
+	def main(self, stdscr):
+		try:
+			self.__ss
+			raise Exception("Main may be called only once.")
+		except:
+			self.__ss = stdscr
+			self.run()
+	
+	
+	def start(self):
+		"""Call this to start running the screen."""
+		curses.wrapper(self.main)
+	
+	
+	def run(self):
+		"""
+		This is the actual running of a started screen. It calls 
+		`self.prepare()` then loops calling `self.io()`.
+		"""
+		self.prepare()
+		self.__running = True
+		try:
+			while self.__running:
+				self.io()
+				time.sleep(0.1)
+		except KeyboardInterrupt:
+			pass
+	
+	
+	def prepare(self):
+		"""
+		Override this to handle any preparation for operation of this 
+		object.
+		"""
+		self.__ss.clear()
+		print ("Screen started. Ctrl-c to exit.\r")
+	
+	
+	def io(self):
+		"""Override this to do something frequently."""
+		pass
+	
+	
+	def stop(self):
+		"""Stop the `io()` event loop."""
+		self.__running = False
+	
+	
+	def cleanup(self):
+		"""
+		Finishing touches. I'm not even sure this is necessary, but it
+		feels symetrical, so I'm going to include it for now.
+		"""
+		pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+#
+#
+#  SCREEN
+#   - I'm leaving this blank for now - maybe forever, depending on
+#     how development goes. I want to see how much functionality I 
+#     put get into BaseScreen... Just small parts that could add up
+#     to more intuitive, more easy-to-use combinations.
+#
+#
+class Screen(BaseScreen):
+	"""
+	This class should extend BaseScreen with features for the handling
+	of screen display/updates.
+	"""
+	pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
