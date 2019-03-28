@@ -911,69 +911,40 @@ class trix(object):
 		# quality is OK.
 	
 	
-	
-	
-	
-	# C-LINE - Command Line call
-	#@classmethod
-	#def cline (cls, cmd, *a, **k):
-		#"""
-		#EXPERIMENTAL - UNDER CONSTRUCTION - EXPECT SWEEPING CHANGES
+	@classmethod
+	def loc(cls, locale=None):
+		"""
+		EXPERIMENTAL - UNDER CONSTRUCTION - EXPECT CHANGES
 		
-		#Returns a command-line string to open `cmd` with trix, given
-		#any additional arguments (converted to string).
+		Pass a locale string, eg., "en_US.UTF_8"; Default is the current
+		system default locale values.
 		
-		#NOTE: Any flags must be given as string arguments. 
-		      #Eg, "-c", or "-ci", or "-c -i", etc...
+		Returns a new object that's a subclass of `trix.x.loc.BaseLocale`
+		containing locale data, formats, and methods.
+		"""
 		
-		#THIS METHOD IS TOO NON-GENERIC FOR INCLUSION IN TRIX PROPER.
-		#Maybe put this in some kind of secondary module geared toward
-		#opening command line files or dealing with the operating system
-		#in general.
-		#```
-		#trix.system.cline('blah blah')
-		#trix.system.othersystemicthing('blahblahblah!')
-		#```
-		#"""
-		#ak = [cmd]
-		#ak.extend([str(a) for a in a])
-		#for item in k:
-			#ak.append("--%s=%s" % (item, str(k[item])))
-		#ak = ' '.join(ak)
-		#return "%s -m %s %s" % (sys.executable, trix.innerfpath(), ak)
-	
-	
-	#@classmethod
-	#def loc(cls, locale=None):
-		#"""
-		#EXPERIMENTAL - UNDER CONSTRUCTION - EXPECT SWEEPING CHANGES
+		if not locale:
+			#return trix.ncreate('x.loc.Locale')
+			locale = ".".join(trix.module("locale").getlocale())
 		
-		#Pass a locale string, eg., "en_US.UTF_8"; Default is the current
-		#system default locale values.
+		return trix.ncreate("x.loc.AltLoc", locale)
 		
-		#Returns a new `trix.x.loc` object containing locale format 
-		#methods and data.
-		#"""
-		## default is system default locale
-		#if not locale:
-			#locsig = ".".join(trix.module("locale").getlocale())
-		
-		#try:
-			## if `locale` already exists in the dict, return it
-			#return cls.__dlocale[locsig]
-		#except KeyError:
-			## if the dict exists but not the locale, create the locale and
-			## then return it.
-			#cls.__dlocale[locsig] = trix.ncreate("x.loc.Locale", locsig)
-			#return cls.__dlocale[locsig]
-		#except AttributeError:
-			## if the locale dict itself does not exist, create it first,
-			## then get and return the `Locale` object.
-			#cls.__dlocale = {}
-			#cls.__dlocale[locsig] = trix.ncreate("x.loc.Locale", locsig)
-			#return cls.__dlocale[locsig]
-
-
+		"""
+		try:
+			# if `locale` already exists in the dict, return it
+			return cls.__dlocale[locale]
+		except KeyError:
+			# if the dict exists but not the locale, create the locale 
+			# and then return it.
+			cls.__dlocale[locale] = trix.ncreate("x.loc.AltLoc", locale)
+			return cls.__dlocale[locale]
+		except AttributeError:
+			# if the locale dict itself does not exist, create it first,
+			# then get and return the `Locale` object.
+			cls.__dlocale = {}
+			cls.__dlocale[locale] = trix.ncreate("x.loc.AltLoc", locale)
+			return cls.__dlocale[locale]
+		"""
 
 
 
@@ -996,7 +967,7 @@ jconfig    = trix.jconfig
 jparse     = trix.jparse
 kcopy      = trix.kcopy
 kpop       = trix.kpop
-#loc        = trix.loc
+loc        = trix.loc
 log        = trix.log
 module     = trix.module
 nconfig    = trix.nconfig
@@ -1140,6 +1111,12 @@ except:
 	bytes = str
 
 
+# sigh.
+try:
+	FileNotFoundError
+except:
+	class FileNotFoundError(NameError):
+		pass
 
 
 

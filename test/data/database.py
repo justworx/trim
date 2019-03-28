@@ -18,7 +18,7 @@ def remove_test_databases():
 	try:
 		path = testpath("dbtest.sqlite3")
 		trix.path(path).wrapper().remove()
-	except FileNotFoundError:
+	except OSError, FileNotFoundError:
 		pass
 	except BaseException as ex:
 		raise type(ex)(ex.args, xdata(path=path))
@@ -26,7 +26,7 @@ def remove_test_databases():
 	try:
 		path = testpath("dbtest2.sqlite3")
 		trix.path(path).wrapper().remove()
-	except FileNotFoundError:
+	except OSError, FileNotFoundError:
 		pass
 	except BaseException as ex:
 		raise type(ex)(ex.args, xdata(path=path))
