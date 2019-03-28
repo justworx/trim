@@ -120,9 +120,10 @@ class cix(cline):
 				value = trix.formatter(f="JCompact").format(value)
 			if xcompact:
 				value = trix.ncreate('util.compenc.compact', value)
+			
 			try:
-				print(value.decode(trix.DEF_ENCODE))
-			except:
+				print(value.decode(DEF_ENCODE))
+			except AttributeError:
 				print(value)
 		
 		else:
