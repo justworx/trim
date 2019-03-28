@@ -19,7 +19,7 @@ class callx(object):
 	"""Creates and handles Popen calls."""
 	
 	@classmethod
-	def trix(cls, cmd, **k):
+	def cline(cls, cmd, **k):
 		"""
 		Pass a cline handler name and args, plus optional kwargs. Returns
 		a callx object.

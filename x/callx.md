@@ -6,13 +6,13 @@ c.data
 
 
 from trix.x.callx import *
-cx = callx.trix("echo Phoo Bear!")
+cx = callx.cline("echo Phoo Bear!")
 cx.text
 cx.data()
 
 
 from trix.x.callx import *
-cx = callx.trix("loc en_CA.utf_8")
+cx = callx.cline("loc en_CA.utf_8")
 cx.data.display()
 
 
