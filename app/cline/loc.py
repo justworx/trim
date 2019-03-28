@@ -67,6 +67,8 @@ class loc(cix): #loc(cline):
 		# think about joining all these dicts into one...
 		rdict['locale'] = self.sig # eg. en_US.UTF_8
 		rdict['loconv'] = locale.localeconv()
+		
+		"""
 		rdict['format'] = {
 			"datetime" : locale.nl_langinfo(locale.D_T_FMT),
 			"date" : locale.nl_langinfo(locale.D_FMT),
@@ -74,6 +76,7 @@ class loc(cix): #loc(cline):
 			"ampm" : locale.nl_langinfo(locale.T_FMT_AMPM),
 			"era" : locale.nl_langinfo(locale.ERA)
 		}
+		"""
 		
 		# values
 		rdict['day'] = [locale.nl_langinfo(x) for x in loc.DAY]
@@ -81,18 +84,25 @@ class loc(cix): #loc(cline):
 		rdict['mon'] = [locale.nl_langinfo(x) for x in loc.MON]
 		rdict['abmon'] = [locale.nl_langinfo(x) for x in loc.ABMON]
 		
-		# other
-		rdict['radix'] = locale.nl_langinfo(locale.RADIXCHAR)
-		rdict['thousep'] = locale.nl_langinfo(locale.THOUSEP)
-		rdict['YESEXPR'] = locale.nl_langinfo(locale.YESEXPR)
-		rdict['NOEXPR'] = locale.nl_langinfo(locale.NOEXPR)
-		rdict['CRNCYSTR'] = locale.nl_langinfo(locale.CRNCYSTR)
+		# datetime format strings
+		rdict['D_T_FMT'] = locale.nl_langinfo(locale.D_T_FMT)
+		rdict['D_FMT'] = locale.nl_langinfo(locale.D_FMT)
+		rdict['T_FMT'] = locale.nl_langinfo(locale.T_FMT)
+		rdict['T_FMT_AMPM'] = locale.nl_langinfo(locale.T_FMT_AMPM)
 		rdict['ERA'] = locale.nl_langinfo(locale.ERA)
 		rdict['ERA_D_T_FMT'] = locale.nl_langinfo(locale.ERA_D_T_FMT)
 		rdict['ERA_D_FMT'] = locale.nl_langinfo(locale.ERA_D_FMT)
 		rdict['ERA_T_FMT'] = locale.nl_langinfo(locale.ERA_T_FMT)
 		
-		self.display(rdict)
+		# other
+		rdict['RADIXCHAR'] = locale.nl_langinfo(locale.RADIXCHAR)
+		rdict['THOUSEP'] = locale.nl_langinfo(locale.THOUSEP)
+		rdict['YESEXPR'] = locale.nl_langinfo(locale.YESEXPR)
+		rdict['NOEXPR'] = locale.nl_langinfo(locale.NOEXPR)
+		rdict['CRNCYSTR'] = locale.nl_langinfo(locale.CRNCYSTR)
+		
+		self.display(rdict, sort_keys=1)
+	
 	
 	
 	# -----------------------------------------------------------------

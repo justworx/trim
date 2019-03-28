@@ -99,7 +99,7 @@ class cix(cline):
 	
 	
 	
-	def display(self, value):
+	def display(self, value, **k):
 		"""
 		JSON display, for returning json. This should be the default
 		so we can see results nice and pretty in the terminal.
@@ -127,5 +127,5 @@ class cix(cline):
 				print(value)
 		
 		else:
-			trix.display(value)
+			trix.display(value, **k)
 	
