@@ -51,17 +51,44 @@ class propseq(propiter):
 			yield (str(line))
 	
 	
-	def text(self, glue=None):
-		"""
-		Join list items into lines of text. Pass optional `glue` value, 
-		the char(s) on which to join list items (Default: '').
-		"""
+	"""
+	#
+	# This seems like it should be pretty easy, but I can't figure it
+	# out. I guess we can't convert bytes to unicode... what? In some
+	# particular situation that's occuring.............. # HERE...?
+	#
+	# WTH am i missing? For some reason 
+	#
+	def text(self, glue=None, **k):
+		#
+		# Join list items into lines of text. Pass optional `glue` value, 
+		# the char(s) on which to join list items (Default: '').
+		#
+		
 		try:
 			g = glue or ''
-			return g.join(self.o)
+			txt = g.join(self.o)
 		except TypeError:
-			g = glue or b''
-			return propstr(g.join(self.o))
+			try:
+				g = glue or b''
+				print ("<DEBUG>")
+				print(".")
+				print("self.o -> ", bytes(self.o))
+				print(".")
+				print("bytes(self.o) -> ", bytes(self.o))
+				print(".")
+				print ("type(self.o) ->", type(self.o))
+				print(".")
+				print ("type(self.o[0]) ->", type(self.o[0]))
+				print ("self.o[0] ->", self.o[0])
+				print(".")
+				print ("</DEBUG>")
+				txt = g.join(self.o)                   # <--- HERE
+				txt = txt.decode(**k)
+			except Exception as ex:
+				raise type(ex)(xdata(g=g, o0=self.o[0], To0=type(self.o[0])))
+		return trix.ncreate('propx.propstr', txt)
+	"""
 	
 	
 	def proplist(self):

@@ -503,8 +503,8 @@ class trix(object):
 	
 	# CALL-X
 	@classmethod
-	def callx (cls, cmd, **k):
-		return cls.ncreate('x.callx.callx', cmd, **k)
+	def callx (cls, cmd=None, **k):
+		return cls.ncreate('util.callx.callx', cmd, **k)
 		
 	
 	
@@ -914,37 +914,17 @@ class trix(object):
 	@classmethod
 	def loc(cls, locale=None):
 		"""
-		EXPERIMENTAL - UNDER CONSTRUCTION - EXPECT CHANGES
-		
 		Pass a locale string, eg., "en_US.UTF_8"; Default is the current
 		system default locale values.
 		
-		Returns a new object that's a subclass of `trix.x.loc.BaseLocale`
-		containing locale data, formats, and methods.
+		Returns a new object that's a subclass of `util.loc.BaseLocale`
+		containing locale data and format strings.
 		"""
 		
 		if not locale:
-			#return trix.ncreate('x.loc.Locale')
 			locale = ".".join(trix.module("locale").getlocale())
 		
-		return trix.ncreate("x.loc.AltLoc", locale)
-		
-		"""
-		try:
-			# if `locale` already exists in the dict, return it
-			return cls.__dlocale[locale]
-		except KeyError:
-			# if the dict exists but not the locale, create the locale 
-			# and then return it.
-			cls.__dlocale[locale] = trix.ncreate("x.loc.AltLoc", locale)
-			return cls.__dlocale[locale]
-		except AttributeError:
-			# if the locale dict itself does not exist, create it first,
-			# then get and return the `Locale` object.
-			cls.__dlocale = {}
-			cls.__dlocale[locale] = trix.ncreate("x.loc.AltLoc", locale)
-			return cls.__dlocale[locale]
-		"""
+		return trix.ncreate("util.loc.AltLoc", locale)
 
 
 
@@ -956,6 +936,7 @@ class trix(object):
 #
 # -------------------------------------------------------------------
 
+callx      = trix.callx
 config     = trix.config
 create     = trix.create
 debug      = trix.debug

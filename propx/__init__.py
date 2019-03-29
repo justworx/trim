@@ -219,6 +219,13 @@ class propbase(object):
 		"""
 		return self.compenc.compact(self.json(**k).encode('utf8'))
 	
+	@property
+	def expand(self, **k):
+		"""
+		Expand data compressed by `self.compact()`.
+		"""
+		return propx(self.compenc.expand(self.o))
+	
 
 
 #

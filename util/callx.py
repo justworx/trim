@@ -37,7 +37,7 @@ class callx(object):
 	
 	
 	
-	def __init__(self, cmd, **k):
+	def __init__(self, cmd=None, **k):
 		"""
 		Pass argument `cmd`, which may be one of the following:
 		 * a string containing a command line, to be split with shlex
@@ -51,11 +51,34 @@ class callx(object):
 		# remaining kwargs must be for Popen.
 		self.__k = k
 		
-		# get the command-line arguments
-		try:
-			self.__a = shlex.split(cmd)
-		except:
-			self.__a = cmd
+		
+		if cmd:
+			# get the command-line arguments
+			try:
+				self.__a = shlex.split(cmd)
+			except:
+				self.__a = cmd
+		
+		else:
+			if 'cline' in self.k:
+				args = [sys.executable, '-m', trix.innerpath()]
+				try:
+					a = shlex.split(self.k.get('cline'))
+				except:
+					a = self.k.get('cline')
+				args.extend(a)
+				
+				#
+				# Get rid of the cline kwarg so it can't interfere with any
+				# other method calls.
+				#
+				trix.kpop(k, 'cline')
+		
+		# Finally, set self.__a to the generated arg list	
+		self.__a = args
+				
+			
+			
 	
 	
 	def __repr__(self):
@@ -166,4 +189,10 @@ class callx(object):
 			# If nothing above works, just set the text as the data.
 			self.__data = trix.propx(self.__text)
 			return self.__data
+
+
+
+
+
+
 

@@ -18,7 +18,10 @@ class dt(object):
 		Pass `dt` as (float) seconds or timestruct. Default None sets
 		this object's time to now().
 		
-		Format strings default to locale-appropriate formats.
+		Format strings default to locale-appropriate formats. Systems 
+		that allow access to more than one locale may specify a locale
+		string to access alternate format strings. (Does not work on 
+		MS Windows systems.)
 		"""
 		if dt:
 			try:
@@ -29,13 +32,18 @@ class dt(object):
 		else:
 			self.__time = time.time()
 		
-		# locale for dt translation
-		self.__loc = trix.loc(loc)
+		self.__locsig = loc
 	
 	
 	@property
 	def loc(self):
-		return self.__loc
+		"""A locale description for dt translation."""
+		try:
+			return self.__loc
+		except:
+			self.__loc = trix.loc(self.__locsig)
+			return self.__loc
+			
 	
 	@property
 	def float(self):
@@ -46,15 +54,12 @@ class dt(object):
 	
 	@property
 	def struct(self):
-		"""
-		A DateTime struct created from this object's self.time.
-		"""
+		"""A DateTime struct created from this object's self.time."""
 		try:
 			return self.__struct
 		except:
 			self.__struct = time.localtime(self.__time)
 			return self.__struct
-	
 	
 	def format(self, fmt=None):
 		"""Format using strftime."""
@@ -62,26 +67,18 @@ class dt(object):
 	
 	def datetime(self, fmt=None):
 		"""Format using locale-specific format string."""
-		return self.format(fmt or self.__loc.D_T_FMT)
+		return self.format(fmt or self.loc.D_T_FMT)
 	
 	def date(self, fmt=None):
-		"""
-		Format using locale-specific format string. 
-		"""
-		return self.format(fmt or self.__loc.D_FMT)
+		"""Format using locale-specific format string. """
+		return self.format(fmt or self.loc.D_FMT)
 	
 	def time(self, fmt=None):
-		"""
-		Format using locale-specific format string. .
-		"""
-		return self.format(fmt or self.__loc.T_FMT)
+		"""Format using locale-specific format string."""
+		return self.format(fmt or self.loc.T_FMT)
 	
 	def ampm(self, fmt=None):
-		"""
-		Format using locale-specific format string. 
-		"""
-		return self.format(fmt or self.__loc.T_FMT_AMPM)
-		
-		
-	
-	
+		"""Format using locale-specific format string."""
+		return self.format(fmt or self.loc.T_FMT_AMPM)
+
+
