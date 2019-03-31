@@ -4,7 +4,7 @@
 # the terms of the GNU Affero General Public License.
 #
 
-from .udata.charinfo import *
+from ..data.udata.charinfo import *
 from ..util.stream.buffer import *
 
 
@@ -369,6 +369,35 @@ class Scanner(object):
 		except StopIteration:
 			self.__eof = True
 			return b.read()
+
+
+	# ----------------------------------------------------------
+	
+	def splits(self, chars):
+		"""
+		Pass a string containing characters to split on, in the order
+		they're to be used. Each char in `chars` is used only once, so
+		for each place a particular split should be made, the same
+		character must be repeated.
+		
+		```
+		s = Scanner('aa_DJ.iso88591.json')
+		s.splits("_..")
+		s.remainder()
+		```
+		"""
+		r = []
+		for c in chars:
+			r.append(self.scanto(c))
+			self.cc
+		return r
+	
+	
+	def remainder(self):
+		"""Return whatever's left of the scan text."""
+		return self.collect(lambda c: True)
+		
+	
 
 
 

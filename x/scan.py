@@ -379,12 +379,19 @@ class Scanner(object):
 		they're to be used. Each char in `chars` is used only once, so
 		for each place a particular split should be made, the same
 		character must be repeated.
+		
+		```
+		s = Scanner('aa_DJ.iso88591.json')
+		s.splits("_..")
+		s.remainder()
+		```
 		"""
 		r = []
 		for c in chars:
 			r.append(self.scanto(c))
 			self.cc
 		return r
+	
 	
 	def remainder(self):
 		"""Return whatever's left of the scan text."""
