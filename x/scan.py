@@ -21,9 +21,6 @@ class Scanner(object):
 		self.__bufsz = k.get('bufsz', self.BufSize)
 		self.__itext = iter(iterable_text)
 		
-		# create cinfo objecct immediately
-		self.__cinfo = charinfo(self.__itext)
-		
 		# flag set to True on StopIteration
 		self.__eof = False
 	
@@ -44,10 +41,10 @@ class Scanner(object):
 	def cc(self):
 		"""Move forward one and return the character info object."""
 		try:
-			c = self.__cinfo.next()
-			if self.__analysis:
-				self.analyze(c)
-			return c
+			return self.__cinfo.next()
+		except AttributeError:
+			self.__cinfo = charinfo(self.__itext)
+			return self.__cinfo.next()
 		except StopIteration:
 			self.__eof = True
 	
@@ -372,6 +369,28 @@ class Scanner(object):
 		except StopIteration:
 			self.__eof = True
 			return b.read()
+
+
+	# ----------------------------------------------------------
+	
+	def splits(self, chars):
+		"""
+		Pass a string containing characters to split on, in the order
+		they're to be used. Each char in `chars` is used only once, so
+		for each place a particular split should be made, the same
+		character must be repeated.
+		"""
+		r = []
+		for c in chars:
+			r.append(self.scanto(c))
+			self.cc
+		return r
+	
+	def remainder(self):
+		"""Return whatever's left of the scan text."""
+		return self.collect(lambda c: True)
+		
+	
 
 
 

@@ -55,9 +55,9 @@ class callx(object):
 		if cmd:
 			# get the command-line arguments
 			try:
-				self.__a = shlex.split(cmd)
+				args = shlex.split(cmd)
 			except:
-				self.__a = cmd
+				args = cmd
 		
 		else:
 			if 'cline' in self.k:

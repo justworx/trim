@@ -78,7 +78,18 @@ class dt(object):
 		return self.format(fmt or self.loc.T_FMT)
 	
 	def ampm(self, fmt=None):
-		"""Format using locale-specific format string."""
-		return self.format(fmt or self.loc.T_FMT_AMPM)
+		"""
+		Format using locale-specific format string. Returned time string
+		will present with AM/PM specification for locales where that is
+		possible, else with the 24-hour clock time for other locales.
+		
+		NOTE: As far as I can tell, `time` and `ampm` are exactly the
+		      same. I'll leave them here in case there are situations I'm
+		      unaware of in which the distinction is significant.
+		"""
+		if fmt:
+			return self.format(fmt)
+		else:
+			return self.format(self.loc.T_FMT_AMPM) or self.time()
 
 
