@@ -380,14 +380,6 @@ class Scanner(object):
 		for each place a particular split should be made, the same
 		character must be repeated.
 		
-		REMEMBER! This is not `split()`! Characters in `chars` must be 
-		repeated in order to cause a split on multiple instances of the 
-		same character within the text.
-		
-		Pass "xy" to retrieve ["A","B"] from "AxByCz". Anything following
-		the last split character ('y') is considered the "remainder", and
-		may be retrieved by calling `self.remainder()`.
-		
 		```
 		s = Scanner('aa_DJ.iso88591.json')
 		s.splits("_..")
@@ -404,70 +396,12 @@ class Scanner(object):
 			self.__eof = True
 			return r
 	
+	
 	def remainder(self):
 		"""Return whatever's left of the scan text."""
 		return self.collect(lambda c: True)
 		
-
-
-
-class RScan(Scanner):
-	"""Reverse scanner. Scans text backward."""
 	
-	def __init__(self, forward_iterable,  **k):
-		"""
-		Pass text to split from the reversed direction.
-		"""
-		Scanner.__init__(self, reversed(forward_iterable))
-	
-	
-	def rsplits(self, chars):
-		"""
-		Pass characters to split on. Each character results in one
-		split for as long as the following character is found in the
-		text. 
-		
-		NOTE! This is not `split()`! Characters in `chars` must be 
-		repeated in order to cause a split on multiple instances of the 
-		same character within the text. Passing '_' as chars when trying
-		to split "a_b_c" will result in ['c'], with a remainder of "a_b".
-		You must pass "_"*2 to get the result ['b','c'] with a remainder
-		of "a".
-		
-		With `rsplits()`, as with `splits()`, split characters should be 
-		given in the forward direction with the last of the splitting 
-		chars being last in the list of `chars`. 
-		
-		```
-		>>> s = RScan("Fi-fie-fo-fum! Hello_World.xyz")
-		>>> s.rsplits(" _.")
-		['Hello', 'World', 'xyz']
-		
-		```
-		
-		REMEMBER:
-		Use `s.remainder()` if you want to retrieve whatever came before 
-		"Hello".
-		
-		```
-		>>> s.remainder()
-		'Fi-fie-fo-fum!'
-		
-		```
-		"""
-		
-		lv = self.splits(reversed(chars))
-		rr = []
-		for item in lv:
-			rr.append(item[::-1]) # or ''.join(reversed("123"))
-		
-		return list(reversed(rr))
-	
-	
-	def remainder(self):
-		"""Return whatever's left of the scan text."""
-		return self.collect(lambda c: True)[::-1]
-
 
 
 

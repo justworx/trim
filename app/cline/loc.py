@@ -20,20 +20,32 @@ class loc(cix): #loc(cline):
 	def __init__(self):
 		"""Handle loc requests."""
 		
-		# create object base, and self.sig signature (Eg., "en_US.utf_8")
+		#
+		# SETUP
+		#  - create object base and self.sig (Eg., "en_US.utf_8")
+		#
 		cix.__init__(self)
 		try:
 			self.sig = self.args[0]
 		except IndexError:
 			self.sig = '.'.join(locale.getlocale()) # default to System
 		
+		if self.sig and self.sig[-1]=='.':
+			self.sig = self.sig[:-1]
 		
-		# Set the locale...
-		locale.setlocale(locale.LC_ALL, self.sig)
+		try:
+			# Set the locale...
+			locale.setlocale(locale.LC_ALL, self.sig)
+		except Exception as ex:
+			raise type(ex)(xdata(error="err-unsupported-specifier",
+					detail="unknown-locale-signature", signature=self.sig,
+					suggest="try encoding 'utf_8'."
+				)) 
 		
+		#
 		# Display the full locale info dict.
+		#
 		self.get_loc_info()
-		
 		
 		"""
 		#
@@ -64,19 +76,8 @@ class loc(cix): #loc(cline):
 		
 		rdict = {}
 		
-		# think about joining all these dicts into one...
 		rdict['locale'] = self.sig # eg. en_US.UTF_8
 		rdict['loconv'] = locale.localeconv()
-		
-		"""
-		rdict['format'] = {
-			"datetime" : locale.nl_langinfo(locale.D_T_FMT),
-			"date" : locale.nl_langinfo(locale.D_FMT),
-			"time" : locale.nl_langinfo(locale.T_FMT),
-			"ampm" : locale.nl_langinfo(locale.T_FMT_AMPM),
-			"era" : locale.nl_langinfo(locale.ERA)
-		}
-		"""
 		
 		# values
 		rdict['day'] = [locale.nl_langinfo(x) for x in loc.DAY]

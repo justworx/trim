@@ -386,18 +386,66 @@ class Scanner(object):
 		s.remainder()
 		```
 		"""
-		r = []
-		for c in chars:
-			r.append(self.scanto(c))
-			self.cc
-		return r
-	
+		try:
+			r = []
+			for c in chars:
+				r.append(self.scanto(c))
+				self.cc
+			return r
+		except StopIteration:
+			self.__eof = True
+			return r
 	
 	def remainder(self):
 		"""Return whatever's left of the scan text."""
 		return self.collect(lambda c: True)
 		
+
+
+
+class RScan(Scanner):
+	"""Reverse scanner. Scans text backward."""
 	
+	def __init__(self, forward_iterable,  **k):
+		"""
+		Pass text to split from the reversed direction.
+		"""
+		Scanner.__init__(self, reversed(forward_iterable))
+	
+	
+	def rsplits(self, chars):
+		"""
+		Pass characters to split on, in the intuitive direction with the
+		flow of text at the end of the stream.
+		
+		```
+		>>> s = RScan("Fi-fie-fo-fum! Hello_World.xyz")
+		>>> s.rsplits(" _.")
+		['Hello', 'World', 'xyz']
+		
+		```
+		
+		Use `s.remainder()` to retrieve whatever came before "Hello"...
+		
+		```
+		>>> s.remainder()
+		'Fi-fie-fo-fum!'
+		
+		```
+		"""
+		
+		lv = self.splits(reversed(chars))
+		rr = []
+		for item in lv:
+			rr.append(item[::-1]) # or ''.join(reversed("123"))
+		
+		return list(reversed(rr))
+	
+	
+	def remainder(self):
+		"""Return whatever's left of the scan text."""
+		return self.collect(lambda c: True)[::-1]
+
 
 
 
