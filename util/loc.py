@@ -56,10 +56,11 @@ class Locale(BaseLocale):
 		locale format data.
 		
 		The `loc_str` argument must be a string in the following format:
-		 * langcode_country.endocing
-		 * Eg., "en_US.utf_8"
+		 * langcode_country.encoding
+		 * Eg., "en_US.utf8"
 		
 		"""
+		
 		try:
 			#
 			# This will fail on first call, so will be handled below. On
@@ -76,12 +77,57 @@ class Locale(BaseLocale):
 				Locale.__qdict = Locale.query_locale_dict
 			
 			# here's the initialization for the first call
+			
 			BaseLocale.__init__(self, Locale.__qdict(loc_str))
 	
+	
+	@classmethod
+	def validate_locstr(self, loc_str):
+		"""
+		Converts a reasonably valid loc_str to the format in which locale 
+		members are stored in the asset file, changing case and encoding
+		values to match exactly. Eg., "En_Us.Utf-8" to "en_US.utf8", etc.
+		
+		>>> Locale.validate_locstr("AA_er.UTF-8@SAAHO")
+    'aa_ER.utf8@saaho'
+
+		"""
+		s = trix.scan(loc_str)
+		ll = s.splits("_.@")
+		ll[0]=ll[0].lower()
+		ll[1]=ll[1].upper()
+		
+		ln = len(ll)
+		if ln<3:
+			return "%s_%s" % ll
+		
+		#
+		# If an encoding is included, make sure it matches member naming
+		# conventions in the locale scheme.
+		#
+		eh = "util.enchelp.EncodingHelper"
+		e = trix.ncreate(eh, encoding=ll[2]).encoding
+		if e == 'utf_8':
+			ll[2] = 'utf8'
+		else:
+			ll[2] = ll[2].lower()
+		
+		# if we get this far, there may be a remainder...
+		rem = s.remainder()
+		if rem:
+			ll.append(rem.lower())
+			return  "%s_%s.%s@%s" % tuple(ll)
+		
+		# otherwise, it's just the three basic elements
+		else:
+			return "%s_%s.%s" % tuple(ll)
+			
+		
 		
 	@classmethod
 	def query_asset_dict(cls, loc_str):
 		"""Query locale dict from assets."""
+		loc_str = cls.validate_locstr(loc_str)
 		j = trix.path(cls.AssetPath).wrapper().read(loc_str)
 		return trix.jparse(j)
 	

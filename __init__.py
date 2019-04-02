@@ -694,6 +694,13 @@ class trix(object):
 			return obj
 	
 	
+	# SCAN - Returns a scanner.
+	@classmethod
+	def scan(cls, *a, **k):
+		"""Returns a scanner."""
+		return trix.ncreate('data.scan.Scanner', *a, **k)
+	
+	
 	
 	#
 	#
