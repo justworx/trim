@@ -37,9 +37,9 @@ class loc(cix): #loc(cline):
 			# Set the locale...
 			locale.setlocale(locale.LC_ALL, self.sig)
 		except Exception as ex:
-			raise type(ex)(xdata(error="err-unsupported-specifier",
+			raise type(ex)(xdata(error="err-unsupported-signature",
 					detail="unknown-locale-signature", signature=self.sig,
-					suggest="try encoding 'utf_8'."
+					suggest="verify-locale-signature"
 				)) 
 		
 		#
@@ -77,7 +77,15 @@ class loc(cix): #loc(cline):
 		rdict = {}
 		
 		rdict['locale'] = self.sig # eg. en_US.UTF_8
-		rdict['loconv'] = locale.localeconv()
+		rdict['CODESET'] = locale.nl_langinfo(locale.CODESET)
+		
+		#
+		# NOT GOOD!
+		#rdict['loconv'] = locale.localeconv()
+		#
+		loconv = locale.localeconv()
+		for k in loconv:
+			rdict[k] = loconv[k]
 		
 		# values
 		rdict['day'] = [locale.nl_langinfo(x) for x in loc.DAY]

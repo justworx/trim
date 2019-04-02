@@ -924,7 +924,7 @@ class trix(object):
 		if not locale:
 			locale = ".".join(trix.module("locale").getlocale())
 		
-		return trix.ncreate("util.loc.AltLoc", locale)
+		return trix.ncreate("util.loc.Locale", locale)
 
 
 
