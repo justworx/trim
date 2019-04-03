@@ -11,18 +11,32 @@ from ..util.stream.buffer import *
 class Scanner(object):
 	"""Scan unicode text one character at a time."""
 	
-	Debug = False
+	#Debug = False
 	Escape = "\\"
 	BufSize = 2048
 	
 	def __init__(self, iterable_text, **k):
 		"""Pass anything iterable that produces unicode characters."""
+		self.__k = k
 		self.__escape = k.get('escape', self.Escape)
 		self.__bufsz = k.get('bufsz', self.BufSize)
 		self.__itext = iter(iterable_text)
 		
 		# flag set to True on StopIteration
 		self.__eof = False
+	
+	
+	#
+	# FEATURES
+	#
+	@property
+	def r(self):
+		"""
+		Returns a Scanner object that reads any text in this stream
+		backward.
+		"""
+		return RScan(self.collect(lambda c: True), **self.__k)
+	
 	
 	#
 	# CHARACTERS
@@ -227,6 +241,8 @@ class Scanner(object):
 		# This should capture individual space-separated elements.
 		else:
 			return self.collect(lambda ci: ci.cat != "Zs")
+		
+		
 	
 	
 	# SPLIT
@@ -261,21 +277,21 @@ class Scanner(object):
 		
 		self.passwhite()
 		
-		if self.Debug:
-			print ("FIRST: %s" % (self.c))
-			print ("BREAK: %s" % (self.c.linebreak))
+		# ~ if self.Debug:
+			# ~ print ("FIRST: %s" % (self.c))
+			# ~ print ("BREAK: %s" % (self.c.linebreak))
 		
 		try:
 			
-			dbg = []
+			# ~ dbg = []
 			
 			#
 			# BRACKET/BRACE/ETC...
 			#
 			if self.c.bracket:
 				
-				if self.Debug:
-					print ("BRACKET")
+				# ~ if self.Debug:
+					# ~ print ("BRACKET")
 				
 				# keep count of the number of unclosed brackets
 				ct = 1
@@ -284,24 +300,24 @@ class Scanner(object):
 				# the result buffer.
 				br = self.char
 				
-				if self.Debug:
-					dbg.append(br)
-					print (" -- :", ''.join(dbg), ';', str(ct))
+				# ~ if self.Debug:
+					# ~ dbg.append(br)
+					# ~ print (" -- :", ''.join(dbg), ';', str(ct))
 				
 				# Store the ending (close bracket) in `end`
 				end = self.c.bracket[1]
 				
-				if self.Debug:
-					print ("BR/END:", br, '/', end)
+				# ~ if self.Debug:
+					# ~ print ("BR/END:", br, '/', end)
 				
 				try:
 					while (ct > 0):
 						w.write(self.c.c)
 						ci = self.cc
 						
-						if self.Debug:
-							dbg.append(ci.c)
-							print (" -- :", ''.join(dbg), ';', str(ct))
+						# ~ if self.Debug:
+							# ~ dbg.append(ci.c)
+							# ~ print (" -- :", ''.join(dbg), ';', str(ct))
 						
 						if ci.c == br:
 							ct += 1
@@ -332,31 +348,14 @@ class Scanner(object):
 		w = b.writer()
 		
 		self.passwhite()
-		
-		if self.Debug:
-			print ("FIRST: %s" % (self.c))
-			print ("BREAK: %s" % (self.c.linebreak))
-		
 		try:
-			
-			dbg = []
-			
 			if self.c.linebreak == "QU":
-				if self.Debug:
-					print ("QUOTE")
-				
 				q = self.c.c
-				if self.Debug:
-					print (" -  q:", q)
-				
 				w.write(q)
 				self.cc # move one ahead
 				cn = self.scanto(q)
 				w.write(cn)
 				cz = self.c.c
-				
-				if self.Debug:
-					print (" - cz:", cz)
 				
 				# write the closing quote before chancing the self.cc!
 				w.write(cz)
@@ -369,16 +368,18 @@ class Scanner(object):
 		except StopIteration:
 			self.__eof = True
 			return b.read()
-
-
-	# ----------------------------------------------------------
 	
-	def splits(self, chars):
+	
+	# SPLITS - Split text on multiple characters
+	def splits(self, chars, remainder=False):
 		"""
 		Pass a string containing characters to split on, in the order
 		they're to be used. Each char in `chars` is used only once, so
 		for each place a particular split should be made, the same
 		character must be repeated.
+		
+		Pass second argument `remainder` as True to add remainder text
+		the resulting list.
 		
 		```
 		s = Scanner('aa_DJ.iso88591.json')
@@ -391,29 +392,118 @@ class Scanner(object):
 			for c in chars:
 				r.append(self.scanto(c))
 				self.cc
+			
+			if remainder:
+				r.append(self.remainder())
+			
 			return r
 		except StopIteration:
+			print ("stop-iter")
 			self.__eof = True
 			return r
 	
+	
+	# REMAINDER
 	def remainder(self):
 		"""Return whatever's left of the scan text."""
-		return self.collect(lambda c: True)
+		try:
+			return self.collect(lambda c: True)
+		except StopIteration:
+			self.__eof = True
+
+	
+	
+	#
+	# TESTING --------------------
+	#
+	
+	# SPLIT
+	def split_space(self):
+		"""
+		Split text, but also add consecutive white space into the result
+		list.
+		"""
+		r = []
+		try:
+			v = True
+			while v:
+				r.append(self.collect(lambda ci: ci.space))
+				v = self.scan()
+				if v:
+					r.append(v)
+		except StopIteration:
+			self.__eof = True
+		return r
+	
+	
+	def split_escape(self, char="%"):
+		"""
+		Return a list of escape characters + the following char, with
+		any unescaped segments split by spaces.
+		
+		s.split_escape("%m/%d/%y") --> ["%m", "/", "%d", "/", "%y"]
+		
+		"""
+		r = []
+		try:
+			
+			# These are the characters we're looking for - escape sequences.
+			xchars = '%s '%char
+			
+			# Loop through the text...
+			while True:
+				
+				# collect anything that comes before the first escape sequence
+				r.append(self.collect(lambda ci: ci.c not in xchars))
+				
+				# parse the (two-character) escape sequence
+				if self.char == char:
+					
+					# we know the first part is % (or whatever char is)
+					cchar = self.cc.c
+					
+					# now we need to make sure the next char isn't ' ' space
+					if cchar.strip():
+						# if it's not, add it to the return list as %<x>
+						r.append("%s%s" % (char, cchar))
+						self.cc
+					
+					else:
+						# what to do if percent is followed by whitespace?
+						r.append("%") # just use it, i guess.
+						r.append(cchar)
+				
+				elif self.c.white:
+					r.append(self.collect(lambda ci: ci.white))
+				
+				else:
+					r.append(self.collect(lambda ci: ci.c not in xchars))
+			
+		except StopIteration:
+			self.__eof = True
+		return r
 		
 
 
-
+# -------------------------------------------------------------------
+#
+#
+# REVERSE SCANNER
+#
+#
+# -------------------------------------------------------------------
 class RScan(Scanner):
 	"""Reverse scanner. Scans text backward."""
 	
 	def __init__(self, forward_iterable,  **k):
 		"""
-		Pass text to split from the reversed direction.
+		Pass text to scan from the reversed direction.
 		"""
 		Scanner.__init__(self, reversed(forward_iterable))
 	
 	
-	def rsplits(self, chars):
+	# REVERSE SPLIT
+	def rsplits(self, chars, remainder=False):
 		"""
 		Pass characters to split on, in the intuitive direction with the
 		flow of text at the end of the stream.
@@ -433,18 +523,25 @@ class RScan(Scanner):
 		
 		```
 		"""
-		
-		lv = self.splits(reversed(chars))
-		rr = []
-		for item in lv:
-			rr.append(item[::-1]) # or ''.join(reversed("123"))
-		
+		try:
+			lv = self.splits(reversed(chars), remainder)
+			rr = []
+			for item in lv:
+				rr.append(item[::-1]) # or ''.join(reversed("123"))
+		except StopIteration:
+			self.__eof = True
+				
 		return list(reversed(rr))
 	
 	
+	# REMAINDER
 	def remainder(self):
 		"""Return whatever's left of the scan text."""
-		return self.collect(lambda c: True)[::-1]
+		try:
+			return self.collect(lambda c: True)[::-1]
+		except StopIteration:
+			self.__eof = True
+	
 
 
 
