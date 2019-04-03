@@ -4,7 +4,7 @@
 # of the GNU Affero General Public License.
 #
 
-import locale
+import locale, datetime
 from .cix import *
 
 class loc(cix): #loc(cline):
@@ -109,6 +109,9 @@ class loc(cix): #loc(cline):
 		rdict['YESEXPR'] = locale.nl_langinfo(locale.YESEXPR)
 		rdict['NOEXPR'] = locale.nl_langinfo(locale.NOEXPR)
 		rdict['CRNCYSTR'] = locale.nl_langinfo(locale.CRNCYSTR)
+		
+		rdict['am'] = datetime.time(11).strftime("%p")
+		rdict['pm'] = datetime.time(21).strftime("%p")
 		
 		self.display(rdict, sort_keys=1)
 	
