@@ -4,25 +4,39 @@
 # the terms of the GNU Affero General Public License.
 #
 
-from ..data.udata.charinfo import *
-from ..util.stream.buffer import *
+from ...data.udata.charinfo import *
+from ...util.stream.buffer import *
 
 
 class Scanner(object):
 	"""Scan unicode text one character at a time."""
 	
-	Debug = False
+	#Debug = False
 	Escape = "\\"
 	BufSize = 2048
 	
 	def __init__(self, iterable_text, **k):
 		"""Pass anything iterable that produces unicode characters."""
+		self.__k = k
 		self.__escape = k.get('escape', self.Escape)
 		self.__bufsz = k.get('bufsz', self.BufSize)
 		self.__itext = iter(iterable_text)
 		
 		# flag set to True on StopIteration
 		self.__eof = False
+	
+	
+	#
+	# FEATURES
+	#
+	@property
+	def r(self):
+		"""
+		Returns a Scanner object that reads any text in this stream
+		backward.
+		"""
+		return RScan(self.collect(lambda c: True), **self.__k)
+	
 	
 	#
 	# CHARACTERS
@@ -80,6 +94,16 @@ class Scanner(object):
 		return self.__escape
 	
 	
+	@classmethod
+	def add_extentions(cls):
+		ls = trix.npath('x/scanx/extentions/').ls()
+		for x in ls:
+			x = x.split('.')[0]
+			if x in self.__dict__:
+				pass
+			else:
+				exp = "x/scanx/extentions/%s" % s
+				self.__dict__[x] = trix.ncreate(expath, cls)
 	
 	
 	#
@@ -200,8 +224,11 @@ class Scanner(object):
 	
 	
 	#
+	#
 	# COMPLEX METHODS
 	#  - These all rely on the Base Methods above.
+	#  - These should probably all be extentions... if it turns out to
+	#    actually work.
 	#
 	
 	# SCAN
@@ -227,6 +254,8 @@ class Scanner(object):
 		# This should capture individual space-separated elements.
 		else:
 			return self.collect(lambda ci: ci.cat != "Zs")
+		
+		
 	
 	
 	# SPLIT
@@ -261,21 +290,21 @@ class Scanner(object):
 		
 		self.passwhite()
 		
-		if self.Debug:
-			print ("FIRST: %s" % (self.c))
-			print ("BREAK: %s" % (self.c.linebreak))
+		# ~ if self.Debug:
+			# ~ print ("FIRST: %s" % (self.c))
+			# ~ print ("BREAK: %s" % (self.c.linebreak))
 		
 		try:
 			
-			dbg = []
+			# ~ dbg = []
 			
 			#
 			# BRACKET/BRACE/ETC...
 			#
 			if self.c.bracket:
 				
-				if self.Debug:
-					print ("BRACKET")
+				# ~ if self.Debug:
+					# ~ print ("BRACKET")
 				
 				# keep count of the number of unclosed brackets
 				ct = 1
@@ -284,24 +313,24 @@ class Scanner(object):
 				# the result buffer.
 				br = self.char
 				
-				if self.Debug:
-					dbg.append(br)
-					print (" -- :", ''.join(dbg), ';', str(ct))
+				# ~ if self.Debug:
+					# ~ dbg.append(br)
+					# ~ print (" -- :", ''.join(dbg), ';', str(ct))
 				
 				# Store the ending (close bracket) in `end`
 				end = self.c.bracket[1]
 				
-				if self.Debug:
-					print ("BR/END:", br, '/', end)
+				# ~ if self.Debug:
+					# ~ print ("BR/END:", br, '/', end)
 				
 				try:
 					while (ct > 0):
 						w.write(self.c.c)
 						ci = self.cc
 						
-						if self.Debug:
-							dbg.append(ci.c)
-							print (" -- :", ''.join(dbg), ';', str(ct))
+						# ~ if self.Debug:
+							# ~ dbg.append(ci.c)
+							# ~ print (" -- :", ''.join(dbg), ';', str(ct))
 						
 						if ci.c == br:
 							ct += 1
@@ -332,31 +361,14 @@ class Scanner(object):
 		w = b.writer()
 		
 		self.passwhite()
-		
-		if self.Debug:
-			print ("FIRST: %s" % (self.c))
-			print ("BREAK: %s" % (self.c.linebreak))
-		
 		try:
-			
-			dbg = []
-			
 			if self.c.linebreak == "QU":
-				if self.Debug:
-					print ("QUOTE")
-				
 				q = self.c.c
-				if self.Debug:
-					print (" -  q:", q)
-				
 				w.write(q)
 				self.cc # move one ahead
 				cn = self.scanto(q)
 				w.write(cn)
 				cz = self.c.c
-				
-				if self.Debug:
-					print (" - cz:", cz)
 				
 				# write the closing quote before chancing the self.cc!
 				w.write(cz)
@@ -369,24 +381,18 @@ class Scanner(object):
 		except StopIteration:
 			self.__eof = True
 			return b.read()
-
-
-	# ----------------------------------------------------------
 	
-	def splits(self, chars):
+	
+	# SPLITS - Split text on multiple characters
+	def splits(self, chars, remainder=False):
 		"""
 		Pass a string containing characters to split on, in the order
 		they're to be used. Each char in `chars` is used only once, so
 		for each place a particular split should be made, the same
 		character must be repeated.
 		
-		REMEMBER! This is not `split()`! Characters in `chars` must be 
-		repeated in order to cause a split on multiple instances of the 
-		same character within the text.
-		
-		Pass "xy" to retrieve ["A","B"] from "AxByCz". Anything following
-		the last split character ('y') is considered the "remainder", and
-		may be retrieved by calling `self.remainder()`.
+		Pass second argument `remainder` as True to add remainder text
+		the resulting list.
 		
 		```
 		s = Scanner('aa_DJ.iso88591.json')
@@ -399,44 +405,89 @@ class Scanner(object):
 			for c in chars:
 				r.append(self.scanto(c))
 				self.cc
+			
+			if remainder:
+				r.append(self.remainder())
+			
 			return r
 		except StopIteration:
+			print ("stop-iter")
 			self.__eof = True
 			return r
 	
+	
+	# REMAINDER
 	def remainder(self):
 		"""Return whatever's left of the scan text."""
-		return self.collect(lambda c: True)
-		
+		try:
+			return self.collect(lambda c: True)
+		except StopIteration:
+			self.__eof = True
+
+	
+	
+	#
+	# TESTING --------------------
+	#
+	
+	# SPLIT
+	def split_space(self):
+		"""
+		Split text, but also add consecutive white space into the result
+		list.
+		"""
+		r = []
+		try:
+			v = True
+			while v:
+				r.append(self.collect(lambda ci: ci.space))
+				v = self.scan()
+				if v:
+					r.append(v)
+		except StopIteration:
+			self.__eof = True
+		return r
+	
+	
+	
+	@property
+	def split_escape(self, *a, **k):
+		sn = 'split_escape'
+		return trix.ncreate('x.scanx.extentions.%s.%s' % (sn, sn))
+			
 
 
 
+
+#
+#
+#
+#
+#
+#
+# ------------------------- REVERSE SCANNER -------------------------
+#
+#
+#
+#
+#
+#
+#
 class RScan(Scanner):
 	"""Reverse scanner. Scans text backward."""
 	
 	def __init__(self, forward_iterable,  **k):
 		"""
-		Pass text to split from the reversed direction.
+		Pass text to scan from the reversed direction.
 		"""
 		Scanner.__init__(self, reversed(forward_iterable))
 	
 	
-	def rsplits(self, chars):
+	# REVERSE SPLIT
+	def rsplits(self, chars, remainder=False):
 		"""
-		Pass characters to split on. Each character results in one
-		split for as long as the following character is found in the
-		text. 
-		
-		NOTE! This is not `split()`! Characters in `chars` must be 
-		repeated in order to cause a split on multiple instances of the 
-		same character within the text. Passing '_' as chars when trying
-		to split "a_b_c" will result in ['c'], with a remainder of "a_b".
-		You must pass "_"*2 to get the result ['b','c'] with a remainder
-		of "a".
-		
-		With `rsplits()`, as with `splits()`, split characters should be 
-		given in the forward direction with the last of the splitting 
-		chars being last in the list of `chars`. 
+		Pass characters to split on, in the intuitive direction with the
+		flow of text at the end of the stream.
 		
 		```
 		>>> s = RScan("Fi-fie-fo-fum! Hello_World.xyz")
@@ -445,9 +496,7 @@ class RScan(Scanner):
 		
 		```
 		
-		REMEMBER:
-		Use `s.remainder()` if you want to retrieve whatever came before 
-		"Hello".
+		Use `s.remainder()` to retrieve whatever came before "Hello"...
 		
 		```
 		>>> s.remainder()
@@ -455,18 +504,25 @@ class RScan(Scanner):
 		
 		```
 		"""
-		
-		lv = self.splits(reversed(chars))
-		rr = []
-		for item in lv:
-			rr.append(item[::-1]) # or ''.join(reversed("123"))
-		
+		try:
+			lv = self.splits(reversed(chars), remainder)
+			rr = []
+			for item in lv:
+				rr.append(item[::-1]) # or ''.join(reversed("123"))
+		except StopIteration:
+			self.__eof = True
+				
 		return list(reversed(rr))
 	
 	
+	# REMAINDER
 	def remainder(self):
 		"""Return whatever's left of the scan text."""
-		return self.collect(lambda c: True)[::-1]
+		try:
+			return self.collect(lambda c: True)[::-1]
+		except StopIteration:
+			self.__eof = True
+	
 
 
 

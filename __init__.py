@@ -167,8 +167,8 @@ class trix(object):
 		Create and return an object specified by argument `modpath`. 
 		
 		The dot-separated path must start with the path to the desired
-		module. It must be suffixed with a name of a class defined in the
-		specified module. (Eg, 'package.subpackage.module.ClassName')
+		module. It must be suffixed with the name of a class defined in 
+		the specified module. (Eg, 'package.subpackage.module.ClassName')
 		
 		Any additional arguments and keyword args will be passed to the
 		class's constructor.
@@ -290,10 +290,6 @@ class trix(object):
 					return kwargs['default']
 				return ()
 			except NameError:
-				# TO DO:
-				# Make this work when `v` is a module. It does work if the
-				# module `v` would specify is already loaded, but not if it's
-				# not... which is inconsistent... which bothers me.
 				raise
 		
 		# If one *args value was specified, return it. If more than one
@@ -697,7 +693,12 @@ class trix(object):
 	# SCAN - Returns a scanner.
 	@classmethod
 	def scan(cls, *a, **k):
-		"""Returns a scanner."""
+		"""
+		Returns a scanner created with given args/kwargs.
+		
+		>>> trix.scan('[1,2,3] frog {"x":"stream"}').split()
+		>>> trix.scan('A_b.c').r.rsplits('_.')
+		"""
 		return trix.ncreate('data.scan.Scanner', *a, **k)
 	
 	
@@ -892,32 +893,6 @@ class trix(object):
 			return cls.__signals
 	
 	
-	
-	@classmethod
-	def propx(cls, x, *a, **k):
-		"""
-		EXPERIMENTAL - UNDER CONSTRUCTION - EXPECT CHANGES
-		
-		Pass any object type, or a callable that will produce an object
-		on demand (along with any required args/kwargs). Iterators or 
-		generators, sequences, and lists will return the object wrapped
-		in `propiter`, `propseq`, or `proplist`, respectively. Other 
-		object types will return the default `PropBase` class object.
-		
-		```
-		import trix
-		li = trix.propx([[1,2,3],[4,5,6],[7,8,9]])
-		li.o
-		li()
-		li.grid()
-		
-		help(li) # See object's "help" for more details
-		"""
-		return cls.nvalue('propx.propx')(x, *a, **k)
-		# This belongs with utility methods, once I'm satisfied it's
-		# quality is OK.
-	
-	
 	@classmethod
 	def loc(cls, locale=None):
 		"""
@@ -969,7 +944,7 @@ pid        = trix.pid
 popen      = trix.popen
 process    = trix.process
 proxify    = trix.proxify
-propx      = trix.propx
+scan       = trix.scan
 signals    = trix.signals
 start      = trix.start
 tracebk    = trix.tracebk

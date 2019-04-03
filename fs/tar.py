@@ -47,7 +47,7 @@ class Tar(Archive):
 		"""
 		with self.archopen('r|*') as f:
 			self.__names = f.getnames()
-		return trix.propx(self.__names)
+		return propx(self.__names)
 	
 	@property
 	def members(self):

@@ -5,11 +5,14 @@
 #
 
 import weakref
-from .bfile import * # trix, stream, enchelp
 from ..util.stream.buffer import *
+from ..propx import *
+from .bfile import * # trix, stream, enchelp
 
 class Archive(FileBase):
-	"""Archive files that contain member files (Zip and Tar)."""
+	"""
+	Archive files that contain member files (Zip and Tar).
+	"""
 	
 	def __init__(self, path, **k):
 		"""Pass archive file path and kwargs relevant to file type."""

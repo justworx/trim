@@ -46,9 +46,9 @@ but provides the features of a grid rather than a list.
 python3
 
 import trix
-d = trix.path('trix') # <-- CREATE A `Dir` OBJECT
-d.list()
-d.list.grid()
+d = trix.path('trix') # CREATE A `Dir` OBJECT
+d.list()              # call as a function to return the list
+d.list.grid()         # call as a property to access display methods
 
 ```
 
@@ -58,6 +58,9 @@ Try in both python (2.7) and python3...
 
 python
 python3
+
+The root of sequence items is	`propiter`, which provides most of the
+functionality for manipulation of lists.
 
 ```
 from trix.propx.propiter import *

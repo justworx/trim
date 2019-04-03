@@ -6,7 +6,7 @@
 
 from .. import *
 from .loc import *
-
+import datetime
 
 class dt(object):
 	"""Date/Time utility."""
@@ -25,13 +25,18 @@ class dt(object):
 		"""
 		if dt:
 			try:
-				self.__time = float(dt)  # int/float
+				# if time is given as a float
+				self.__time = float(dt)
 			except TypeError:
+				# otherwise, it must be a datetime
 				self.__struct = dt
 				self.__time = time.mktime(dt) # struct
+		
 		else:
+			# if time's not given, use `time.time()`
 			self.__time = time.time()
 		
+		# store the locale signature; the default is the system locale.
 		self.__locsig = loc
 	
 	
@@ -60,6 +65,7 @@ class dt(object):
 		except:
 			self.__struct = time.localtime(self.__time)
 			return self.__struct
+	
 	
 	def format(self, fmt=None):
 		"""Format using strftime."""

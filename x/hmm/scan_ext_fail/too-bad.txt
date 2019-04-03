@@ -1,0 +1,7 @@
+
+It's too bad about this. It seems like a good idea to turn a lot of 
+those non-essential Scanner methods into "extentions" that are loaded
+only as needed. I'm thinking there could be dozens or hundreds more
+added to that extentions folder... if only I could make it work.
+
+My brain needs some rest. Maybe I'll come back to it again someday.
