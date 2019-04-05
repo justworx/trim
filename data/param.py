@@ -52,6 +52,22 @@ class Chain(object):
 		self.v = T(self.v[x])
 		return self
 	
+	def jcast(self):
+		"""Alter string `self.v` to it's json-parsed value."""
+		v = self.v
+		try:
+			self.set(trix.jparse(self.v))
+		except:
+			self.set(self.v)
+	
+	def jcasteach(self):
+		"""Alter each item in list `self.v` to its j-parsed value."""
+		for x in range(len(self.v)):
+			try:
+				self.setx(x, trix.jparse(self.v[x]))
+			except:
+				pass
+	
 	def proc(self, fn, *a, **k):
 		"""
 		Set this object's self.v to the result of the callable argument
@@ -162,7 +178,7 @@ class Chain(object):
 	def output(self, v=None, *a):
 		"""Print `self.v`; for testing."""
 		v = v or self.v
-		BaseOutput().output(v%a)
+		BaseOutput().output(str(v))
 		return self
 	
 	

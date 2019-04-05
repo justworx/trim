@@ -4,13 +4,6 @@
 # the terms of the GNU Affero General Public License.
 #
 
-
-#
-# EXPERIMENTAL - EXPLORATORY
-#  - I'm pursuing something like propx here, but to be used with
-#    executables rather than values.
-# 
-
 from ..propx import *
 import shlex
 
@@ -51,15 +44,15 @@ class callx(object):
 		# remaining kwargs must be for Popen.
 		self.__k = k
 		
-		
+		# get the command-line arguments
 		if cmd:
-			# get the command-line arguments
 			try:
 				args = shlex.split(cmd)
 			except:
 				args = cmd
 		
 		else:
+			# if command line args are None, check for "cline" kwarg.
 			if 'cline' in self.k:
 				args = [sys.executable, '-m', trix.innerpath()]
 				try:
@@ -75,7 +68,10 @@ class callx(object):
 				trix.kpop(k, 'cline')
 		
 		# Finally, set self.__a to the generated arg list	
-		self.__a = args
+		try:
+			self.__a = args
+		except Exception as ex:
+			raise type(ex)(xdata(error="cline-args-required"))
 				
 			
 			
@@ -152,13 +148,14 @@ class callx(object):
 		Returns a propx object covering the text. Call this property like
 		a function to return the text received from the called process.
 		"""
+		Tx = trix.nvalue('propx.propstr.propstr')
 		try:
-			return propx(self.__text)
+			return Tx(self.__text)
 		except:
-			r = self.reader()
+			r = self.reader() # no args here; the reader property does them.
 			r.seek(0)
 			self.__text = r.read()
-			return propx(self.__text)
+			return Tx(self.__text)
 			
 	@property
 	def data(self):
@@ -187,12 +184,6 @@ class callx(object):
 			#
 			
 			# If nothing above works, just set the text as the data.
-			self.__data = trix.propx(self.__text)
+			self.__data = propx(self.__text)
 			return self.__data
-
-
-
-
-
-
 

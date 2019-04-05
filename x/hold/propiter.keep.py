@@ -44,14 +44,11 @@ class propiter(propbase):
 		"""Return an iterator."""
 		return trix.ncreate('util.xiter.xiter', self.o)
 	
-	
 	@property
 	def gen(self):
 		"""Return a generator for self.o."""
 		for x in self.o:
 			yield(x)
-	
-	
 	
 	@property
 	def sorted(self):
@@ -63,20 +60,15 @@ class propiter(propbase):
 		"""Return a proplist with reversed content."""
 		return self.T(reversed(self.o))
 	
-	
 	def each (self, fn, *a, **k):
 		"""
 		Argument `fn` is a callable that operates on items from `self.o` 
-		in place, one item at a time.
-		
-		This method is not intended to alter self.o, nor to return any
-		altered value; it exists only to facilitate operations external 
-		to this object.
+		in place, one item at a time. 
 		
 		Returns `self`.
 		"""
 		for v in self.o:
-			fn(self.param(v), *a, **k)
+			fn(v, *a, **k)
 		return self
 	
 	
@@ -92,14 +84,10 @@ class propiter(propbase):
 		
 		```
 		"""
-		rr = []
+		r = []
 		for v in self.o:
-			pm = self.param(v)
-			fn(pm, *a, **k)
-			rr.append(pm.v)
-		
-		return propx(rr)
-	
+			r.append(fn(v, *a, **k))
+		return propx(r)
 	
 	
 	def grid(self, *a, **k):
@@ -246,3 +234,70 @@ class propiter(propbase):
 	
 	def takewhile(self, fn, iterable=None):
 		return propx(itertools.takewhile(fn, iterable or self.o))
+	
+	
+	
+	
+	"""
+	def islice(self, iterable, start, stop,):
+		return propx(self.itertools('takewhile', fn, iterable or self.o))
+	"""
+	
+	
+	
+	
+	"""
+	#
+	# I don't understand this one - need to work on it a bit
+	#
+	def groupby(self, iterable, key=None):
+		pass
+	
+	
+	
+	#
+	# I'm not too sure how to implement these for propiter. I'll have
+	# to think about it for a while.
+	#
+	
+	def product(self, repeat=1, *iterables):
+		#	
+		#	product('ABCD', 'xy') --> Ax Ay Bx By Cx Cy Dx Dy
+		#	product(range(2), repeat=3) --> 000 001 010 011 100 101 110 111
+		#	
+		#	Pass integer `repeat`.... then what? How would this apply to
+		#	the propiter class?
+		#
+		pass
+
+	def repeat(self, object[, times]):
+		#
+		# How to use this when `object` is an iterator? Maybe this one
+		# could go into propseq or proplist. Maybe some of the others
+		# here, too, could belong to propseq.
+		#
+		pass
+	
+	def tee(self, iterable, n=2):
+		pass
+	
+	def zip_longest(self, *iterables, fillvalue=None):
+		pass
+	
+	def combinations(self, iterable, r):
+		pass
+	
+	def combinations_with_replacement(self, iterable, r):
+		pass
+	
+	
+	
+	#
+	# I don't think i'll include this one - it's not really applicable
+	# to this class.
+	#
+	def count(self, start=0, step=1):
+		pass
+	"""
+
+

@@ -120,12 +120,26 @@ class propbase(object):
 	#
 	@property
 	def compenc(self):
-		"""Loads, stores, and returns the compenc module on first use."""
+		"""
+		Returns the compenc module on demand; Does not load the module 
+		until first call to this property.
+		"""
 		try:
 			return self.__compenc
 		except:
 			self.__compenc = trix.nmodule("util.compenc")
 			return self.__compenc
+	
+	@property
+	def jparse(self, **k):
+		"""
+		Return propx containing object parsed from json text. May be a
+		proplist, propdict, propstr, etc...
+		"""
+		try:
+			return propx(trix.jparse(str(self.o), **k))
+		except Exception as ex:
+			raise type(ex)(xdata(o=self.o, k=k))
 	
 	
 	# ---- Methods that can handle pretty much any data type -----
@@ -134,7 +148,7 @@ class propbase(object):
 	# DISPLAY
 	#
 	def display(self, *a, **k):
-		"""Display using trix.fmt; default: f='JDisplay'"""
+		"""Display using trix.fmt. Default params: f='JDisplay'"""
 		trix.display(self.o, *a, **k)
 	
 	
@@ -148,17 +162,6 @@ class propbase(object):
 		"""
 		k.setdefault('f', 'JCompact')
 		return trix.formatter(*a, **k).format(self.o)
-	
-	
-	def jparse(self, **k):
-		"""
-		Return self.o as json text. Default format is compact json. 
-		Note: Use the `display()` method for JSON in display format. 
-		"""
-		try:
-			return propx(trix.jparse(str(self.o), **k))
-		except Exception as ex:
-			raise type(ex)(xdata(o=self.o, k=k))
 	
 	
 	#
@@ -223,7 +226,8 @@ class propbase(object):
 	@property
 	def expand(self, **k):
 		"""
-		Expand data compressed by `self.compact()`.
+		Return propx containing data "expanded" from data that had
+		previously been compressed by `self.compact()`.
 		"""
 		return propx(self.compenc.expand(self.o))
 	

@@ -90,18 +90,18 @@ class propseq(propiter):
 		return trix.ncreate('propx.propstr', txt)
 	"""
 	
-	
+	@property
 	def proplist(self):
-		return proplist(list(self.o))
+		return trix.ncreate("propx.proplist.proplist", list(self.o))
 	
-	
+	@property
 	def propgrid(self):
 		ilen = len(self.o[0])
 		for o in self.o:
 			if len(o) != ilen:
 				raise type(ex)(xdata(
 					error='err-grid-fail', reason="not-a-grid",
-					english="Grid rows must be of equal lenght."
+					english="Grid rows must be of equal length."
 				))
 		return trix.ncreate('propx.proplist.propgrid', self.o)
 

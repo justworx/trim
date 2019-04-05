@@ -105,18 +105,40 @@ for x in d.list[1:]:
   p = Param(d.list()) 
   p.setxx([5,6,7], lambda p,x: int(float(p.v[x])))
   
+```
 
-#
-# Change a directory listing's floats to ints (for brevity).
+Change a directory listing's floats to ints (for brevity).
+
+```
 dlist = ['trix', 'd', '1551543158.9558208', '1551543136.5832613']
 p = Param(dlist)
 p.setxx([2,3], lambda p,x: int(float(p.v[x])))
-#
-#
 
 ```
 
 
+
+###### process callx results
+
+```
+import trix
+cx = trix.callx('ps -aux')      # call for process listing
+plist = cx.text.lines.proplist  # get a proplist of the lines
+
+xs = plist.select(lambda p: p.split(maxsplit=10)) # split each line
+xs.proplist.select(lambda p: p.jcasteach())       # parse each field
+xs.grid()                                         # display grid
+
+db = xs.propgrid.dbgrid('ps')
+db.select('select * from ps order by mem desc').grid()
+
+```
+
+Looks like dbgrid still doesn't "order by" properly - probably because
+the SQL table definitions aren't including column types. Maybe I can
+pass types from the first row and generate a better table def.
+
+Maybe tomorrow. Brain Needs Sleeeeeeep.
 
 
 

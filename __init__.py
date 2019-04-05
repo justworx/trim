@@ -500,6 +500,7 @@ class trix(object):
 	# CALL-X
 	@classmethod
 	def callx (cls, cmd=None, **k):
+		"""Call an executable."""
 		return cls.ncreate('util.callx.callx', cmd, **k)
 		
 	
