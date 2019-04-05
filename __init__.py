@@ -345,8 +345,7 @@ class trix(object):
 		Return an fs.Path for a file-system object within the trix 
 		directory.
 		
-		>>> e = 'UTF_8'
-		>>> r = trix.npath("app/config/app.conf").reader(encoding=e)
+		>>> r = trix.npath("app/config/app.conf").reader(encoding=utf8)
 		>>> r.readline()
 		"""
 		return cls.path(cls.innerfpath(innerFPath), *a, **k)

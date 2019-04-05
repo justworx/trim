@@ -132,6 +132,19 @@ xs.grid()                                         # display grid
 db = xs.propgrid.dbgrid('ps')
 db.select('select * from ps order by mem desc').grid()
 
+
+db.select(
+	'select user, count(user) as CT from ps group by user order by ct desc'
+).grid()
+
+db.select("""
+	select user, count(user) as CT, sum(mem), sum(cpu), sum(vsz)
+	from ps 
+	group by user
+	order by ct desc
+	"""
+).grid()
+
 ```
 
 Looks like dbgrid still doesn't "order by" properly - probably because

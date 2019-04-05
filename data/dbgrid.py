@@ -51,9 +51,9 @@ class DBGrid(object):
 	
 	def add(self, table_name, grid, columns=None):
 		"""
-		Pass a table name and a grid (list of lists of equal length). As
-		with DataGrid, column names must be either prepended to the grid
-		or specified as a list using the optional `columns` argument.
+		Pass a table name and a grid (list of lists of equal length).
+		Column names must be either prepended to the grid or specified 
+		as a list using the optional `columns` argument.
 		"""
 		
 		#
