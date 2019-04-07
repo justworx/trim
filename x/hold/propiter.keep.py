@@ -78,8 +78,8 @@ class propiter(propbase):
 		time, storing them in an xprop wrapper and returning the result.
 		
 		```
-		from trix.propx import *
-		pl = proplist([1,2,3])
+		from trix import *
+		pl = trix.propx([1,2,3])
 		pl.select(lambda o: o*9)
 		
 		```
@@ -87,7 +87,7 @@ class propiter(propbase):
 		r = []
 		for v in self.o:
 			r.append(fn(v, *a, **k))
-		return propx(r)
+		return trix.propx(r)
 	
 	
 	def grid(self, *a, **k):

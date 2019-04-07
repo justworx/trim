@@ -4,7 +4,7 @@
 # the terms of the GNU Affero General Public License.
 #
 
-from ..propx import *
+from .. import *
 import shlex
 
 
@@ -148,14 +148,13 @@ class callx(object):
 		Returns a propx object covering the text. Call this property like
 		a function to return the text received from the called process.
 		"""
-		Tx = trix.nvalue('propx.propstr.propstr')
 		try:
-			return Tx(self.__text)
+			return trix.propx(self.__text)
 		except:
 			r = self.reader() # no args here; the reader property does them.
 			r.seek(0)
 			self.__text = r.read()
-			return Tx(self.__text)
+			return trix.propx(self.__text)
 			
 	@property
 	def data(self):
@@ -173,7 +172,7 @@ class callx(object):
 				# to the appropriate propbase subclass by calling propx().
 				#
 				data = trix.jparse(self.text())
-				self.__data = propx(data)
+				self.__data = trix.propx(data)
 				return self.__data
 			except:
 				pass
@@ -184,6 +183,6 @@ class callx(object):
 			#
 			
 			# If nothing above works, just set the text as the data.
-			self.__data = propx(self.__text)
+			self.__data = trix.propx(self.__text)
 			return self.__data
 

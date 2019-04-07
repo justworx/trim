@@ -1,7 +1,7 @@
 
 
 
-from ...propx import *
+from ...util.propx import *
 
 # test propx creation types
 assert(type(propx([1,2])).__name__  == "proplist")

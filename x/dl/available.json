@@ -1,0 +1,31 @@
+{
+	"assets" : {
+		"locale_json" : {
+			"readme" : "https://github.com/justworx/assets/README.md",
+			"license" : "https://github.com/justworx/assets/LICENSE",
+			"download_url" : "https://github.com/justworx/assets/blob/master/locale_json.tar.gz",
+			"trix_storage" : {
+				"target" : "cache/trix",
+				"path"   : ""
+			},
+			"Notes" : "An incomplete set of locale json files. Under construction."
+		}
+	},
+	
+	"httpui" : {
+		"jquery" {
+			"license" : "https://jquery.org/license/",
+			"api_doc" : "https://api.jquery.com/",
+			"jquery" : "https://code.jquery.com/jquery-3.3.1.min.js",
+			"trix_storage" : {
+				"target" : "config/trix",
+				"path"   : "httpui/wwwroot"
+			},
+			"Notes" : "Under construction."
+		}
+	}
+	
+}
+
+
+

@@ -907,7 +907,15 @@ class trix(object):
 			locale = ".".join(trix.module("locale").getlocale())
 		
 		return trix.ncreate("util.loc.Locale", locale)
-
+	
+	
+	@classmethod
+	def propx(cls, *a, **k):
+		try:
+			return cls.__propx(*a, **k)
+		except:
+			cls.__propx = cls.nvalue("util.propx.propx")
+			return cls.__propx(*a, **k)
 
 
 # -------------------------------------------------------------------
@@ -938,11 +946,12 @@ ncreate    = trix.ncreate
 nmodule    = trix.nmodule
 nprocess   = trix.nprocess
 nvalue     = trix.nvalue
-path       = trix.path
 npath      = trix.npath
+path       = trix.path
 pid        = trix.pid
 popen      = trix.popen
 process    = trix.process
+propx      = trix.propx
 proxify    = trix.proxify
 scan       = trix.scan
 signals    = trix.signals

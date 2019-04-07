@@ -100,7 +100,18 @@ class propiter(propbase):
 		
 		return propx(rr)
 	
-	
+	"""
+	def match(self, pattern):
+		
+		#Use fnmatch filter to select items matching `pattern`. 
+		#Returns propbase for some reason.
+		
+		try:
+			return proplist(self.T.__fnfilter(self.o, pattern)))
+		except:
+			self.T.__fnfilter = trix.value('fnmatch.filter')
+			return proplist(self.T.__fnfilter(self.o, pattern)))
+	"""
 	
 	def grid(self, *a, **k):
 		"""Display as Grid."""
@@ -246,3 +257,32 @@ class propiter(propbase):
 	
 	def takewhile(self, fn, iterable=None):
 		return propx(itertools.takewhile(fn, iterable or self.o))
+	
+	
+	# other selectors
+	
+	def fnmatch(self, pattern):
+		try:
+			try:
+				m = self.T.__match
+				return self.T(m.filter(iter(self.o), pattern))
+			except AttributeError:
+				m = self.T.__match = trix.module('fnmatch')
+				return self.T(m.filter(iter(self.o), pattern))
+		except IndexError:
+			return self.T(iter([]))
+	
+	
+	def fnmatchcase(self, pattern):
+		try:
+			try:
+				m = self.T.__match
+				x = [n for n in self.o if m.fnmatchcase(n,pattern)]
+				return self.T(x)
+			except AttributeError:
+				m = self.T.__match = trix.module('fnmatch')
+				x = [n for n in self.o if m.fnmatchcase(n,pattern)]
+				return self.T(x)
+		except IndexError:
+			return self.T([])
+		

@@ -8,6 +8,10 @@ from .. import *
 
 class sak(object):
 	
+	#
+	# How about using fnmatch instead of filter?
+	#
+	
 	@classmethod
 	def filter(cls, key, **k):
 		"""
@@ -47,7 +51,7 @@ class sak(object):
 	@classmethod
 	def odir(cls, o, *a, **k):
 		"""
-		Pass an object - it's sorted __dir__ list is presented in a i'table.
+		Pass an object - it's sorted __dir__ list is presented in a table.
 		Pass optional keyword arguments as accepted by Table. (Eg, width.)
 		"""
 		k.setdefault("width", 3)
@@ -62,6 +66,17 @@ class sak(object):
 	def odict(cls, o, method):
 		"""Pass object and property name; returns the property object."""
 		return o.__dict__[method]
+	
+	#
+	# How about returning propx-wrapped lists/dicts?
+	#  - Could just wrap them in propx, but i don't think that's best.
+	#    It wouldn't feel natural. Maybe these should be properties
+	#    rather than classmethods... but... d'oh. I'll have to think
+	#    about this. May need a total rewrite of sak. Or remove sak and
+	#    just pass the entire modules or dir list to a proplist, then 
+	#    use fnmatch (`match`, in propiter) to select.
+	#
+	
 	
 	
 

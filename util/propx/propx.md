@@ -20,12 +20,20 @@ The following modules/classes are currently available.
  * propseq  - methods suitable to any sequence item (based on propset) 
  * proplist - methods for list manipulation/display
    propgrid - proplist subclass for list of lists of equal length 
- * propdict - covers dict-like objects - UNDER CONSTRUCTION
+ * propdict - covers dict-like objects
+
 
 #### propx use in the trix package
 
 The propx objects are currently used by the fs.dir module to enhance
 the return values of directory listings and search results.
+
+The `dir.ls` member is now a property that returns a proplist object
+with a __call__() method which returns the directory listing, but the
+returned proplist object also provides a variety of other useful
+methods as well.
+
+For example:
 
 ```
 python3
@@ -38,6 +46,8 @@ d.ls()                # <-- RETRIEVE THE STANDARD `ls` RESULT LIST
 d.ls.table(width=4)   # <-- SHOW A GRID-FORMATTED VERSION OF THE LIST
 
 ```
+
+
 
 The long `dir.list` property's __call__() method works the same way, 
 but provides the features of a grid rather than a list.
@@ -54,7 +64,7 @@ d.list.grid()         # call as a property to access display methods
 
 
 
-Try in both python (2.7) and python3...
+Try in both python 2.7 and python3...
 
 python
 python3
@@ -65,16 +75,13 @@ functionality for manipulation of lists.
 ```
 from trix.propx.propiter import *
 
-# FILTER
-pi = propiter([])
-list( pi.filter(lambda x: x<3, [1,2,3,4,5]) )
+pi = propiter([]) 
+list( pi.filter(lambda x: x<3, [1,2,3,4,5]) ) # FILTER
 
-# FILTERFALSE
-list( propiter.filterfalse(lambda x: x<3, [1,2,3,4,5]) )
+list( propiter.filterfalse(lambda x: x<3, [1,2,3,4,5]) ) # FILTERFALSE
 
-# ZIP
 i = propiter([])
-ii = i.zip('ABCD', 'xy')
+ii = i.zip('ABCD', 'xy') # ZIP
 list(ii)
 
 ```

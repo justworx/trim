@@ -5,7 +5,7 @@
 #
 
 from . import *
-from ..propx.proplist import *
+from ..util.propx.proplist import *
 import os, glob
 
 

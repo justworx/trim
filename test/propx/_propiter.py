@@ -15,3 +15,7 @@ assert(ii[0:9].o == range(1,10))
 assert(ii[0:9].o == range(1,10))
 
 ii[0:9].o
+
+
+# Need to test each filter here!
+
