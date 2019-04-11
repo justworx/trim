@@ -230,34 +230,6 @@ class propbase(object):
 		previously been compressed by `self.compact()`.
 		"""
 		return propx(self.compenc.expand(self.o))
-	
-	
-	"""
-	#
-	# The propx function will propably be called a lot, so we probably 
-	# need to figure out a way to do avoid the more expensive ncreate
-	# way of creating them. Can't import from the modules that import
-	# this module, so maybe something like this:
-	#	
-	@classmethod
-	def propx(cls, o, *a, **k):
-		try:
-			if o.values and o.keys:
-				try:
-					return cls.__pdict( o, *a, **k)
-				except AttributeError:
-					cls.__pdict = trix.nvalue('util.propx.propdict', "propdict')
-					return cls.__pdict( o, *a, **k)
-		except:
-			pass
-		
-		# ... and like this (above) for the other possibile classes...
-		
-		
-		# ...and finally, anything else...
-		return propbase(o, *a, **k)
-	
-	"""
 
 
 #
@@ -282,35 +254,70 @@ def propx(o, *a, **k):
 	try:
 		if o.values and o.keys:
 			return trix.ncreate("util.propx.propdict.propdict", o, *a, **k)
-	except AttributeError:
+	except AttributeError as ex:
+		#print(1, ex)
 		pass
 		
 	try:
 		o.encode
 		return trix.ncreate("util.propx.propstr.propstr", o, *a, **k)
-	except AttributeError:
+	except AttributeError as ex:
+		#print(2, ex)
 		pass
 	
 	try:
 		o.__setitem__
 		return trix.ncreate("util.propx.proplist.proplist", o, *a, **k)
-	except AttributeError:
+	except AttributeError as ex:
+		#print(3, ex)
 		pass
 	
 	try:
 		o.__getitem__
 		return trix.ncreate("util.propx.propseq.propseq", o, *a, **k)
-	except AttributeError:
+	except AttributeError as ex:
+		#print(4, ex)
 		pass
 	
 	try:
 		if o.__iter__ or (type(o).__name__ == 'generator'):
 			return trix.ncreate("util.propx.propiter.propiter", iter(o),*a,**k)
-	except AttributeError:
+	except AttributeError as ex:
+		#print(5, ex)
 		pass
 	
 	
 	# anything else...
 	return propbase(o, *a, **k)
 	
+	
+	
+	"""
+	#
+	# COMPARE/TEST THIS, BUT....
+	#
+	# The propx function will propably be called A LOT, so we *MIGHT* 
+	# need to figure out a way to do avoid the more expensive ncreate
+	# way of creating them. Can't import from the modules that import
+	# this module, so maybe something like this:
+	#	
+	@classmethod
+	def propx(cls, o, *a, **k):
+		try:
+			if o.values and o.keys:
+				try:
+					return cls.__pdict( o, *a, **k)
+				except AttributeError:
+					cls.__pdict = trix.nvalue('util.propx.propdict', "propdict')
+					return cls.__pdict( o, *a, **k)
+		except:
+			pass
+		
+		# ... and like this (above) for the other possibile classes...
+		
+		
+		# ...and finally, anything else...
+		return propbase(o, *a, **k)
+	
+	"""
 

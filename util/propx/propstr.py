@@ -15,7 +15,7 @@ class propstr(propseq):
 	@property
 	def lines(self):
 		return trix.ncreate(
-				"propx.proplist.proplist", self.o.splitlines()
+				"util.propx.proplist.proplist", self.o.splitlines()
 			)
 	
 	def scanner(self, **k):

@@ -27,7 +27,7 @@ class Path(object):
 			else:
 				self.sep = self.sep.decode()
 			self.__n = ospath.normpath(self.__p).split(self.sep)[-1]
-			
+	
 	
 	# CALL
 	def __call__(self, path=None):
@@ -194,6 +194,7 @@ class Path(object):
 	def hash(self, algo, blocksize=None):
 		"""
 		Hash the file at self.path using the given algo; optional argument
+
 		`blocksize` defaults to value returned by self.blocksizer().
 		"""
 		blocksize or self.blocksizer()
@@ -238,7 +239,7 @@ class Path(object):
 	# SIZE
 	def size(self, path=None):
 		p = self.merge(path)
-		return os.path.getsize(p)
+		return ospath.getsize(p)
 	
 	# STAT
 	def stat(self, path=None):
@@ -398,7 +399,7 @@ class Path(object):
 		
 		To ignore all validation, pass affirm=None.
 		"""
-		OP = os.path
+		OP = ospath
 		if path in [None, '.']:
 			path = os.getcwd()
 		

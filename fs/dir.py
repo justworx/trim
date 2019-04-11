@@ -5,14 +5,11 @@
 #
 
 from . import *
-from ..util.propx.proplist import *
 import os, glob
 
 
 class Dir(Path):
-	"""
-	Directory functionality.
-	"""
+	"""Directory query/access/manipulation."""
 	
 	def __init__(self, path=None, **k):
 		"""
@@ -26,9 +23,6 @@ class Dir(Path):
 			Path.__init__(self, p, **k)
 		except Exception:
 			raise ValueError('fs-invalid-dir', xdata(path=p)) 
-		
-		# requires py 2.6+
-		self._walk = os.walk
 	
 	
 	# GET ITEM - retrieve item path (string) by offset in directory.
@@ -57,7 +51,7 @@ class Dir(Path):
 		This property actually returns a proplist containing the 
 		directory listing. See `help(Dir().ls)` for more options.
 		"""
-		return proplist(self.listshort)
+		return trix.propx(self.listshort())
 	
 	
 	@property
@@ -82,7 +76,7 @@ class Dir(Path):
 		See `help(Dir().ls)` for more details.
 		
 		"""
-		return propgrid(self.listlong)
+		return propgrid(self.listlong())
 	
 	
 	#
@@ -190,7 +184,7 @@ class Dir(Path):
 		         BEFORE using it with a function.
 		"""
 		
-		return proplist(self.listsearch, pattern, **k)
+		return trix.propx(self.listsearch(pattern, **k))
 	
 	
 	#
@@ -245,7 +239,7 @@ class Dir(Path):
 				break
 			rr.append(line)
 		
-		return proplist(rr)
+		return trix.propx(rr)
 	
 	
 	#
@@ -305,15 +299,7 @@ class Dir(Path):
 		#
 		rlist = []
 		
-		#
-		# NOTE: Replace with something like this to prevent os from 
-		#       being loaded until necessary:
-		# ```
-		# walker = trix.create('os.walk')
-		# for d,dd,ff in walker(pattern, **k)...
-		# ```
-		#
-		for d, dd, ff in self._walk(path):
+		for d, dd, ff in os.walk(path):
 			rlist.extend(self.match(os.path.join(d, pattern)))
 		
 		# Handle action provided by kwarg `fn` (see WARNING above!)

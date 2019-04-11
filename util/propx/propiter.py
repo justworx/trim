@@ -8,11 +8,8 @@ from . import *
 import itertools
 
 
-
 class propiter(propbase):
-	"""
-	Base for iterable subclasses. Pass an iterable object.
-	"""
+	"""Base for iterable subclasses. Pass an iterable object."""
 	
 	def __getitem__(self, key):
 		"""
@@ -100,18 +97,6 @@ class propiter(propbase):
 		
 		return propx(rr)
 	
-	"""
-	def match(self, pattern):
-		
-		#Use fnmatch filter to select items matching `pattern`. 
-		#Returns propbase for some reason.
-		
-		try:
-			return proplist(self.T.__fnfilter(self.o, pattern)))
-		except:
-			self.T.__fnfilter = trix.value('fnmatch.filter')
-			return proplist(self.T.__fnfilter(self.o, pattern)))
-	"""
 	
 	def grid(self, *a, **k):
 		"""Display as Grid."""
@@ -261,7 +246,7 @@ class propiter(propbase):
 	
 	# other selectors
 	
-	def fnmatch(self, pattern):
+	def fnmatch(self, pattern): # , iterable=None <-- do this
 		try:
 			try:
 				m = self.T.__match
