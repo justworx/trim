@@ -64,21 +64,17 @@ d.list.grid()         # call as a property to access display methods
 
 
 
-Try in both python 2.7 and python3...
-
-python
-python3
-
 The root of sequence items is	`propiter`, which provides most of the
 functionality for manipulation of lists.
 
-```
-from trix.propx.propiter import *
+```python3
+
+from trix.util.propx.propiter import *
 
 pi = propiter([]) 
 list( pi.filter(lambda x: x<3, [1,2,3,4,5]) ) # FILTER
 
-list( propiter.filterfalse(lambda x: x<3, [1,2,3,4,5]) ) # FILTERFALSE
+list( pi.filterfalse(lambda x: x<3, [1,2,3,4,5]) ) # FILTERFALSE
 
 i = propiter([])
 ii = i.zip('ABCD', 'xy') # ZIP
@@ -88,80 +84,42 @@ list(ii)
 
 
 
+Use filters to select only the appropriate items...
+
+```
+from trix.util.propx.propiter import *
+
+pi = propiter([]) 
+list( pi.filter(lambda x: x<3, [1,2,3,4,5]) ) # FILTER
+
+list( pi.filterfalse(lambda x: x<3, [1,2,3,4,5]) ) # FILTERFALSE
+
+i = propiter([])
+ii = i.zip('ABCD', 'xy') # ZIP
+list(ii)
+
+```
 
 
-
-
-
-
-
-
-
-Get some data to play with...
+The propiter map and zip methods are designed to behave the same in 
+both python 2.7.x and python 3.x. 
 
 ```python3
-
-from trix.data.dbgrid import *
-
-q = DBGrid(trix=trix.path('trix').list()) # get the trix dir list
-pp = q('select * from trix')              # returns proplist
-
-```
-
-
-Here's a proplist `pp` with lots of fun and helpful methods.
-
-```
-pp.grid()
-
-```
-
-
-See how there are some problems. First, the rows are really wide for
-display in a skinny terminal window, so I'd like to turn those time
-values to integers. Second... to do that, we need to operate only on
-the data rows, not the column headers.
-
-```
-
-pd = pp[1:] # param data rows only, no heading 
-pd.grid()
-
-```
-
-Creating and viewing a new proplist, `pd`, with all but the first 
-row, the list of column names, solves the second problem. However,
-the remaining rows each consist of a set of values (rather than a
-list) and so they can't be altered in place.
-
-What's needed next is a way to convert those sets to lists.
-
-
-
-Here I'll try to loop through each object turning it into a list.
-First I'll just print each object.
-
-Remember that proplist.each loops through the lines, not the values
-of any given line.
-
-```
-
-pp.update(lambda x: list(x))
+from trix.util.propx.propiter import *
+pi = propiter([]) 
+list( pi.zip('ABCD', 'xy') )                   # ZIP
+list( pi.zip(['ABCD', 'xy'], ["foo", "bar"]) ) # ZIP
 
 ```
 
 
 
-#### Moving to `trix.util`
 
-Though far from complete, I'm moving `trix.propx` to util and 
-delaying any further development there for now. The classes that
-currently return propx objects will continue to do so, but until
-the current bugs are fixed (and a proper test suite is complete)
-I'll hold off adding anymore to the propx package.
+## See doc
 
-
-
+The propx package is fairly new and won't be fully documented until
+all the kinks are worked out. For now, please see the python help
+for more information on the individual classes and methods.
 
 
 

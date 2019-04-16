@@ -142,14 +142,14 @@ class propiter(propbase):
 		The "zip" filter - call using python3 conventions (even from py2).
 		"""
 		try:
-			return propx(self.T.__zip(fn, iterables or self.o))
+			return propx(self.T.__zip(*iterables or self.o))
 		except AttributeError:
 			try:
-				self.T.__zip = itertools.izip #py 2
+				self.T.__zip = itertools.izip #py 2.7+
 			except:
-				self.T.__zip = zip #py3
+				self.T.__zip = zip #py 3+
 			
-			return propx(self.T.__zip(fn, iterables or self.o))
+			return propx(self.T.__zip(*iterables or self.o))
 	
 	
 	
@@ -270,4 +270,11 @@ class propiter(propbase):
 				return self.T(x)
 		except IndexError:
 			return self.T([])
-		
+	
+	
+	# -----------------------------------------------------------------
+	
+	def cast(self, T):
+		"""Typecast each item as type `T`."""
+		pass
+	

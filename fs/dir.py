@@ -58,7 +58,7 @@ class Dir(Path):
 	def list(self):
 		"""
 		When called as though it were a method, this property returns
-		a list of lists, items  in this directory.
+		a list of lists - the items in this directory.
 		
 		```
 		dir_list = trix.list()
@@ -76,7 +76,7 @@ class Dir(Path):
 		See `help(Dir().ls)` for more details.
 		
 		"""
-		return propgrid(self.listlong())
+		return trix.propx(self.listlong())
 	
 	
 	#

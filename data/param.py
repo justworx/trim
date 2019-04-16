@@ -26,6 +26,17 @@ class Chain(object):
 		"""Set item `key` in `self.v`."""
 		self.v[key] = v
 	
+	
+	
+	# TESTING
+	@property
+	def propx(self):
+		"""Return a propx object wrapping `self.v`."""
+		return trix.propx(self.v)
+	# /TESTING
+	
+	
+	
 	def each(self, fn, *a, **k):
 		"""
 		Pass a callable that accepts Param object `p`, index (or key) `i`,
@@ -48,7 +59,7 @@ class Chain(object):
 		return self
 	
 	def castx(self, x, T):
-		"""Type-cast self.v."""
+		"""Type-cast item `x` in `self.v` to type `T`."""
 		self.v = T(self.v[x])
 		return self
 	
@@ -59,6 +70,10 @@ class Chain(object):
 			self.set(trix.jparse(self.v))
 		except:
 			self.set(self.v)
+	
+	def jcastx(self, x):
+		"""Typecast item `x` in `self.v` to its json-parsed value."""
+		self.setx(x, trix.jparse(self.v[x]))
 	
 	def jcasteach(self):
 		"""Alter each item in list `self.v` to its j-parsed value."""
@@ -83,6 +98,22 @@ class Chain(object):
 		"""
 		self.v[x] = fn(x, *a, **k)
 		return self
+	
+	"""
+	#
+	# HERE'S AN IDEA I WANT TO PLAY WITH LATER...
+	#  - I can't quite see yet how it will work, but I think after I've
+	#    had some sleep it will become clear.
+	#
+	def propx(self, fn, *a, **k):
+		#
+		# Wrap self.v in a propx object and use that to manipulate `self.v`.
+		# Remember to return a value from the propx object (unless you want
+		# this param's value to be a propbase subclass).
+		#
+		self.v = fn(x, *a, **k)
+		return self
+	"""
 	
 	def set(self, v):
 		"""Set `self.v` directly."""

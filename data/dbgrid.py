@@ -4,7 +4,7 @@
 # of the GNU Affero General Public License.
 #
 
-from ..propx.proplist import *   # trix, propgrid, et al
+from ..util.propx.proplist import *   # trix, propgrid, et al
 import sqlite3, re
 
 

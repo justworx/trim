@@ -911,11 +911,12 @@ class trix(object):
 	
 	@classmethod
 	def propx(cls, *a, **k):
-		try:
-			return cls.__propx(*a, **k)
-		except:
-			cls.__propx = cls.nvalue("util.propx.propx")
-			return cls.__propx(*a, **k)
+		return trix.ncreate("util.propx.propx", *a, **k)
+
+
+
+
+
 
 
 # -------------------------------------------------------------------

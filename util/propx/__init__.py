@@ -109,10 +109,12 @@ class propbase(object):
 	
 	@property
 	def T(self):
+		"""Return the type of this `propbase` (or descendant) object."""
 		return type(self)
 	
 	@property
 	def To(self):
+		"""Return the type of `self.o`."""
 		return type(self.o)
 	
 	#

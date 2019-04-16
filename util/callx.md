@@ -66,5 +66,10 @@ learned their use, can really speed up the process of massaging data
 to get just the results you need.
 
 
+```python3
 
+from trix import *
+px = trix.callx("ps -aux").data.lines.select(lambda x: x.split(maxsplit=10))
+px.propgrid.dbgrid('ps').select("select * from ps order by TIME desc").grid()
 
+```

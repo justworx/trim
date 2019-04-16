@@ -89,8 +89,10 @@ class propgrid(proplist):
 	
 	@property
 	def o(self):
-		# Override default `self.o` to reflect value custom to this 
-		# class. That is, the header in grids.
+		"""
+		Override default `self.o` to reflect value custom to this 
+		class. That is, the header in grids.
+		"""
 		try:
 			return self.__o
 		except:
@@ -99,6 +101,7 @@ class propgrid(proplist):
 	
 	@property
 	def h(self):
+		"""Short alias. Returns the value of the header row."""
 		try:
 			return self.__h
 		except:
@@ -107,10 +110,14 @@ class propgrid(proplist):
 	
 	@property
 	def header(self):
+		"""Return the value of the header row."""
 		return self.h
 	
 	@property
 	def hh(self):
+		"""
+		Short alias for `self.has_header` - True if a header row exists.
+		"""
 		try:
 			return self.__hh
 		except:
@@ -119,15 +126,18 @@ class propgrid(proplist):
 	
 	@property
 	def has_header(self):
+		"""
+		Indicates True or False - whether this grid has a header row.
+		"""
 		return self.hh
 	
 	
 			
 	@property
 	def gen(self):
-		#
-		# Generates the header row and all data rows.
-		#
+		"""
+		Generates the header row (if it exists) and all data rows.
+		"""
 		
 		try:
 			yield(self.__h)
@@ -142,12 +152,12 @@ class propgrid(proplist):
 	
 	
 	def grid(self, *a, **k):
-		#
-		# Display this data formatted as a grid.
-		#
-		# Overrides `proplist.grid` to expose the header, which propgrid
-		# separates from the data for easier data-manipulation.
-		#
+		"""
+		Display this data formatted as a grid.
+		
+		Overrides `proplist.grid` to expose the header, which propgrid
+		separates from the data for easier data-manipulation.
+		"""
 		
 		k['f'] = 'Grid'
 		trix.display(list(self.gen), *a, **k)
@@ -172,7 +182,7 @@ class propgrid(proplist):
 		tables defined by the passage of keyword arguments) is not a list
 		of lists each containing an equal number of items. 
 		"""
-		g = trix.ncreate('data.dbgrid.DBGrid', **k)
+		g = trix.ncreate('data.dbgrid.DBGrrix.ncreate('data.dbgrid.DBGrid', **k)
 		g.add(tableName, self.o, self.h)
 		return g
 
