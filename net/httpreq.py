@@ -42,6 +42,8 @@ class httpreq(object):
 			except:
 				H[hk] = ''
 	
+	
+	
 	@property
 	def bytes(self):
 		return self.__bytes	
@@ -78,3 +80,16 @@ class httpreq(object):
 	def headers(self):
 		return self.__headers	
 	
+	
+	@property
+	def dict(self):
+		try:
+			return self.__dict
+		except:
+			self.__dict = dict(
+				headers=self.headers, reqpath=self.reqpath, 
+				version=self.version, method=self.method, 
+				reqinfo=self.reqinfo, request=self.request, lines=self.lines,
+				text=self.text, bytes=self.bytes
+			)
+			return self.__dict

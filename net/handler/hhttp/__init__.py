@@ -19,7 +19,8 @@ class HandleHttp(Handler):
 	this class and how to customize it to suit your needs.
 	"""
 	
-	WebContent = "net/handler/hhttp/example/"
+	# DEFAULT CONTENT PATH
+	WebContent = trix.innerfpath("net/handler/hhttp/example/")
 	
 	# INIT
 	def __init__(self, sock, **k):
@@ -29,7 +30,7 @@ class HandleHttp(Handler):
 		
 		# set default path to the example content files (if necessary)
 		if not self.rootdir:
-			self.rootdir = trix.innerfpath(self.WebContent)
+			self.rootdir = self.WebContent
 		
 		Handler.__init__(self, sock, **k)
 		

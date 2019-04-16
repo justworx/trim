@@ -1,0 +1,30 @@
+
+body {padding: 0px; margin: 0px;}
+
+a:link {color:#111111;}     /* normal link */
+a:visited {color:#333333;}  /* visited link */
+a:hover {color:#000000;}    /* mouse over link */
+a:active {color:#000000;}   /* selected link */
+
+h1 {margin: 1px; padding: 1px;}
+
+#TrixUI {}
+#Header {
+	width: 100%; padding: 0px; margin: 0px;
+	border: solid 1px #eee; border-bottom: solid 1px #ccc;
+	background-color: #efefef;
+}	
+
+
+#Content {}
+#Footer {
+	position: fixed; bottom: 0px; left: 0px; border-top: solid 1px grey;
+	height: 22px; width: 100%; padding: 1px;
+}
+
+
+#header_right {width:180px;}
+#omni_bar     {width: 100%;}
+#title_home   {}
+#footer_right {float: right; margin: 1px; margin-right: 9px;}
+
