@@ -182,7 +182,7 @@ class propgrid(proplist):
 		tables defined by the passage of keyword arguments) is not a list
 		of lists each containing an equal number of items. 
 		"""
-		g = trix.ncreate('data.dbgrid.DBGrrix.ncreate('data.dbgrid.DBGrid', **k)
+		g = trix.ncreate('data.dbgrid.DBGrid', **k)
 		g.add(tableName, self.o, self.h)
 		return g
 
