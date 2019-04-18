@@ -862,7 +862,7 @@ class trix(object):
 	
 	
 	@classmethod
-	def signals(cls, ):
+	def signals(cls):
 		"""
 		EXPERIMENTAL - TESTING
 		

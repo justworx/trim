@@ -19,94 +19,184 @@ class HandleHttp(Handler):
 	this class and how to customize it to suit your needs.
 	"""
 	
+	#
 	# DEFAULT CONTENT PATH
+	#
 	WebContent = trix.innerfpath("net/handler/hhttp/example/")
 	
+	
+	#
+	#
 	# INIT
+	#
+	#
 	def __init__(self, sock, **k):
 		
+		# inits
+		self.__request = None
+		
 		# make root dir configurable
-		self.rootdir = k.get('rootdir')
+		self.__rootdir = k.get('rootdir')
 		
 		# set default path to the example content files (if necessary)
-		if not self.rootdir:
-			self.rootdir = self.WebContent
+		if not self.__rootdir:
+			self.__rootdir = self.WebContent
 		
 		Handler.__init__(self, sock, **k)
 		
 		# webroot is an fs.Path object
-		self.webroot = trix.path(self.rootdir)
+		self.__webroot = trix.path(self.__rootdir)
 		
 		# configurable header items
-		self.Server = k.get("Server", "trix/%s" % str(VERSION))
-		self.Connection = k.get("Connection", "keep-alive")
+		self.__server = k.get("Server", "trix/%s" % str(VERSION))
+		self.__connection = k.get("Connection", "keep-alive")
 	
+	
+	@property
+	def request(self):
+		"""
+		Current request's `request` object, or None if no request is
+		in progress.
+		"""
+		return self.__request
+	
+	@property
+	def rootdir(self):
+		"""String; The root directory containing content files."""
+		return self.__rootdir
+	
+	@property
+	def webroot(self):
+		"""An `fs.Dir` object wrapping `self.rootdir`."""
+		return self.__webroot
 	
 	
 	#
+	#
 	# HANDLE DATA
+	#  - Override the net.handler `handledata` method returning web
+	#    content.
+	#
 	#
 	def handledata(self, data, **k):
 		"""
-		Received a request; process and return reply.
+		Receive a web request; process and return reply.
+		"""
+		
+		self.parse_request(data, **k)
+		self.generate_response(**k)
+	
+	
+	
+	def parse_request(self, data, **k):
+		"""
+		Parse request; Set internal variables:
+		 - self.request: the net/httpreq object
+		 - self.uinfo  : the util/urlinfo object
+		 - self.qdict  : the urlinfo query dictionary Eg: ?a=1 -> {'a':1}
+		 - self.reqpath: the path to a requested file
+		"""
+		#
+		# Parse Headers
+		#
+		self.__request = httpreq(data)
+		
+		# Parse URL
+		self.uinfo = urlinfo.urlinfo(self.__request.reqpath)
+		self.qdict = self.uinfo.qdict
+		
+		# Get full path string to requested document...
+		reqpath = self.webroot.merge(self.uinfo.path)
+		
+		# ...and a path object
+		self.reqpath = trix.path(reqpath)
+	
+	
+	
+	def generate_response(self, **k):
+		"""
+		Calls `generate_file_response()` dto generate content based on 
+		request url path.  
+		
+		Override to implement custom content generation.
+		"""
+		self.generate_file_response(**k)
+	
+	
+	
+	def generate_file_response(self, **k):
+		"""
+		Read and return the file specified by `self.reqpath`.
 		"""
 		try:
-			#1 Parse Headers
-			self.request = httpreq(data)
-			
-			#2 Parse URL
-			self.uinfo = urlinfo.urlinfo(self.request.reqpath)
-			self.uquery = self.uinfo.query
-			
-			# full path string to requested document
-			reqpath = self.webroot.merge(self.uinfo.path)
-			
-			# and a path object
-			self.reqpath = trix.path(reqpath)
-			
 			# apply default file (index.html)
 			if self.reqpath.isdir():
-				reqpath = self.reqpath.merge('index.html')
+				sReqPath = self.reqpath.merge('index.html')
+			else:
+				sReqPath = self.reqpath.path
 			
-			#4 Check mime type
-			self.contentType = mime.Mime(reqpath).mimetype
+			# Check mime type
+			self.contentType = mime.Mime(sReqPath).mimetype
 			
-			#5 Load File Content
-			content = trix.path(reqpath).reader(encoding="utf_8").read()
+			# Load File Content
+			content = trix.path(sReqPath).reader(encoding="utf_8").read()
 			
-			#6 Generate Headers
-			clength = len(content.encode('utf_8'))
-			
-			#7 Write the response header and
-			gmt = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
-			head = self.head('200', clength)
-			
-			#8 Send End Bytes
-			self.write(head + "\r\n\r\n" + content + "\r\n\r\n")
+			self.dispatch_response(content)
 			
 		except BaseException as ex:
-			#print (ex, xdata())
 			self.writeError("500", xdata())
 			raise
+	
+	
+	
+	
+	def dispatch_response(self, response_content):
+			
+		try:
+			# Generate Headers
+			clength = len(response_content.encode('utf_8'))
+			
+			# Write the response header and...
+			head = self.head('200', clength)
+			
+			# ...send End Bytes.
+			self.write(head + "\r\n\r\n" + response_content + "\r\n\r\n")
+			
+		except BaseException as ex:
+			self.writeError("500", xdata())
+			raise
+	
 	
 	
 	#
 	# HEAD - Generate head text.
 	#
 	def head(self, result, clength):
-		"""Return the head for the response."""
+		"""Generate and return the response header text."""
+		
+		#
+		# TEMPORARY MEASURE
+		#  - we need a way to insure contentType is set.
+		#
+		try:
+			content_type = self.contentType or "text/html"
+		except:
+			content_type = "text/html"
+		
 		gmt = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
 		head = "\r\n".join([
 			"HTTP/1.1 %s OK"     % result, 
 			"Date: %s"           % (gmt),
-			"Connection: %s"     % (self.Connection),
-			"Server: %s"         % (self.Server),
+			"Connection: %s"     % (self.__connection),
+			"Server: %s"         % (self.__server),
 			"Accept-Ranges: bytes",
-			"Content-Type: %s"   % self.contentType,
+			"Content-Type: %s"   % content_type,
 			"Content-Length: %i" % (clength),
 			"Last-Modified: %s"  % (gmt) # this should be the file mod date
 		])
+		
 		return head
+	
 	
 	
 	#
