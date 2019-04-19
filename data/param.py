@@ -28,15 +28,16 @@ class Chain(object):
 	
 	
 	
-	# TESTING
 	@property
 	def propx(self):
 		"""Return a propx object wrapping `self.v`."""
 		return trix.propx(self.v)
-	# /TESTING
 	
 	
 	
+	#
+	# SETTING VALUES
+	#
 	
 	def set(self, v):
 		"""Set `self.v` directly."""
@@ -68,43 +69,12 @@ class Chain(object):
 		"""
 		for x in xx:
 			self.setx(x, fn(self, x, *a, **k))
-		return self
-	
-	# def setxf(self, xx, fn, *a, **k):
-		# """
-		# Pass a list of item keys (p.i) as `xx`; each item's value is then
-		# passed to callable `fn`, the result replacing the corresponding
-		# item's current value.
-		
-		# ```
-		# # Change a directory listing's floats to ints (for brevity).
-		# dlist = ['trix', 'd', '1551543158.9558208', '1551543136.5832613']
-		# p = Param(dlist)
-		# p.setxx([2,3], lambda p,x: int(float(p.v[x])))
-		
-		# ```  
-		# """
-		# for x in xx:
-			# self.setx(x, fn(self, *a, **k))
-		# return self
+		return self	
 	
 	
-	
-	def each(self, fn, *a, **k):
-		"""
-		Pass a callable that accepts Param object `p`, index (or key) `i`,
-		and the value of p[i], `v`.
-		
-		p = Param([1,2,3])
-		q = p.each(lambda p,i,v: p.setx(i, v))
-		"""
-		for x in enumerate(self.v):
-			#
-			# Here, self is this param object, x[0] is the index `i`, and
-			# x[1] is the value, `v`, so... callable `fn` receives p,i,v.
-			#
-			fn(self, x[0], x[1], *a, **k)
-		return self
+	#
+	# TYPE-CASTING VALUES
+	#
 	
 	def cast(self, T):
 		"""Type-cast self.v."""
@@ -139,6 +109,13 @@ class Chain(object):
 				pass
 		return self
 	
+	
+	
+	#
+	# CALLING RANDOM FUNCTIONS / PROCEDURES*
+	#  *(Proceedures in the sense of Pascal)
+	#
+	
 	def proc(self, fn, *a, **k):
 		"""
 		Set this object's self.v to the result of the callable argument
@@ -150,39 +127,39 @@ class Chain(object):
 	
 	def procx(self, x, fn, *a, **k):
 		"""
-		Set item `x` in `self.v` to the result
+		Set item `x` in `self.v` to the result of `fn`.
 		"""
 		self.setx(x, fn(self, *a, **k))
 		return self
 	
+	def call(self, fn, *a, **k):
+		"""
+		This method allows the random calling of an executable object 
+		with no forced ties to `self.v`. It may be useful in cases where
+		the given values are operated on by an external callable.
+		
+		REM: You must pass `self.v` as an argument if you want it to be
+		     altered.
+		
+		```
+		def listbump(ls):
+		  for i in range(0, len(ls)):
+		    ls[i] = ls[i]+1
+		
+		p = Param([1,2,3])
+		p.v                       # [1,2,3]
+		p.call(listbump, p.v).v   # [2,3,4]
+
+		```
+		
+		"""
+		fn(*a, **k)
+		return self	
 	
-	"""
-	#
-	# HERE'S AN IDEA I WANT TO PLAY WITH LATER...
-	#  - I can't quite see yet how it will work, but I think after I've
-	#    had some sleep it will become clear.
-	#
-	def propx(self, fn, *a, **k):
-		#
-		# Wrap self.v in a propx object and use that to manipulate `self.v`.
-		# Remember to return a value from the propx object (unless you want
-		# this param's value to be a propbase subclass).
-		#
-		self.v = fn(x, *a, **k)
-		return self
-	"""
+	
 	
 	#
-	# ...something's wrong here...
-	#
-	#def call(self, fn, *a, **k):
-	#	"""
-	#	Same as `proc`, but does not set self.v; Use this (rather than
-	#	`proc`) when the `fn` callable does not return a value but rather
-	#	operates on `self.v` "in-place".
-	#	"""
-	#	fn(*a, **k)
-	#	return self
+	# STRING OPS
 	#
 	
 	def split(self, *a, **k):
@@ -216,8 +193,13 @@ class Chain(object):
 		length (eg., for visual formatting of grids in a terminal).
 		""" 
 		val = val if len(str(val)) else ' '
-		while len(self.v) < mlen:
-			self.v.append(val)
+		try:
+			while len(self.v) < mlen:
+				self.v.append(val)
+		except AttributeError:
+			while len(self.v) < mlen:
+				self.v += val
+			
 		return self
 
 	def strip(self, c=None, alignment=0):
@@ -235,12 +217,36 @@ class Chain(object):
 		return self
 	
 	
-	# util
+	#
+	# OTHER/UTIL
+	#
+	
+	def each(self, fn, *a, **k):
+		"""
+		Pass a callable `fn` that accepts Param object `p`, index (or 
+		key) `i`, and the value of p[i], `v`. Callable `fn` is called,
+		receiving the param object `p`, the offset/key `i`, and value `v`
+		for each item.
+		"""
+		for x in enumerate(self.v):
+			#
+			# Here, self is this param object, x[0] is the index `i`, and
+			# x[1] is the value, `v`, so... callable `fn` receives p,i,v.
+			#
+			fn(self, x[0], x[1], *a, **k)
+		return self
+	
 	
 	def output(self, v=None, *a):
 		"""Print `self.v`; for testing."""
 		v = v or self.v
-		BaseOutput().output(str(v))
+		Output().output(str(v))
+		return self
+	
+	
+	def write(self, v=None, *a):
+		"""Print `self.v`; for testing."""
+		BaseOutput().output(str(v or self.v))
 		return self
 	
 	
