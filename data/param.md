@@ -147,11 +147,4 @@ db.select("""
 
 ```
 
-Looks like dbgrid still doesn't "order by" properly - probably because
-the SQL table definitions aren't including column types. Maybe I can
-pass types from the first row and generate a better table def.
-
-Maybe tomorrow. Brain Needs Sleeeeeeep.
-
-
 

@@ -37,6 +37,59 @@ class Chain(object):
 	
 	
 	
+	
+	def set(self, v):
+		"""Set `self.v` directly."""
+		self.v = v
+		return self
+	
+	def setx(self, x, v):
+		"""Set index (or key) `x` with value `v`."""
+		try:
+			self.v[x] = v
+			return self
+		except BaseException as ex:
+			raise type(ex)(xdata(po=self.v, x=x, v=v))
+		return self
+	
+	def setxx(self, xx, fn, *a, **k):
+		"""
+		Pass a list of item keys (p.i) as `xx`; each item's value is then
+		passed to callable `fn`, the result replacing the corresponding
+		item's current value.
+		
+		```
+		# Change a directory listing's floats to ints (for brevity).
+		dlist = ['trix', 'd', '1551543158.9558208', '1551543136.5832613']
+		p = Param(dlist)
+		p.setxx([2,3], lambda p,x: int(float(p.v[x])))
+		
+		```  
+		"""
+		for x in xx:
+			self.setx(x, fn(self, x, *a, **k))
+		return self
+	
+	# def setxf(self, xx, fn, *a, **k):
+		# """
+		# Pass a list of item keys (p.i) as `xx`; each item's value is then
+		# passed to callable `fn`, the result replacing the corresponding
+		# item's current value.
+		
+		# ```
+		# # Change a directory listing's floats to ints (for brevity).
+		# dlist = ['trix', 'd', '1551543158.9558208', '1551543136.5832613']
+		# p = Param(dlist)
+		# p.setxx([2,3], lambda p,x: int(float(p.v[x])))
+		
+		# ```  
+		# """
+		# for x in xx:
+			# self.setx(x, fn(self, *a, **k))
+		# return self
+	
+	
+	
 	def each(self, fn, *a, **k):
 		"""
 		Pass a callable that accepts Param object `p`, index (or key) `i`,
@@ -60,7 +113,7 @@ class Chain(object):
 	
 	def castx(self, x, T):
 		"""Type-cast item `x` in `self.v` to type `T`."""
-		self.v = T(self.v[x])
+		self.v[x] = T(self.v[x])
 		return self
 	
 	def jcast(self):
@@ -70,10 +123,12 @@ class Chain(object):
 			self.set(trix.jparse(self.v))
 		except:
 			self.set(self.v)
+		return self
 	
 	def jcastx(self, x):
 		"""Typecast item `x` in `self.v` to its json-parsed value."""
 		self.setx(x, trix.jparse(self.v[x]))
+		return self
 	
 	def jcasteach(self):
 		"""Alter each item in list `self.v` to its j-parsed value."""
@@ -82,6 +137,7 @@ class Chain(object):
 				self.setx(x, trix.jparse(self.v[x]))
 			except:
 				pass
+		return self
 	
 	def proc(self, fn, *a, **k):
 		"""
@@ -96,8 +152,9 @@ class Chain(object):
 		"""
 		Set item `x` in `self.v` to the result
 		"""
-		self.v[x] = fn(x, *a, **k)
+		self.setx(x, fn(self, *a, **k))
 		return self
+	
 	
 	"""
 	#
@@ -115,44 +172,18 @@ class Chain(object):
 		return self
 	"""
 	
-	def set(self, v):
-		"""Set `self.v` directly."""
-		self.v = v
-		return self
-	
-	def setx(self, x, v):
-		"""Set index (or key) `x` with value `v`."""
-		try:
-			self.v[x] = v
-			return self
-		except BaseException as ex:
-			raise type(ex)(xdata(po=self.v, x=x, v=v))
-	
-	def setxx(self, xx, fn, *a, **k):
-		"""
-		Pass a list of item keys (p.i) as `xx`; each item's value is then
-		passed to callable `fn`, the result replacing the corresponding
-		item's current value.
-		
-		```
-		# Change a directory listing's floats to ints (for brevity).
-		dlist = ['trix', 'd', '1551543158.9558208', '1551543136.5832613']
-		p = Param(dlist)
-		p.setxx([2,3], lambda p,x: int(float(p.v[x])))
-		
-		```  
-		"""
-		for x in xx:
-			self.setx(x, fn(self, x, *a, **k))
-	
-	def call(self, fn, *a, **k):
-		"""
-		Same as `proc`, but does not set self.v; Use this (rather than
-		`proc`) when the `fn` callable does not return a value but rather
-		operates on parameters "in-place".
-		"""
-		fn(*a, **k)
-		return self
+	#
+	# ...something's wrong here...
+	#
+	#def call(self, fn, *a, **k):
+	#	"""
+	#	Same as `proc`, but does not set self.v; Use this (rather than
+	#	`proc`) when the `fn` callable does not return a value but rather
+	#	operates on `self.v` "in-place".
+	#	"""
+	#	fn(*a, **k)
+	#	return self
+	#
 	
 	def split(self, *a, **k):
 		"""
