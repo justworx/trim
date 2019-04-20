@@ -36,7 +36,6 @@ p.setxx([0,2], lambda p,x: int(p.v[x]) ).v          # [1, 2.2, 3]
 p = Param([1.1, 2.2, 3.3])
 p.setxx(range(0,3), lambda p,x: int(p.v[x]) ).v     # [1, 2, 3]
 
-
 ```
 
 
@@ -73,6 +72,7 @@ Param([1.1,"2.1","3.1"]).jcastx(1).v      # [1.1, 2.1, '3.1']
 Param([1.0, "2", "three"]).jcasteach().v  # [1.0, 2, 'three']
 
 ```
+
 
 
 #### calling functions/procedures
@@ -120,10 +120,19 @@ p.call(listbump, p.v).v        # [4, 5, 6]
 
 Here are some string operations for convenience.
 
+The `xplit` and `join` methods are pretty much what you'd expect.
+
+Pad "pads" a string with a given number of occurrances of a given 
+string.
+
+The `strip` method removes occurances of a given string from -1 left
+or +1, right (the default).
+
 ```
 from trix.data.param import *
 
 Param("crash boom bam!").split().v          # ['crash','boom','bam!']
+Param("crash,boom,bam").split(",").v        # ['crash','boom','bam!']
 Param(['crash','boom','bam!']).join(' ').v  # 'crash boom bam!'
 
 Param("Hello!").pad(15, "!").v              # 'Hello!!!!!!!!!!'
@@ -134,7 +143,7 @@ Param("  Hello!  ").strip(None, -1).v       # 'Hello!  '
 Param("  Hello!  ").strip(None, 1).v        # '  Hello!'
 Param("x  Hello!  x").strip('x').v          # '  Hello!  '
 Param("x  Hello!  x").strip('x', -1).v      # '  Hello!  x'
-
+Param("x  Hello!  x").strip('x').strip().v  # 'Hello!'
 
 ```
 
@@ -143,7 +152,7 @@ Param("x  Hello!  x").strip('x', -1).v      # '  Hello!  x'
 #### other/util
 
 The `Param.write` writes argument `v` (which defaults to `self.v`)
-to the stdout stream, so that it the output will appear from within
+to the stdout stream, so that the output will appear from within
 a lambda even in python 2.7.x.
 
 The `Param.each` method calls each object in `self.v` passing the

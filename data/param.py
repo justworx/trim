@@ -86,6 +86,7 @@ class Chain(object):
 		self.v[x] = T(self.v[x])
 		return self
 	
+	
 	def jcast(self):
 		"""Alter string `self.v` to it's json-parsed value."""
 		v = self.v
