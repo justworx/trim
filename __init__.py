@@ -690,6 +690,12 @@ class trix(object):
 			return obj
 	
 	
+	@classmethod
+	def propx(cls, *a, **k):
+		"""Return a propx for given args/kwargs."""
+		return trix.ncreate("util.propx.propx", *a, **k)
+	
+	
 	# SCAN - Returns a scanner.
 	@classmethod
 	def scan(cls, *a, **k):
@@ -907,11 +913,6 @@ class trix(object):
 			locale = ".".join(trix.module("locale").getlocale())
 		
 		return trix.ncreate("util.loc.Locale", locale)
-	
-	
-	@classmethod
-	def propx(cls, *a, **k):
-		return trix.ncreate("util.propx.propx", *a, **k)
 
 
 
@@ -1080,7 +1081,11 @@ except:
 try:
 	bytes
 except:
-	# this only happens pre-version 2.6
+	#
+	# TO DO:
+	#  - This only happens pre-version 2.6 and trix only supports 2.7+,
+	#    so I need to deprecate and remove it... after testing.
+	#
 	bytes = str
 
 
