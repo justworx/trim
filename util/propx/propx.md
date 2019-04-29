@@ -11,6 +11,8 @@ For example, list objects passed to `propx()` would be wrapped inside
 a	`proplist` object, which provides methods and properties convenient
 for querying, manipulation and display of list objects.
 
+
+
 #### propx classes
 
 The following modules/classes are currently available.
@@ -21,6 +23,7 @@ The following modules/classes are currently available.
  * proplist - methods for list manipulation/display
    propgrid - proplist subclass for list of lists of equal length 
  * propdict - covers dict-like objects
+
 
 
 #### propx use in the trix package
@@ -43,10 +46,9 @@ d = trix.path('trix') # <-- CREATE A `Dir` OBJECT
 
 d.ls()                # <-- RETRIEVE THE STANDARD `ls` RESULT LIST
 
-d.ls.table(width=4)   # <-- SHOW A GRID-FORMATTED VERSION OF THE LIST
+d.ls.table(width=4)   # <-- SHOW A TABULATED VERSION OF THE LIST
 
 ```
-
 
 
 The long `dir.list` property's __call__() method works the same way, 
@@ -102,7 +104,8 @@ list(ii)
 
 
 The propiter map and zip methods are designed to behave the same in 
-both python 2.7.x and python 3.x. 
+both python 2.7.x and python 3.x. Always use python3 conventions
+when passing parameters to propiter filtering methods.
 
 ```python3
 from trix.util.propx.propiter import *

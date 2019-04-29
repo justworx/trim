@@ -125,6 +125,9 @@ class propbase(object):
 		"""
 		Returns the compenc module on demand; Does not load the module 
 		until first call to this property.
+		
+		NOTE: This is an internally used convenience more than a part of
+		      the `propbase` feature set.
 		"""
 		try:
 			return self.__compenc
@@ -159,10 +162,16 @@ class propbase(object):
 	#
 	def json(self, *a, **k):
 		"""
-		Return self.o as json text. Default format is compact json. 
-		Note: Use the `display()` method for JSON in display format. 
+		Return self.o formatted as json text. Formatting may be specified.
+		The default is standard JSON text.
 		"""
-		k.setdefault('f', 'JCompact')
+		k.setdefault('f', 'JSON')
+		return trix.formatter(*a, **k).format(self.o)
+	
+	
+	def jcompact(self, *a, **k):
+		"""Return self.o forced to jcompact text."""
+		k['f'] = 'JCompact'
 		return trix.formatter(*a, **k).format(self.o)
 	
 	
@@ -198,40 +207,79 @@ class propbase(object):
 	#
 	def b64(self, **k):
 		"""Return self.o as (compact) JSON bytes encoded to base64."""
+		k.setdefault('f','JCompact')
 		return self.compenc.b64.encode(self.json(**k).encode(**k))
 	
 	def b64s(self, **k):
 		"""Return self.o as (compact) JSON bytes encoded to base64."""
+		k.setdefault('f','JCompact')
 		return self.compenc.b64.sencode(self.json(**k).encode('utf8'))
 	
 	def b64u(self, **k):
 		"""
 		Return self.o as (compact) JSON bytes encoded to url-safe base64.
 		"""
+		k.setdefault('f','JCompact')
 		return self.compenc.b64.uencode(self.json(**k).encode('utf8'))
 	
 	def b32(self, **k):
 		"""Return self.o as (compact) JSON bytes encoded to base32."""
+		k.setdefault('f','JCompact')
 		return self.compenc.b32.encode(self.json(**k).encode(**k))
 	
 	def b16(self, **k):
 		"""Return self.o as (compact) JSON bytes encoded to base16."""
+		k.setdefault('f','JCompact')
 		return self.compenc.b16.encode(self.json(**k).encode(**k))
+	
+	
 	
 	def compact(self, **k):
 		"""
 		Convert self.o to json, zlib-compress, and return base-64 bytes.
 		Use trix.compenc.expand to revert to json.
+		
+		```
+		from trix import *
+		propx.compact("Hello, World!")
+		
+		```
 		"""
-		return self.compenc.compact(self.json(**k).encode('utf8'))
+		return self.compenc.compact(self.jcompact(**k).encode('utf8'))
 	
-	@property
+	
 	def expand(self, **k):
 		"""
 		Return propx containing data "expanded" from data that had
-		previously been compressed by `self.compact()`.
+		previously been compressed by `util.compenc.compact` (such as by
+		the propbase.compact() method).
+		
+		```
+		from trix import *
+		pc = propx.compact("Hello, World!")
+		propx(pc).expand().o.decode('utf8')
+		
+		```
 		"""
-		return propx(self.compenc.expand(self.o))
+		return propx(self.compenc.expand(self.o, **k))
+	
+	
+	#
+	# CAST - Experimental
+	#
+	def cast(self, T):
+		"""
+		Return a propx object given `self.o` cast as a different type.
+		This would typically be used to cast an iterator as a list.
+		"""
+		return propx(T(self.o))
+
+
+
+
+
+
+
 
 
 #
@@ -320,6 +368,13 @@ def propx(o, *a, **k):
 		
 		# ...and finally, anything else...
 		return propbase(o, *a, **k)
+	
+	
+	#
+	# I've been doing a lot of this sort of thing, but I've never
+	# really checked to see whether there's any kind of performance
+	# boost... :-/
+	#
 	
 	"""
 

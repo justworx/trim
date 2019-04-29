@@ -7,7 +7,7 @@
 from .proplist import *
 
 
-class propdict(propiter):
+class propdict(propbase):
 	"""
 	Pass a dict or dict-like object.
 	"""

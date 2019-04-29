@@ -344,6 +344,7 @@ class Param(Chain):
 	def false(self):
 		return False
 	
+	
 	# BOOL
 	def bool(self, v):
 		return v
@@ -357,10 +358,20 @@ class Param(Chain):
 		based on the given argument's boolean evaluation.
 		"""
 		return len(a) and bool(a[0])
+
+
+	# CONTAINS
+	def contains(self, v, b=True):
+		"""Return `b` (default True) if `v` exists in `self.v`."""
 	
 	
 	#
 	# COMPARISON
+	#  - I'm thinking these are a really bad idea. I've never used them,
+	#    and I'm looking at them now and thinking... WTH was I thinking?
+	#  - I mean really... how often is self.v a scalar value? When would
+	#    non-scalar types be able to make use of this?
+	#  - I'm pretty sure these are not going to be here much longer.
 	#
 	def eq(self, v):
 		"""Comparison: `v` equal to self.v"""
@@ -385,9 +396,5 @@ class Param(Chain):
 	def lt(self, v):
 		"""Comparison: less than;"""
 		return self.v < v
-
-	# CONTAINS
-	def contains(self, v, b=True):
-		"""Return `b` (default True) if `v` exists in `self.v`."""
-		return b if v in self.v else not b
+		#return b if v in self.v else not b
 	

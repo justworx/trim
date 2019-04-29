@@ -46,9 +46,23 @@ class HttpUi(HandleHttp):
 	# Override `generate_response` to handle commands
 	#
 	def generate_response(self, **k):
+		"""
+		Generate panel, panel list, or file response for display in trix 
+		httpui interface.
+		 * p=<PANELNAME>
+		 * pp=<fnmatch-panel-list-query>; default *
+		
+		Otherwise, an html file's contents is returned.
+		
+		Note: More options are coming to this list. Ultimately ajax 
+		      requests will also be processed here.		
+		"""
 		try:
 			qdict = self.qdict
-			if 'p' in qdict:
+			if 'c' in qdict:
+				print (1)
+				self.generate_command_reply(qdict['c'][-1])
+			elif 'p' in qdict:
 				self.generate_panel(qdict['p'][-1])
 			elif 'pp' in qdict:
 				self.generate_panel_list(**k)
@@ -70,7 +84,26 @@ class HttpUi(HandleHttp):
 		except Exception as ex:
 			print ("ERR:", str(ex), xdata(panel_name=panel_name))
 			raise
-		
+	
+	
+	
+	def generate_command_reply(self, command):
+		"""Currently, no httpui commands are being handled."""
+		try:
+			print (2, command)
+			r = {'c':command, 'e': None}
+			if command=='foo':
+				print (3)
+				r["r"] = 'bar'
+			else:
+				print (4)
+				r["r"] = 'error'
+				r["e"] = 'unknown-command'
+			self.dispatch_response(trix.formatter(f="JCompact").format(r))
+		except Exception as ex:
+			print ("ERR:", str(ex), xdata(command=command, r=r))
+			raise
+
 
 
 

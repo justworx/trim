@@ -38,6 +38,10 @@ class cline(object):
 				# All plugins must be named the same as their module.
 				#
 				trix.ncreate("app.cline.%s.%s" % (cls.cmd, cls.cmd))
+		
+		else:
+			pass # gonna put a default action here
+		
 	
 	@classmethod
 	def help(cls):

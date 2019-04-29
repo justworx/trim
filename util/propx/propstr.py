@@ -18,9 +18,15 @@ class propstr(propseq):
 				"util.propx.proplist.proplist", self.o.splitlines()
 			)
 	
-	def scanner(self, **k):
+	def scan(self, **k):
+		"""
+		Return a data/Scanner object loaded with text `self.o`.
+		"""
 		return trix.ncreate('data.scan.Scanner', self.o, **k)
 	
+	#
+	# needs a regex method
+	#
 
 
 

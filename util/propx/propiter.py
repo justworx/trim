@@ -13,7 +13,8 @@ class propiter(propbase):
 	
 	def __getitem__(self, key):
 		"""
-		Get a slice of the remaining items.
+		Get a slice from remaining items.
+		
 		Note that once an item has been passed, it can no longer be 
 		accessed.
 		
@@ -25,11 +26,10 @@ class propiter(propbase):
 		ii[1:5] # [1, 2, 3, 4]
 		ii[95:]
 		"""
-		# this is probably a bad idea...
-		#return self.T(list(self.islice(key.start,key.stop,key.step)))
+		
 		try:
 			return self.T(list(
-					itertools.islice(self.o, key.start,key.stop,key.step)
+					itertools.islice(self.o, key.start,key.stop, key.step)
 				))
 		except Exception as ex:
 			raise type(ex)(xdata(
@@ -48,8 +48,6 @@ class propiter(propbase):
 		for x in self.o:
 			yield(x)
 	
-	
-	
 	@property
 	def sorted(self):
 		"""Return a proplist with sorted content."""
@@ -58,7 +56,9 @@ class propiter(propbase):
 	@property
 	def reversed(self):
 		"""Return a proplist with reversed content."""
-		return self.T(reversed(self.o))
+		return self.T(reversed(list(self.o)))
+		#return self.T(reversed(self.To(self.o)))
+		#return self.T(reversed(self.o))
 	
 	
 	def each (self, fn, *a, **k):
@@ -161,7 +161,9 @@ class propiter(propbase):
 	# -----------------------------------------------------------------
 	
 	def filter(self, fn, iterable=None):
-		# Call a filter function that behaves as it would in python3.
+		"""
+		Call this filter method using python3 convention even in python2.
+		"""
 		try:
 			iterable = iterable or self.o
 			#return self.T(type(iterable)(self.__filter(fn, iterable)))
@@ -217,11 +219,21 @@ class propiter(propbase):
 	#
 	
 	def accumulate(self, fn=None, iterable=None):
+		"""
+		Pass an accumulation function (default: operator.add) and,
+		optionally, an iterator to replace `self.o`.
+		
+		Not available in python2.
+		"""
 		fn = fn or trix.module('operator').add
 		return propx(itertools.accumulate(iterable or self.o, fn))
 	
 	
 	def dropwhile(self, fn, iterable=None):
+		"""
+		Drops elements from the iterable as long as the callable `fn` 
+		returns True.
+		"""
 		return propx(itertools.dropwhile(iterable or self.o, fn))
 	
 	
@@ -271,10 +283,4 @@ class propiter(propbase):
 		except IndexError:
 			return self.T([])
 	
-	
-	# -----------------------------------------------------------------
-	
-	def cast(self, T):
-		"""Typecast each item as type `T`."""
-		pass
 	
