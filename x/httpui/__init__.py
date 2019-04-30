@@ -60,7 +60,6 @@ class HttpUi(HandleHttp):
 		try:
 			qdict = self.qdict
 			if 'c' in qdict:
-				print (1)
 				self.generate_command_reply(qdict['c'][-1])
 			elif 'p' in qdict:
 				self.generate_panel(qdict['p'][-1])
@@ -68,10 +67,11 @@ class HttpUi(HandleHttp):
 				self.generate_panel_list(**k)
 			else:
 				# default... respond with specified file
+				print ("ERR:", str(ex), xdata(panel_name=panel_name))
 				HandleHttp.generate_response(self, **k)
 			
 		except BaseException as ex:
-			self.writeError("500", xdata())
+			self.writeError("500", xdata(qdict=qdict))
 			raise
 		
 	
@@ -83,26 +83,25 @@ class HttpUi(HandleHttp):
 			self.dispatch_response(p)
 		except Exception as ex:
 			print ("ERR:", str(ex), xdata(panel_name=panel_name))
-			raise
+			self.writeError("500", xdata(panel_name=panel_name))
+			#raise
 	
 	
 	
 	def generate_command_reply(self, command):
 		"""Currently, no httpui commands are being handled."""
 		try:
-			print (2, command)
 			r = {'c':command, 'e': None}
 			if command=='foo':
-				print (3)
 				r["r"] = 'bar'
 			else:
-				print (4)
 				r["r"] = 'error'
 				r["e"] = 'unknown-command'
 			self.dispatch_response(trix.formatter(f="JCompact").format(r))
 		except Exception as ex:
 			print ("ERR:", str(ex), xdata(command=command, r=r))
-			raise
+			self.writeError("500", str(ex), xdata(command=command, r=r))
+			#raise
 
 
 
