@@ -70,7 +70,22 @@ class Mime(object):
 	def subtype(self):
 		"""Return `subtype`."""
 		return self.__subtype
-
+	
+	
+	@classmethod
+	def type2ext(cls, mimetype):
+		"""
+		Classmethod. Utility; Returns the extension for a given mime type.
+		"""
+		try:
+			return cls.__type2ext[mimetype]
+		except AttributeError:
+			maptypes = {}
+			mimetypes.init()
+			for k in mimetypes.types_map:
+				maptypes[mimetypes.types_map[k]] = k
+			cls.__type2ext = maptypes
+			return cls.__type2ext[mimetype]
 
 
 
