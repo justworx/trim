@@ -67,7 +67,6 @@ class HttpUi(HandleHttp):
 				self.generate_panel_list(**k)
 			else:
 				# default... respond with specified file
-				print ("ERR:", str(ex), xdata(panel_name=panel_name))
 				HandleHttp.generate_response(self, **k)
 			
 		except BaseException as ex:
