@@ -1,3 +1,10 @@
+#
+# This is text copied from doc to help me generate the eventdesc.json
+# file. There's still work to do on eventdesc.json so I'll leave this
+# here for a while. Eventually, I suppose, this file will go away.
+#
+
+
 keys = """
 KEY_MIN 	Minimum key value
 KEY_BREAK 	Break key (unreliable)
