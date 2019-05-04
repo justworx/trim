@@ -156,7 +156,10 @@ class Screen(BaseScreen):
 		print ("YES!\r" if b else "NO!!! -_-\r")
 		if b:
 			curses.echo()
-			print ("curses.echo() set to True!\r")
+			print ("curses.echo() set to True.\r")
+		else:
+			print ("curses.echo() set to False.\r")
+			
 
 
 
