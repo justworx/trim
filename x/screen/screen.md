@@ -6,7 +6,7 @@
 This is an attempt to create an easy-to-use screen-controling object.
 I don't really know much about curses, so it'll probably be a while
 before it becomes useful. However, it's fascinating and fun, so I'm
-going to spend some time on it now.
+going to spend some time on it now and then.
 
 
 #### Where are we?
@@ -23,7 +23,7 @@ a helpful starting point for unusually structured subclasses. Screen
 should be useful for more typically needed features such as:
  
  * selecting items from a menu
- * displaying and/or displaying text
+ * displaying and/or entering text
  * presenting data in some kind of report format
  * viewing/manipulating grids/tables
  * entering complex form data
@@ -117,9 +117,15 @@ s.start()
 
 
 
+
+
+
+
+
+
 ###### Crazy, Broken IO Events Test/Dev Thing
 
-This may be a bet tentative. I'm mostly using it as a stepping-stone
+This may be a bit tentative. I'm mostly using it as a stepping-stone
 for figuring out how to handle events (getch) generically.
 
 It doesn't work - I'm keeping it here in case I decide to play more
