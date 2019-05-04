@@ -22,5 +22,24 @@ class propdict(propbase):
 	def keys(self):
 		return proplist(list(self.o.keys()))
 	
+	@property
+	def values(self):
+		return proplist(list(self.o.values()))
 	
+	@property
+	def pairs(self):
+		r = []
+		for k in self.o.keys():
+			r.append((k, self.o[k]))
 	
+	@property
+	def rpairs(self):
+		r = []
+		for k in self.o.keys():
+			r.append((self.o[k], k))
+		return proplist(r)
+		
+		#return proplist(list(enumerate(self.o)))
+	
+
+
