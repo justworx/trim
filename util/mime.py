@@ -72,20 +72,42 @@ class Mime(object):
 		return self.__subtype
 	
 	
+	# Does it work? Sure... it just doesn't... technically... fly.
+	# @classmethod
+	# def type2ext(cls, mimetype):
+		# """
+		# Classmethod. Utility; Returns the extension for a given mime type.
+		# """
+		# try:
+			# return cls.__type2ext[mimetype]
+		# except AttributeError:
+			# maptypes = {}
+			# mimetypes.init()
+			# for k in mimetypes.types_map:
+				# maptypes[mimetypes.types_map[k]] = k
+			# cls.__type2ext = maptypes
+			# return cls.__type2ext[mimetype]
+
 	@classmethod
 	def type2ext(cls, mimetype):
 		"""
 		Classmethod. Utility; Returns the extension for a given mime type.
 		"""
+		return cls.maptypes()[mimetype]
+
+	
+	@classmethod
+	def maptypes(cls):
 		try:
-			return cls.__type2ext[mimetype]
+			return cls.__maptypes
 		except AttributeError:
 			maptypes = {}
 			mimetypes.init()
 			for k in mimetypes.types_map:
 				maptypes[mimetypes.types_map[k]] = k
-			cls.__type2ext = maptypes
-			return cls.__type2ext[mimetype]
+			cls.__maptypes = maptypes
+			return maptypes
+
 
 
 
