@@ -72,6 +72,19 @@ class Mime(object):
 		return self.__subtype
 	
 	
+	@property
+	def extension(self):
+		"""Return the (guess) extention."""
+		return mimetypes.guess_extension(self.guess[0])
+	
+	@property
+	def extensions(self):
+		"""Return a list of possible extentions."""
+		return mimetypes.guess_all_extensions(self.guess[0])
+	
+	
+	
+	
 	# Does it work? Sure... it just doesn't... technically... fly.
 	# @classmethod
 	# def type2ext(cls, mimetype):
