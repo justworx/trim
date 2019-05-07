@@ -21,9 +21,24 @@ class proplist(propseq):
 	Wrap objects in a proplist to provide a variety of useful features
 	for manipulation and display.
 	"""
-	# Now what am I going to do with this? The superclasses handle
-	# everything proplist needed to do. Guess I'll just...
-	pass
+	
+	def join(self, glue=DEF_NEWL, **k):
+		"""	Use to join those lines of text."""
+		x = []
+		try:
+			for line in self.o:
+				x.append(str(line, **k))
+		except:
+			for line in self.o:
+				x.append(str(line))
+				
+		return glue.join(x)
+		
+	
+	
+	def text(self):
+		"""Use to join those lines of text."""
+		return self.join(encoding=DEF_ENCODE)
 
 
 
