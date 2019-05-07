@@ -5,7 +5,7 @@
 #
 
 from . import *
-import os, glob
+import os, glob, fnmatch
 
 
 class Dir(Path):
@@ -43,6 +43,8 @@ class Dir(Path):
 	@property
 	def ls(self):
 		"""
+		Returns proplist containing names of files in this directory.
+		
 		When called as though it were a method, this property returns
 		the list of items in this directory.
 		
@@ -57,6 +59,9 @@ class Dir(Path):
 	@property
 	def list(self):
 		"""
+		Returns proplist containing extended information on items in this
+		directory.
+		
 		When called as though it were a method, this property returns
 		a list of lists - the items in this directory.
 		
@@ -77,6 +82,16 @@ class Dir(Path):
 		
 		"""
 		return trix.propx(self.listlong())
+	
+	
+	@property
+	def paths(self):
+		"""
+		Return proplist containing the fullpath of each item in this
+		directory.
+		"""
+		return trix.propx(list(self.pathgen()))
+	
 	
 	
 	#
@@ -167,24 +182,13 @@ class Dir(Path):
 	#  - search() returns results
 	#  - each() does actions
 	#
-	@property
-	def search(self, pattern=None, **k):
+	def search(self, query=None, **k):
 		"""
 		Search directories recursively starting at this directory path. 
-		Return list of all paths unless matching `pattern`; default: *.*
-		
-		KEYWORD ARGUMENT:
-		If `fn` keyword is specified, its value must be callable; this 
-		callable will be called once for each result path. If args 
-		keyword exists, it must be an array of values to be passed as 
-		individual additional arguments to fn.
-		
-		WARNING: There is no 'confirm' or 'undo' when passing a 'fn'.     
-		         ALWAYS CHECK the search results *without a function* 
-		         BEFORE using it with a function.
+		Return list of all paths, or matching `query` results if given.
+		See `searchgen` for query options.
 		"""
-		
-		return trix.propx(self.listsearch(pattern, **k))
+		return trix.propx(list(self.searchgen(query, **k)))
 	
 	
 	#
@@ -242,14 +246,18 @@ class Dir(Path):
 		return trix.propx(rr)
 	
 	
+	
 	#
-	# Raw Data Generation
+	# --- Raw Data Generation ----------------------------------------- 
 	#
+	
+	# LIST SHORT
 	def listshort(self, path=None):
 		"""Returns a python list of directory entries at `path`."""
 		return os.listdir(self.merge(path))
 	
 	
+	# LIST LONG
 	def listlong(self, path=None, **k):
 		"""
 		Return extended directory listing as a list of lists, each
@@ -283,33 +291,89 @@ class Dir(Path):
 			])
 		
 		return rr
-
 	
-	def listsearch(self, pattern=None, **k):
+	
+	#
+	# GENERAOTRS (for paths and searches)
+	#
+	
+	def pathgen(self):
+		"""Generator; Yields full filepaths within this directory."""
+		for item in self.listshort():
+			yield (self.merge(item))
+	
+	
+	def searchgen(self, query=None, **k):
+		"""
+		Walk the directory path yielding results as specified by the
+		`query` argument.
 		
+		Valid results are yielded as a dict containing:
+		 - d  : current dir path;
+		 - dd : list of directories in `d`;
+		 - ff : list of files in `d`;
+		
+		Result set depends on the value of `query`:
+		 * When `query` is None, all file system objects contained in the
+		   `self.path` directory are yielded.
+		 * When `query` is an `fnmatch` pattern string, only results 
+		   matching the filepath pattern are included in the 'files' list.
+		 * When `query` is a callable, the d, dd, and ff arguments are 
+		   passed for each file system object, and yielded if callable
+		   returns a result that evaluates to True.
+		
+		NOTE ALSO: 
+		When query is an fnmatch pattern string and keyword argument 
+		`matchcase` is True, fnmatchcase is used instead of fnmatch, so
+		selection of results will be case sensitive.
+		
+		"""
 		path = self.path
-		pattern = pattern or '*.*'
-		
-		#
-		# Walk the directory path collecting results.
-		# At each step:
-		#  - d = current dir path;
-		#  - dd = contained dir;
-		#  - ff = contained files;
-		#
+		query = query or '*.*'
 		rlist = []
 		
-		for d, dd, ff in os.walk(path):
-			rlist.extend(self.match(os.path.join(d, pattern)))
+		if not query:
+			#
+			# NO QUERY
+			#  - If no `query` is provided, all files/directories within
+			#    self.path are returned.
+			#
+			for d, dd, ff in os.walk(path):
+				yield {'dir':d, 'dirs': dd, 'files':ff}
 		
-		# Handle action provided by kwarg `fn` (see WARNING above!)
-		if 'fn' in k:
-			fn = k['fn']
-			for fpath in rlist:
-				rr = {}
-				aa = k.get('args', [])
-				fn(fpath, *aa)
+		elif callable(query):
+			#
+			# CALLABLE QUERY
+			#  - If `query` is callable, selection criteria can be much more
+			#    precise, using `d`, `dd`, and `ff` arguments to select both 
+			#    directories and/or files to be part of the result set.
+			#
+			# NOTE that the callable query selection function may be used  
+			# to select results based on any available criteria - just wrap 
+			# each path in a `Path` object to select based on, for example,
+			# modification date, file modes, file content, etc...
+			#
+			for d, dd, ff in os.walk(path):
+				if query(d, dd, ff):
+					yield {'dir':d, 'dirs': dd, 'files':ff}
 		
-		# or, if no function was provided, just return the list.
 		else:
-			return rlist
+			#
+			# FN-MATCH QUERY
+			#  - If `query` is a fnmatch pattern string, all subdirectories 
+			#    are scanned, but only [files within those directories] that
+			#    match the fnmatch pattern are selected. This is a simpler 
+			#    way to select, based only on filepath patterns.
+			#
+			if k.get('matchcase') :
+				fnmatchx = fnmatch.fnmatchcase
+			else:
+				fnmatchx = fnmatch.fnmatch
+			
+			for d, dd, ff in os.walk(path):
+				files = []
+				for fpath in ff:
+					if fnmatchx(os.path.join(d, fpath), query):
+						files.append(fpath)
+				yield {'dir':d, 'dirs': dd, 'files':files}
+
