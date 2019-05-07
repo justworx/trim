@@ -215,7 +215,7 @@ class Dir(Path):
 		
 		Pass kwarg "lines" to specify the number of lines (default: 9)
 		"""
-		return self.headlines(path, **k).text()
+		return self.headlines(path, **k).join()
 	
 	
 	# HEAD LINES
