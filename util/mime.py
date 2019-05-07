@@ -5,6 +5,7 @@
 #
 
 
+from .. import *
 import mimetypes
 
 
@@ -46,6 +47,8 @@ class Mime(object):
 	@property
 	def strict(self):
 		"""
+		Return True if `strict` was specified True to the constructor.
+		
 		If strict, limits results to IANA specifications. Otherwise,
 		"well-known" file types are allowed, too.
 		"""
@@ -58,49 +61,39 @@ class Mime(object):
 	
 	@property
 	def enc(self):
-		"""Returns `encoding` value ('compress', 'gzip', or None)."""
+		"""
+		Returns the (guess) `encoding` value ('compress', 'gzip', None).
+		"""
 		return self.__enc
 	
 	@property
 	def type(self):
-		"""Return `type`."""
+		"""Return the (guess) `type`."""
 		return self.__type
 	
 	@property
 	def subtype(self):
-		"""Return `subtype`."""
+		"""Return the (guess) `subtype`."""
 		return self.__subtype
 	
 	
 	@property
 	def extension(self):
-		"""Return the (guess) extention."""
+		"""Return the (guess) extension."""
 		return mimetypes.guess_extension(self.guess[0])
 	
 	@property
 	def extensions(self):
-		"""Return a list of possible extentions."""
+		"""Return a list of possible extensions for this mimetype."""
 		return mimetypes.guess_all_extensions(self.guess[0])
 	
 	
 	
+	# -----------------------------------------------------------------
+	# class methods providing mime data structures wrapped in propdict
+	# objects.
+	# -----------------------------------------------------------------
 	
-	# Does it work? Sure... it just doesn't... technically... fly.
-	# @classmethod
-	# def type2ext(cls, mimetype):
-		# """
-		# Classmethod. Utility; Returns the extension for a given mime type.
-		# """
-		# try:
-			# return cls.__type2ext[mimetype]
-		# except AttributeError:
-			# maptypes = {}
-			# mimetypes.init()
-			# for k in mimetypes.types_map:
-				# maptypes[mimetypes.types_map[k]] = k
-			# cls.__type2ext = maptypes
-			# return cls.__type2ext[mimetype]
-
 	@classmethod
 	def type2ext(cls, mimetype):
 		"""
@@ -108,7 +101,6 @@ class Mime(object):
 		"""
 		return cls.maptypes()[mimetype]
 
-	
 	@classmethod
 	def maptypes(cls):
 		try:
@@ -120,7 +112,31 @@ class Mime(object):
 				maptypes[mimetypes.types_map[k]] = k
 			cls.__maptypes = maptypes
 			return maptypes
-
+	
+	# -----------------------------------------------------------------
+	
+	@classmethod
+	def common_types(self):
+		"""A propdict containing "common" extension:mimetype pairs."""
+		return trix.propx(mimetypes.common_types)
+	
+	@classmethod
+	def encodings_map(self):
+		"""A propdict containing extension:encoding."""
+		return trix.propx(mimetypes.encodings_map)
+	
+	@classmethod
+	def suffix_map(self):
+		"""
+		Returns propdict mapping short suffix to long. Eg, "tgz":"tar.gz".
+		"""
+		return trix.propx(mimetypes.suffix_map)
+	
+	@classmethod
+	def types_map(self):
+		"""Returns propdict contianing existing {ext:mimetype} values."""
+		return trix.propx(mimetypes.types_map)
+		
 
 
 
