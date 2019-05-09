@@ -33,12 +33,39 @@ class proplist(propseq):
 				x.append(str(line))
 				
 		return glue.join(x)
-		
 	
 	
 	def text(self):
 		"""Use to join those lines of text."""
 		return self.join(encoding=DEF_ENCODE)
+	
+	
+	def unique(self):
+		"""Return a proplist containing the unique set of items."""
+		return proplist(list(set(self.o)))
+	
+	
+	def extend(self, additems):
+		"""
+		Return a proplist containing this list extended by items from the
+		list argument `additems`.
+		"""
+		L = []
+		L.extend(self.o)
+		L.extend(additems)
+		return proplist(L)
+		
+	
+	def merge(self, additems):
+		"""
+		Return a proplist containing a unique set of items from this list
+		and the given list `additems`. 
+		
+		It is exactly: `return self.extend(additems).unique()`
+		"""
+		return propx(self.extend(additems)).unique()
+		
+		
 
 
 
