@@ -1,0 +1,7 @@
+{
+	"trix.fs.dir.list.header" : {
+		"en" : [
+			'name','type','size','uid','gid','atime','mtime','ctime'
+		]
+	}
+}
