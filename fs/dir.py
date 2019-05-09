@@ -37,6 +37,15 @@ class Dir(Path):
 		return self.merge(self.ls()[key])
 	
 	
+	@property	
+	def strings(self):
+		try:
+			return type(self).__strings
+		except:
+			strings = trix.jconfig(trix.npath("fs/strings.json").path)
+			type(self).__strings = strings
+			return type(self).__strings
+	
 	#
 	# --- Multi-feature Properties -----------------------------------
 	#
