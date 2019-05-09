@@ -864,14 +864,11 @@ class trix(object):
 	
 	
 	
-	# ---- testing - experimental -------------------------------------
-	
+	# ---- unsorted classmethods --------------------------------------
 	
 	@classmethod
 	def signals(cls):
 		"""
-		EXPERIMENTAL - TESTING
-		
 		Manage the handling of signals. 
 		* Call classmethod `add` passing int `signal` and a function,
 		  method, or other callable to be triggered when the specified
@@ -895,7 +892,7 @@ class trix(object):
 		try:
 			return cls.__signals
 		except:
-			cls.__signals = trix.nvalue("x.signals.Signals")
+			cls.__signals = trix.nvalue("util.signals.Signals")
 			return cls.__signals
 	
 	
@@ -1145,21 +1142,48 @@ class xdata(dict):
 def debug_hook(t, v, tb):
 	
 	with thread.allocate_lock():
-
-		# catch errors in the debug hook and disable debugger
-		try:
-			
-			# KEYBOARD ERROR
-			if isinstance(v, KeyboardInterrupt):
-				print ("\n", t, "\n\n")
-
-			else:
+		
+		#
+		#if isinstance(v, KeyboardInterrupt):
+		#	trix.module('os').kill(trix.pid(), 2)
+		#
+		# KEYBOARD INTERRUPT
+		#if isinstance(v, KeyboardInterrupt):
+		#	#print ("\n", t, v, tb, "\n\n")
+		#	raise KeyboardInterrupt()
+		#	#print ("\n", t, "\n\n")
+		#
+		# JUST KIDDING
+		#  - It turns out there's no way to re-throw a KeyboardInterrupt
+		#    if you want to capture and custom-display errors as trix
+		#    does.
+		#  - In fact, this is good - SIGINT should be handled by a signal
+		#    handler anyway because trix is into threading in a big way
+		#    and there's no way to use that KeyboardInterrupt to directly
+		#    (determinately) influence the operation of threads.
+		#  - USE specialized signal installer `output.InstallPauseSignal`
+		#    to enable pause/resume in Runner output, or...
+		#  - USE trix.signals().add(2, some_callable) to install your own
+		#    custom SIGINT handler.
+		#  - Otherwise, KeyboardInterrupt is just going to "pass".
+		#
+		
+		if isinstance(v, KeyboardInterrupt):
+			pass
+		
+		
+		#
+		# ------- ALL OTHERS --------------------------------------------
+		#
+		else:
+			# catch errors in the debug hook and disable debugger
+			try:
 				print (t)
-
+				
 				# SYNTAX ERROR
 				if isinstance(v, SyntaxError):
 					print(" ->", str(type(v)))
-
+				
 				#
 				# DISPLAY ARGS
 				#
@@ -1178,7 +1202,7 @@ def debug_hook(t, v, tb):
 								except:
 									print ("  ", a)
 						print ("]")
-
+				
 				#
 				# TRACEBACK
 				#  - show traceback, if enabled
@@ -1187,26 +1211,26 @@ def debug_hook(t, v, tb):
 					print ("Traceback:")
 					traceback.print_tb(tb)
 				print ('')
-		
-		#
-		# EXCEPTION IN EXCEPTION HANDLER
-		#
-		except BaseException:
-			print ("\n#\n# DEBUG HOOK FAILED!")
-			try:
-				xxtype, xxval = sys.exc_info()[:2]
-				print ("# - Debug Hook Err: %s %s\n#" % (xxtype, str(xxval)))
-			except:
-				pass
 			
-			# turn off debugging and re-raise the exception
-			debug(False)
-			print ("# - Debug Hook is Disabled.\n#\n")
-			raise
-		finally:
-			if tb:
-				del(tb)
-				tb = None
+			#
+			# EXCEPTION IN EXCEPTION HANDLER
+			#
+			except BaseException:
+				print ("\n#\n# DEBUG HOOK FAILED!")
+				try:
+					xxtype, xxval = sys.exc_info()[:2]
+					print ("# - Debug Hook Err: %s %s\n#" % (xxtype, str(xxval)))
+				except:
+					pass
+				
+				# turn off debugging and re-raise the exception
+				debug(False)
+				print ("# - Debug Hook is Disabled.\n#\n")
+				raise
+			finally:
+				if tb:
+					del(tb)
+					tb = None
 
 
 #
