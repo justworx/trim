@@ -4,9 +4,8 @@
 # of the GNU Affero General Public License.
 #
 
-import signal
 from .. import *
-
+import signal
 
 class Signals(object):
 	"""
@@ -35,8 +34,6 @@ class Signals(object):
 	@classmethod
 	def add(cls, signal, fn, **k):
 		try:
-			# Assume the whole thing's set up; this makes subsequent calls
-			# respond faster.
 			cls.__signals[signal].add(fn)
 		except:
 			# If there's an error, check that the __signals dict exists.
@@ -62,12 +59,14 @@ class Signals(object):
 			# is the effect we're looking for anyway.
 			pass
 	
-	#
-	# TEMPORARY - FOR DEBUGGING
-	#
+	
+	# -----------------------------------------------------------------
 	@classmethod
-	def DEBUG_signals(cls):
-		return cls.__signals
+	def signals(cls):
+		try:
+			return cls.__signals
+		except AttributeError:
+			return []
 
 
 
@@ -91,6 +90,9 @@ class Signal(object):
 	
 	"""
 	
+	def __repr__(self):
+		return "<Signal num=%i name=%s>" % (self.signal, self.__name)
+	
 	def __init__(self, signalnum, **k):
 		"""
 		Pass int `signalnum`. This value is only set on the first call to 
@@ -108,13 +110,22 @@ class Signal(object):
 		`Signal.handle` method. NOTE: This overrides the 'suppression'
 		keyword argument; If "transparent" is True, signals are always
 		handled by the default handler after other processing.
+		
+		#
+		# NEEDS WORK
+		#  - This transparent/suppression thing is a bit off, I think... 
+		#    The results of some combinations seems unclear.
+		#
 		"""
 		
 		self.__transparent = k.get("transparent", False)
 		self.__suppression = k.get("suppression", False)
 		
-		# Only allow self.__signal and self.__prior be set here in the
-		# first call to __init__.
+		#
+		# Prevent the resetting of self.__signal and self.__prior on 
+		# subsequent calls to __init__. Only allow then to be set on the
+		# first call to the constructor.
+		#
 		try:
 			self.__signal
 		except:
@@ -125,10 +136,17 @@ class Signal(object):
 		except:
 			self.__prior = signal.signal(self.signal, self.handle) 
 		
+		#
+		# Also prevent handlers from being cleared on subsequent calls
+		# to the constructor.
+		#
 		try:
 			self.__handlers
 		except:
 			self.__handlers = []
+		
+		# debugging, identity
+		self.__name = k.get('name', "")
 	
 	
 	#
@@ -159,8 +177,31 @@ class Signal(object):
 	
 	@property
 	def prior(self):
-		return self.__prior
+		try:
+			return self.__prior
+		except:
+			return None
 	
+	
+	# -----------------------------------------------------------------
+	
+	# new properties - experimental
+	
+	@property
+	def transparent(self):
+		return self.__transparent
+	
+	@property
+	def suppression(self):
+		"""If True, default signal action is suppressed."""
+		return self.__suppression
+	
+	@property
+	def handlers(self):
+		return self.__handlers
+	
+	
+	# -----------------------------------------------------------------
 	
 	
 	#
