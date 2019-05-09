@@ -32,17 +32,18 @@ class propseq(propiter):
 		self.o[key] = v
 	
 	
-	@property
-	def sorted(self):
-		"""
-		Return a proplist with sorted content.
-		"""
-		return type(self)(sorted(self.o))
+	# propiter does this
+	# ~ @property
+	# ~ def sorted(self):
+		# ~ """
+		# ~ Return a proplist with sorted content.
+		# ~ """
+		# ~ return type(self)(sorted(self.o))
 	
-	@property
-	def reversed(self):
-		"""Return a proplist with reversed content."""
-		return type(self)(list(reversed(self.o)))
+	# ~ @property
+	# ~ def reversed(self):
+		# ~ """Return a proplist with reversed content."""
+		# ~ return type(self)(list(reversed(self.o)))
 	
 	@property
 	def lines(self):
