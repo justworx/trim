@@ -125,8 +125,22 @@ class BaseOutput(EncodingHelper):
 class Output(BaseOutput):
 	"""Management of "pausable" text output."""
 	
+	#
 	# default pause-buffer size: 16K
+	#  - This is the memory buffer max size - any additional data is
+	#    written to a temp file. All buffered data is restored after
+	#    pause state ends.
+	#
 	PauseBufferSz = 2**14
+	
+	@classmethod
+	def InstallPauseSignal(cls, signum=2):
+		"""
+		Install signal handler `signum` (default: 2, SIGINT) to allow
+		`pause()` and `resume()` methods to pause and resume output.
+		"""
+		trix.signals().add(signum, cls.pausetoggle)
+		
 	
 	def __init__(self, config=None, **k):
 		"""
@@ -208,6 +222,10 @@ class Output(BaseOutput):
 		may need the ability to flush buffered text immediately after a 
 		change is detected in the pause status.
 		"""
+		#
+		# Maybe a thread lock here? or maybe not. Wouldn't it slow down
+		# unthreaded output? I'll just put the lock where the thread is.
+		#
 		if self.buffer.tell():
 			self.target.write(self.buffer.read())
 			self.target.flush()
