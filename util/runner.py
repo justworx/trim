@@ -281,7 +281,11 @@ class Runner(Output):
 		and `cio()` when a control port is specified.
 		"""
 		
-		# prepare for run by calling open()
+		#
+		# --------- PREPARE TO RUN ---------
+		#
+		
+		# open()
 		if not self.active:
 			self.open()
 		
@@ -293,27 +297,37 @@ class Runner(Output):
 		if self.csock:
 			xio.append(self.cio)
 		
+		
+		#
+		# --------- MAIN LOOP ---------
+		#
 		while self.__running:
-			try:
-				# call io method (and self.cio if applicable)
-				for fn in xio:
-					fn()
+			#
+			# Call the `io()` method, and `self.cio()` if applicable.
+			#
+			for fn in xio:
+				fn()
+			
+			#
+			# Manage pause-state. This prints any data that was buffered
+			# while the object was in the paused state.
+			#
+			ps = self.paused()
+			if self.__pausestate != ps:
 				
-				# manage pause-state
-				ps = self.paused()
-				if self.__pausestate != ps:
+				with thread.allocate_lock() as alock:
 					self.__pausestate = ps
 					if ps:
 						self.on_pause()
 					else:
 						self.flushbuffer()
 						self.on_resume()
-				
-				# sleep a little, now that we're out of the lock
-				time.sleep(self.sleep)
 			
-			except KeyboardInterrupt:
-				pass
+			#
+			# sleep a little, now that we're out of the lock
+			#
+			time.sleep(self.sleep)
+			
 		
 		# Once processing is finished, `close()` and `stop()`.
 		if self.active:
