@@ -13,29 +13,9 @@ Finding/Fixing lots of bugs while adding to the test scripts.
 # WINDOWS PROBLEMS
 #
 
-I've recently gotten my old Windows PC running and started testing
-trix there. Here are some notes to follow when coding:
-
- * There can be only one locale set on Windows. Even in subprocesses
-   you can't `setlocale()` to anything but the locale selected in
-   Windows' system preferences.
-   
-   Even if this is no longer true, there are probably lots of older 
-   PCs still in use. I don't see the profit (for MS) in fixing this
-   deficiency, so I'll assume for now it hasn't (and never will) 
-   change.
-   
-   If I can figure out all the formatting, I could build a set of JSON
-   files and use those on windows to handle many, if not all, of the
-   translations for all locales.
- 
- * Don't put `assert` in a lambda. It causes an exception on Windows.
-   I'll have to find another way around this - haven't thought about 
-   how to do it yet.
-
-The above list is from only a few minutes of testing. I can't imagine
-what I'm going to face when I jump into it seriously. I may just have
-to present trix as a linux-only app. Guess we'll see.
+Don't put `assert` in a lambda. It causes an exception on Windows.
+We'll just have to do it the old-fashioned way so that Windows can
+keep up. Like `if blah==blahblah: raise Exception("weahhndoze")`
 
 
 
@@ -64,6 +44,11 @@ There are a lot of classes that use these names in various ways.
 I want to edit each of them to make sure they're consistent in
 future versions - and that they each have as many as possible of
 the three output-related terms.
+
+Print needs to be reserved for debugging, or for very simple apps,
+scripts, or whatever. Any real app - particularly ones that rely on
+a threaded terminal user interface, should probably be very careful
+to use `Output.output()`.
 
 
 
