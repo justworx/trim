@@ -41,6 +41,8 @@ class BaseLocale(object):
 
 
 
+
+
 class Locale(BaseLocale):
 	
 	AssetPath = '%s/assets/locale_json.tar.gz' % DEF_CACHE
@@ -75,6 +77,29 @@ class Locale(BaseLocale):
 			
 			BaseLocale.__init__(self, Locale.__qdict(loc_str))
 	
+	
+	@classmethod
+	def list(cls, pattern=None):
+		"""
+		Return a proplist containing all locales that match `pattern`.
+		The default `pattern` is '*.utf8*, which returns the locale 
+		signature for a complete set of language_country locales (with
+		the exception of Gallcian Spain, which I've not yet been able to
+		successfully download).
+		
+		```python3
+		from trix import *
+		trix.loc().list.table(w=6)
+		trix.loc().list("en_*").table(w=6)
+		trix.loc().list("*_IN*").table(w=6)
+		
+		```
+		"""
+		pattern = pattern or '*.utf8*'  # default search: "*.utf8*"
+		p = trix.path('%s/assets/locale_json.tar.gz'%DEF_CACHE) #loc path
+		a = p.wrapper(encoding='utf_8') # open archive
+		return a.names.fnmatch(pattern)
+		
 	
 	@classmethod
 	def validate_locstr(self, loc_str):
@@ -135,3 +160,5 @@ class Locale(BaseLocale):
 		cx = trix.callx(cline)
 		js = cx.reader().read()
 		return trix.jparse(js)
+
+
