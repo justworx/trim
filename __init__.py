@@ -104,6 +104,7 @@ class trix(object):
 	
 	__m = __module__
 	__mm = sys.modules
+	__od = {}
 	
 	Logging = 0 #-1=print; 0=None; 1=log-to-file
 	
@@ -221,8 +222,8 @@ class trix(object):
 		Create and return an object specified by argument `innerPath`.
 		The dot-separated path must start with the path to the desired
 		module *within* this package (but NOT prefixed with the name of
-		this package. It must be prefixed with a name of a class defined
-		in the specified module. Eg, 'subpackage.theModule.TheClass
+		this package). It must be prefixed with a name of a class defined
+		in the specified module. Eg, 'subpackage.theModule.TheClass'
 		
 		Any additional arguments and keyword args will be passed to the
 		class's constructor.
@@ -318,6 +319,27 @@ class trix(object):
 					))
 	
 	
+	# O-DICT
+	@classmethod
+	def odict(cls, obj=None, **k):
+		"""
+		A dictionary that stores objects of certain types globally.
+		Returns a propdict representing all objects.
+		"""
+		if obj:
+			with thread.allocate_lock() as alock:
+				if not obj in cls.__od:
+					try:
+						# subsequent calls, append the item
+						cls.__od[k.get('name', type(obj).__name__)].append(obj)
+					except:
+						# first call to any given type, create list and add item
+						cls.__od[k.get('name', type(obj).__name__)] = [obj]
+					
+		return cls.propx(cls.__od)
+	
+	
+	
 	#
 	#
 	# ---- FILE SYSTEM FEATURES --------------------------------------
@@ -395,8 +417,27 @@ class trix(object):
 		"""
 		try:
 			thread.start_new_thread(x, a, k)
+			#time.sleep(0.1)
 		except:
 			pass
+	
+	
+	# WAIT
+	@classmethod
+	def wait(cls, timeout=0.1, fn=None, **k):
+		"""
+		Pass float `timeout` (default: 0.1 second) and, optionally, a 
+		callable that returns True when any conditions being waited for 
+		are fulfilled.
+		
+		Raise `trix.WaitTimeout` exception if timeout span is exceeded.
+		"""
+		to = time.time() + timeout
+		if not fn:
+			fn = lambda: False
+		while not fn():
+			if time.time() > to:
+				raise WaitTimeout(xdata(timeout=timeout, **k))
 	
 	
 	# PID
@@ -916,7 +957,6 @@ class trix(object):
 
 
 
-
 # -------------------------------------------------------------------
 #
 #
@@ -958,7 +998,8 @@ start      = trix.start
 tracebk    = trix.tracebk
 trixc      = trix.trixc
 value      = trix.value
-	
+wait       = trix.wait
+
 
 
 # -------------------------------------------------------------------
@@ -1093,6 +1134,10 @@ except:
 	class FileNotFoundError(NameError):
 		pass
 
+
+class WaitTimeout(Exception):
+	"""The trix.wait() method timed out."""
+	pass
 
 
 # -------------------------------------------------------------------
