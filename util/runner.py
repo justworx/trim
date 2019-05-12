@@ -24,10 +24,7 @@ class Runner(Output):
 	   the pause state ends).
 	"""
 	
-	#
-	# CHANGE AFTER RELEASE : 'util.console.Console'
-	#
-	Console = trix.innerpath("x.console.Console")
+	Console = trix.innerpath("util.console.Console")
 	
 	
 	# INIT
