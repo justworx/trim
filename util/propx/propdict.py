@@ -7,7 +7,8 @@
 from .proplist import *
 
 
-class propdict(propbase):
+#class propdict(propbase):
+class propdict(propiter):
 	"""
 	Pass a dict or dict-like object.
 	"""
@@ -31,6 +32,7 @@ class propdict(propbase):
 		r = []
 		for k in self.o.keys():
 			r.append((k, self.o[k]))
+		return proplist(r)
 	
 	@property
 	def rpairs(self):
