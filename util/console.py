@@ -20,7 +20,8 @@ class Console(BaseOutput):
 	Base class for an interactive command-line user interface.
 	"""
 	
-	Debug = 0 
+	Debug = 0
+	OList = []
 	
 	def __init__(self, config=None, **k):
 		
@@ -173,6 +174,11 @@ class Console(BaseOutput):
 			else:
 				self.output(str(self.__debug))
 		
+		# menu
+		elif e.argvl[0] == 'menu':
+			arg1 = e.arg(1) or "objects"
+			self.output(  trix.propx(self.OList).list()  )
+		
 		# exit the console session
 		elif e.argvl[0] == 'exit':
 			self.__active = False
@@ -197,6 +203,23 @@ class Console(BaseOutput):
 			r = self.__wrap(e.arg(0), *e.argv[1:], **e.kwargs)
 			if r:
 				self.output(str(r))
+	
+	
+	
+	# --------- util ---------
+	
+	def olist(self, **k):
+		dd = []
+		kk = []
+		for o in self.OList:
+			d = o.status()
+			dd.append(d)
+			kk.extend(d.keys())
+		
+		headings = set(kk)
+		
+		x = propx(rr).propgrid()
+		
 	
 
 
