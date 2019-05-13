@@ -5,7 +5,8 @@
 #
 
 from .output import * # trix, enchelp, sys
-from .xthread import *
+from .console import *
+#from .xthread import *
 from .stream.buffer import *
 
 DEF_SLEEP = 0.1
@@ -30,6 +31,9 @@ class Runner(Output):
 	# INIT
 	def __init__(self, config=None, **k):
 		"""Pass config and/or kwargs."""
+		
+		# add self to the console class-variable `OList`
+		trix.create(self.Console).OList.append(self)
 		
 		# basic status
 		self.__active = False
@@ -267,6 +271,40 @@ class Runner(Output):
 		self.__active = True
 	
 	
+	
+	
+	
+	
+	def wait(self, timeout=1, **k):
+		"""
+		Wait for `self.active` to become True (only when threaded).
+		
+		This method protects the main from trying to access member
+		variables before threaded `open()` code can create them. 
+		
+		Calls to open() may take some time to complete. Always use 
+		`wait(timeout)` to specify a maximum period to wait on `open`
+		before timing out. Waiting ends when `self.active` becomes True
+		and the method returns `self`.
+		
+		When `timeout` is exceeded, an exception is raised. Otherwise,
+		`wait()` returns self.
+		
+		```python3
+		client.starts().wait()  # default timeout: maximum 1 second.
+		client.starts().wait(3) # allow up to 3 seconds timeout.
+		```
+		
+		"""
+		if self.threaded:
+			trix.wait(timeout, lambda: self.active, runner=self.name, **k)
+		return self
+	
+	
+	
+	
+	
+	
 	# ----------------------------------------------------------------
 	#
 	# RUN
@@ -485,7 +523,16 @@ class Runner(Output):
 	# STATUS
 	def status(self):
 		"""Return a status dict."""
+		#
+		# I guess any class that can be managed by Console should
+		# include this "cgroup" key in it's status. That's how we'll 
+		# recognized classes that Console can manage.
+		#
+		# For now, of course, only Runner (and it's subclasses) may be
+		# managed by Console.
+		#
 		return dict(
+			cgroup   = "Runner",     # console grouping
 			ek       = self.ek,
 			active   = self.active,
 			running  = self.running,
@@ -493,8 +540,11 @@ class Runner(Output):
 			sleep    = self.sleep,
 			config   = self.config,
 			cport    = self.__cport,
-			
-			paused   = self.paused()
+			name     = self.name,
+			ident    = self.ident,
+			paused   = self.paused(),
+			newl     = self.newl,
+			target   = self.target
 		)
 	
 	
