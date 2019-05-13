@@ -319,26 +319,6 @@ class trix(object):
 					))
 	
 	
-	# O-DICT
-	@classmethod
-	def odict(cls, obj=None, **k):
-		"""
-		A dictionary that stores objects of certain types globally.
-		Returns a propdict representing all objects.
-		"""
-		if obj:
-			with thread.allocate_lock() as alock:
-				if not obj in cls.__od:
-					try:
-						# subsequent calls, append the item
-						cls.__od[k.get('name', type(obj).__name__)].append(obj)
-					except:
-						# first call to any given type, create list and add item
-						cls.__od[k.get('name', type(obj).__name__)] = [obj]
-					
-		return cls.propx(cls.__od)
-	
-	
 	
 	#
 	#
