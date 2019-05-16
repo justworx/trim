@@ -28,11 +28,10 @@ class Bag(object):
 		"""Directly set dict item."""
 		self.__d[key] = value
 
-	
-	@property
 	def dict(self):
 		"""Return the current dict value."""
 		return dict(self.__d)
+	
 	
 	def put(self, key, value):
 		"""Set or change a key/value pair."""
@@ -66,7 +65,7 @@ class Bag(object):
 	
 	def append(self, key, x):
 		"""
-		Append x to bags of list-like types.
+		Append item `x` to bags of list-like types.
 		
 		>>> b = Bag(list)
 		>>> b.append('foo', 1)

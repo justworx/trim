@@ -33,7 +33,7 @@ class Runner(Output):
 		"""Pass config and/or kwargs."""
 		
 		# add self to the console class-variable `OList`
-		trix.create(self.Console).OList.append(self)
+		Console.oappend(self)
 		
 		# basic status
 		self.__active = False
@@ -155,6 +155,7 @@ class Runner(Output):
 		
 		finally:
 			self.__csock = None
+			Console.oremove(self)
 	
 	
 	# ----------------------------------------------------------------

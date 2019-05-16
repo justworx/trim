@@ -183,7 +183,7 @@ class Output(BaseOutput):
 	#
 	def output(self, text, newl=None):
 		"""
-		Pause-aware output buffers text while paused; when not paused,
+		Pause-aware aoutput buffers text while paused; when not paused,
 		writes any buffered text, followed by the given `text`, to the
 		`self.target` stream (which defualts to sys.stdout, but can be
 		customized by passing a different stream - or any object with a
@@ -208,9 +208,9 @@ class Output(BaseOutput):
 	
 	
 	#
-	# FLUSH BUFFER
+	# FLUSH
 	#
-	def flushbuffer(self):
+	def flush(self):
 		"""
 		Write buffered content to output.
 		
@@ -233,7 +233,14 @@ class Output(BaseOutput):
 				self.buffer.seek(0)
 				self.buffer.truncate()
 	
+	def flushbuffer(self):
+		"""Alias for `flush`."""
+		return self.flush()
 	
+	
+	#
+	# DRAIN
+	#
 	def drain(self):
 		if self.buffer.tell():
 			with thread.allocate_lock() as alock:

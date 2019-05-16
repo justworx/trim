@@ -1,0 +1,31 @@
+{
+	'id': "console-text-blocks",
+	
+	"title" : "\nCONSOLE",
+	
+	"help" : {
+		"banner" : "Print banner message.",
+		"about"  : "Print about message.",
+		"debug"  : "Turn debug mode on or off. Eg: > debug True",
+		"list"   : "Print list of object names available to console.",
+		"select" : "Select a named object from `list`.",
+		"wrapper": "Print the name of the current 'wrapped' object."
+	},
+	
+	"banner": [
+		"Entered text will be sent to the target stream. Default: stdout.",
+    "Prefix Console commands with the forward-slash '/' character. \r\nEg., '/exit', '/debug True', etc...",
+    "Commands prefixed with an exclamation point '!' character are directed to the 'wrapped' object..",
+		"Ctrl-c to exit",
+	],
+	
+	"about" : [
+		"The Console class is currently UNDER CONSTRUCTION. A lot may change before it's even remotely stable.",
+		"The console provides command-line style control over objects and access to their data.",
+		"Consolable objects (currently, only `Runner`) are automatically added/removed by their __init__ and __del__ methods. A consolable object may be passed to the init method for automatic selection via keyword argument wrap=<object>.",
+		"A custom output stream may be specified to the constructor using the 'output' keyword argument. If unspecified, default output is currently sent to the console screen.",
+		"Call `Console.console()` to start a console session. Use Ctrl-c or Ctrl-d to exit.",
+		""
+	],
+	
+}

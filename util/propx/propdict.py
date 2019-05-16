@@ -44,4 +44,3 @@ class propdict(propiter):
 		#return proplist(list(enumerate(self.o)))
 	
 
-

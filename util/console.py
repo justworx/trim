@@ -4,7 +4,8 @@
 # the terms of the GNU Affero General Public License.
 #
 
-
+import textwrap
+from . import terminfo
 from .output import * # trix, enchelp, sys
 from .event import *
 from .xinput import *
@@ -20,8 +21,26 @@ class Console(BaseOutput):
 	Base class for an interactive command-line user interface.
 	"""
 	
-	Debug = 0
-	OList = []
+	Debug = 1 #0
+	
+	@classmethod
+	def oappend(cls, o):
+		try:
+			cls.__olist.append(o)
+		except:
+			cls.__olist = []
+			cls.__olist.append(o)
+	
+	@classmethod
+	def oremove(cls, o):
+		try:
+			cls.__olist.remove(o)
+		except:
+			cls.__olist = []
+	
+	
+	
+	
 	
 	def __init__(self, config=None, **k):
 		
@@ -35,7 +54,14 @@ class Console(BaseOutput):
 		
 		# wrapper
 		self.__wrap = Wrap(config.get('wrap'))
-	
+		
+		# formatting for textwrap
+		jc = trix.jconfig(trix.npath('util/console.json').path)
+		self.__text = jc.obj
+		self.__textk = dict(initial_indent="  * ", subsequent_indent="    ")
+		self.__textk.update(**k)
+		self.__textw = terminfo.termsize()[1]
+			
 	
 	
 	def __del__(self):
@@ -61,36 +87,32 @@ class Console(BaseOutput):
 	def prompt(self):
 		"""Console prompt."""
 		return "> "
-
+	
+	
+	
+	#
+	# TEXT BLOCK
+	#
+	def _textblock(self, textkey):
+		for line in self.__text[textkey]:
+			tx = textwrap.wrap(line, width=self.__textw, **self.__textk)
+			for line in tx:
+				print (line)
 	
 	
 	#
 	# BANNER
 	#
 	def banner(self):
-		"""Display entry banner."""
-		self.output("\n#\n# CONSOLE\n", newl='')
-		
-		#
-		# Some of this needs to be transferred to a /help section.
-		# The command characters need to be configurable, and the
-		# msg (or help message) need to use the udb 'NAME' property
-		# to describe them (instead of, eg, "exclamation point" and 
-		# "forward-slash").
-		#
-		msg = """
-		-- THIS CLASS IS UNDER CONSTRUCTION! EXPECT CHANGES. --
-			
-			* Entered text will be sent to the target stream.
-			* Prefix Console commands with the forward-slash "/" 
-			  character. Eg., "/exit", "/debug True", etc...
-			* Commands prefixed with an exclamation point "!" character
-			  are directed to the 'wrapped' object..
-			* Ctrl-c to exit.
-		"""
-		ll = msg.splitlines()
-		for line in ll:
-			self.output("#  " + line.lstrip("\t"))
+		print (self.__text['title'])
+		self._textblock('banner')
+		print ("\n")
+	
+	def about(self):
+		for line in self.__text['about']:
+			tx = textwrap.wrap(line, width=self.__textw, **self.__textk)
+			for line in tx:
+				print (line)
 	
 	
 	
@@ -144,7 +166,7 @@ class Console(BaseOutput):
 				if self.debug:
 					if e and e.error:
 						self.output(self.jformat(dict(event=e.dict,err=e.error)))
-					self.output(self.jformat(xdata))
+					self.output(self.jformat(xdata()))
 					#self.output(self.newl.join(trix.tracebk()))
 					self.output(self.jformat(trix.tracebk()))
 	
@@ -168,25 +190,34 @@ class Console(BaseOutput):
 		"""
 		Handle input event `e`.
 		"""
-		if e.argvl[0] == 'debug':
-			if e.arg(1):
-				self.__debug = int(e.arg(1))
-			else:
-				self.output(str(self.__debug))
+		if e.argvl[0] == 'about':
+			self.about()
 		
-		# menu
-		elif e.argvl[0] == 'menu':
-			arg1 = e.arg(1) or "objects"
-			self.output(  trix.propx(self.OList).list()  )
+		elif e.argvl[0] == 'debug':
+			if e.arg(1) is not None:
+				self.__debug = bool(e.arg(1))
+			else:
+				self.output(str(bool(self.__debug)))
+		
+		# list
+		elif e.argvl[0] == 'list':
+			self.olist.table(w=3)
+		
+		# select
+		elif e.argvl[0] == 'select':
+			try:
+				objectName = e.argv[1]
+				self.oselect(objectName)
+			except IndexError:
+				print("FAIL. Argument 'object name' required.")
+		
+		elif e.argvl[0] in ['wrap', 'wrapper']:
+			wrap = type(self.__wrap.o).__name__
+			self.output("%s: %s" % (wrap, self.__wrap.name))
 		
 		# exit the console session
 		elif e.argvl[0] == 'exit':
 			self.__active = False
-		
-		# leave the console session
-		elif e.argvl[0] in ['wrap', 'wrapper']:
-			wrap = type(self.__wrap.o).__name__
-			self.output("%s: %s" % (wrap, self.__wrap.name))
 	
 	
 	
@@ -205,22 +236,27 @@ class Console(BaseOutput):
 				self.output(str(r))
 	
 	
-	
-	# --------- util ---------
-	
-	def olist(self, **k):
-		dd = []
-		kk = []
-		for o in self.OList:
-			d = o.status()
-			dd.append(d)
-			kk.extend(d.keys())
 		
-		headings = set(kk)
-		
-		x = propx(rr).propgrid()
-		
+	# -----------------------------------------------------------------
 	
-
-
-
+	def oselect(self, name):
+		"""Select an object from the object list to wrap."""
+		try:
+			for o in cls.__olist:
+				if o.name == name:
+					self.__wrap = Wrap(o)
+		except Exception as ex:
+			print (type(ex), ex.args)
+			
+	
+	
+	@property
+	def olist(self):
+		try:
+			r = []
+			for o in self.__olist:
+				r.append(o.name)
+		except:
+			pass
+		return trix.propx(r)
+	

@@ -102,11 +102,15 @@ DEF_ENCODE = locale.getpreferredencoding() or 'utf_8'
 class trix(object):
 	"""Utility, debug, import; object, thread, and process creation."""
 	
+	# USER CLASS VARS
+	Logging = 0 #-1=print; 0=None; 1=log-to-file
+	
+	
+	# PRIVATE CLASS VARS
 	__m = __module__
 	__mm = sys.modules
 	__od = {}
-	
-	Logging = 0 #-1=print; 0=None; 1=log-to-file
+	__tid = thread.get_ident()
 	
 	
 	#
@@ -418,6 +422,23 @@ class trix(object):
 		while not fn():
 			if time.time() > to:
 				raise WaitTimeout(xdata(timeout=timeout, **k))
+	
+	
+	# TID
+	@classmethod
+	def tid(cls):
+		"""
+		Return thread id. For typical trix usage, the trix class is 
+		created in the main thread, making `tid` a source for the main
+		thread id. 
+		
+		NOTE: Be aware that if the trix module is first is loaded in an 
+		      alternate thread, this method will not return the main
+		      thread id - it wall return the alternate thread's id. You
+		      must know that trix is loaded in the main thread before you
+		      can count on tid() returning the main thread id.
+		"""
+		return cls.__tid
 	
 	
 	# PID
@@ -975,6 +996,7 @@ proxify    = trix.proxify
 scan       = trix.scan
 signals    = trix.signals
 start      = trix.start
+tid        = trix.tid
 tracebk    = trix.tracebk
 trixc      = trix.trixc
 value      = trix.value
