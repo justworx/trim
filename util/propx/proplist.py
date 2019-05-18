@@ -54,7 +54,32 @@ class proplist(propseq):
 		L.extend(self.o)
 		L.extend(additems)
 		return proplist(L)
+	
+	
+	def compare (self, other_list):
+		"""
+		Return a propdict object showing a comparison between the
+		contents of this object and `other_list`. The dict results are
+		interpreted as follows:
 		
+		 * '+' : objects contained by self.o that are NOT found in other
+		 * '=' : objects contained by self.o and other
+		 * '-' : objects contained by other, but not self.o 
+		
+		"""
+		d = {'-':[], '+':[], "=":[]}
+		for o in self.o:
+			if o in other_list:
+				d["="].append(o)   # items in both list
+			else:
+				d["+"].append(o)   # items in self.o but not other_list
+		
+		for x in other_list:
+			if not x in self.o:
+				d['-'].append(x)
+		
+		return trix.propx(d)
+				
 	
 	def merge(self, additems):
 		"""
