@@ -227,7 +227,7 @@ class Output(BaseOutput):
 		# unthreaded output? I'll just put the lock where the thread is.
 		#
 		if self.buffer.tell():
-			with thread.allocate_lock() as alock:
+			with threading.Lock() as alock:
 				self.target.write(self.buffer.read())
 				self.target.flush()
 				self.buffer.seek(0)
@@ -243,7 +243,7 @@ class Output(BaseOutput):
 	#
 	def drain(self):
 		if self.buffer.tell():
-			with thread.allocate_lock() as alock:
+			with threading.Lock() as alock:
 				self.buffer.seek(0)
 				x = self.buffer.read()
 				self.buffer.seek(0)
