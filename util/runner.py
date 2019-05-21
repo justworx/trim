@@ -6,7 +6,6 @@
 
 from .output import * # trix, enchelp, sys
 from .console import *
-#from .xthread import *
 from .stream.buffer import *
 
 DEF_SLEEP = 0.1
@@ -39,6 +38,9 @@ class Runner(Output):
 		self.__active = False
 		self.__running = False
 		self.__threaded = False
+		
+		# the actual thread object - this could replace __threaded :-/
+		self.__threadx = None
 		
 		# remote socket control
 		self.__csock = None
@@ -226,7 +228,7 @@ class Runner(Output):
 	@property
 	def ident(self):
 		"""Return thread-id."""
-		return thread.get_ident()
+		return self.__threadx.ident
 	
 	@property
 	def config(self):
@@ -351,7 +353,7 @@ class Runner(Output):
 			ps = self.paused()
 			if self.__pausestate != ps:
 				
-				with thread.allocate_lock() as alock:
+				with threading.Lock() as alock:
 					self.__pausestate = ps
 					if ps:
 						self.on_pause()
@@ -492,7 +494,7 @@ class Runner(Output):
 	def start(self):
 		"""Start running in a new thread."""
 		try:
-			trix.start(self.run)
+			self.__threadx = trix.start(self.run)
 			self.__threaded = True
 		except Exception as ex:
 			msg = "err-runner-except;"
@@ -511,7 +513,7 @@ class Runner(Output):
 	# SHUTDOWN
 	def shutdown(self):
 		"""Stop and close."""
-		with thread.allocate_lock():
+		with threading.Lock():
 			try:
 				self.stop()
 				self.close()
@@ -541,11 +543,11 @@ class Runner(Output):
 			sleep    = self.sleep,
 			config   = self.config,
 			cport    = self.__cport,
-			name     = self.name,
-			ident    = self.ident,
+			name     = self.name,         
+			ident    = self.ident,        # thread id
 			paused   = self.paused(),
 			newl     = self.newl,
-			target   = self.target
+			target   = self.target        # Output target stream
 		)
 	
 	
@@ -562,28 +564,10 @@ class Runner(Output):
 	#
 	def console(self):
 		"""
-		Pause all Output and run a console session that wraps this 
-		object.
+		Pause all output from the `Output` class and run a console session 
+		that wraps this object by default.
 		"""
 		# REM: pause and resume are classmethods
-		if self.paused():
-			self.__createconsole().console()
-		else:
-			try:
-				self.pause()
-				self.__createconsole().console()
-			finally:
-				self.resume()
-	
-	
-	def __createconsole(self):
-		try:
-			return self.__console
-		except:
-			self.__console = trix.create(
-					self.Console, self.config, wrap=self
-				)
-			return self.__console
-
+		Console(wrap=self).console()
 
 
