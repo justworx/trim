@@ -4,11 +4,7 @@
 # the terms of the GNU Affero General Public License.
 #
 
-import sys, time, traceback, locale, json
-try:
-	import thread
-except:
-	import _thread as thread
+import sys, time, traceback, locale, json, threading
 
 
 #
@@ -28,12 +24,6 @@ VERSION = 0.0000
 AUTO_DEBUG = True #True/False
 
 #
-# DEF_NEWL
-#  - The default newline sequence.
-#
-DEF_NEWL = '\r\n'
-
-#
 # CONFIG / CACHE
 #  - Default root directory for storage of config and cache files.
 #  - These are the defaults for many *nix systems, and should work
@@ -42,13 +32,6 @@ DEF_NEWL = '\r\n'
 #
 DEF_CONFIG = "~/.config/trix"
 DEF_CACHE  = "~/.cache/trix"
-
-#
-# DEFAULT INDENTATION
-#  - Number of spaces to use when indenting formatted text, tab
-#    replacement, etc...
-#
-DEF_INDENT = 2
 
 #
 # LOGLET FILE PATH/NAME
@@ -87,7 +70,24 @@ locale.setlocale(locale.LC_ALL, DEF_LOCALE)
 #    'utf_8'.
 #
 
+
+
+# --- imported by `util.__init__` (along with trix and xdata) ---
+
 DEF_ENCODE = locale.getpreferredencoding() or 'utf_8'
+
+#
+# DEF_NEWL
+#  - The default newline sequence.
+#
+DEF_NEWL = '\r\n'
+
+#
+# DEFAULT INDENTATION
+#  - Number of spaces to use when indenting formatted text, tab
+#    replacement, etc...
+#
+DEF_INDENT = 2
 
 
 
@@ -110,7 +110,8 @@ class trix(object):
 	__m = __module__
 	__mm = sys.modules
 	__od = {}
-	__tid = thread.get_ident()
+	__tid = threading.current_thread().ident
+	__tname = threading.current_thread().name
 	
 	
 	#
@@ -145,7 +146,7 @@ class trix(object):
 		Returns a module given a string `path`. Specified module may be 
 		external to the trix package. 
 		
-		>>> trix.nmodule('socket')
+		>>> trix.module('socket')
 		"""
 		try:
 			return cls.__mm[path]
@@ -163,83 +164,6 @@ class trix(object):
 		>>> trix.nmodule('fs.dir')
 		"""
 		return cls.module(cls.innerpath(innerPath))
-	
-	
-	# CREATE
-	@classmethod
-	def create(cls, modpath, *a, **k):
-		"""
-		Create and return an object specified by argument `modpath`. 
-		
-		The dot-separated path must start with the path to the desired
-		module. It must be suffixed with the name of a class defined in 
-		the specified module. (Eg, 'package.subpackage.module.ClassName')
-		
-		Any additional arguments and keyword args will be passed to the
-		class's constructor.
-		
-		>>> sock = trix.create("socket.socket")
-		"""
-		p = modpath.split(".")
-		m = p[:-1] # module
-		o = p[-1]  # object
-		
-		try:
-			T = None
-			if m:
-				mm = cls.module(".".join(m))
-				T  = mm.__dict__[o]
-			else:
-				T = __builtins__[o]
-		
-		except KeyError as ex:
-			try:
-				otype = type(trix.value(modpath)).__name__
-				if otype == 'module':
-					reason = "invalid-create-type"
-					message = "cannot-create-module"
-				raise TypeError("Can't trix.create a module.")
-			except TypeError:
-				raise TypeError('create-fail', xdata(path=modpath, 
-						otype=otype, mod=".".join(m), obj=o, T=T, 
-						error="err-create-fail", reason=reason, message=message
-					))
-			except KeyError:
-				reason=message=otype = "Unknown"
-				raise KeyError('create-fail', xdata(path=modpath, 
-						otype=otype, mod=".".join(m), obj=o, T=T, 
-						error="err-create-fail", reason=reason, message=message
-					))
-		
-		try:
-			return T(*a, **k)
-		except BaseException as ex:
-			raise type(ex)(
-					xdata(path=modpath, a=a, k=k, obj=o, T=type(o)
-				))
-		
-	
-	# N-CREATE - create an object given path from inside trix
-	@classmethod
-	def ncreate(cls, innerPath, *a, **k):
-		"""
-		Create and return an object specified by argument `innerPath`.
-		The dot-separated path must start with the path to the desired
-		module *within* this package (but NOT prefixed with the name of
-		this package). It must be prefixed with a name of a class defined
-		in the specified module. Eg, 'subpackage.theModule.TheClass'
-		
-		Any additional arguments and keyword args will be passed to the
-		class's constructor.
-		
-		USE: The ncreate() method is used from within this package. For 
-		     normal (external) use, use the create() method.
-		
-		>>> trix.ncreate("app.console.Console")
-		"""
-		a = a or []
-		k = k or {}
-		return cls.create(cls.innerpath(innerPath), *a, **k)
 	
 	
 	# VALUE - return a value (by name) from a module
@@ -323,6 +247,83 @@ class trix(object):
 					))
 	
 	
+	# CREATE
+	@classmethod
+	def create(cls, modpath, *a, **k):
+		"""
+		Create and return an object specified by argument `modpath`. 
+		
+		The dot-separated path must start with the path to the desired
+		module. It must be suffixed with the name of a class defined in 
+		the specified module. (Eg, 'package.subpackage.module.ClassName')
+		
+		Any additional arguments and keyword args will be passed to the
+		class's constructor.
+		
+		>>> sock = trix.create("socket.socket")
+		"""
+		p = modpath.split(".")
+		m = p[:-1] # module
+		o = p[-1]  # object
+		
+		try:
+			T = None
+			if m:
+				mm = cls.module(".".join(m))
+				T  = mm.__dict__[o]
+			else:
+				T = __builtins__[o]
+		
+		except KeyError as ex:
+			try:
+				otype = type(trix.value(modpath)).__name__
+				if otype == 'module':
+					reason = "invalid-create-type"
+					message = "cannot-create-module"
+				raise TypeError("Can't trix.create a module.")
+			except TypeError:
+				raise TypeError('create-fail', xdata(path=modpath, 
+						otype=otype, mod=".".join(m), obj=o, T=T, 
+						error="err-create-fail", reason=reason, message=message
+					))
+			except KeyError:
+				reason=message=otype = "Unknown"
+				raise KeyError('create-fail', xdata(path=modpath, 
+						otype=otype, mod=".".join(m), obj=o, T=T, 
+						error="err-create-fail", reason=reason, message=message
+					))
+		
+		try:
+			return T(*a, **k)
+		except BaseException as ex:
+			raise type(ex)(
+					xdata(path=modpath, a=a, k=k, obj=o, T=type(o)
+				))
+		
+	
+	# N-CREATE - create an object given path from inside trix
+	@classmethod
+	def ncreate(cls, innerPath, *a, **k):
+		"""
+		Create and return an object specified by argument `innerPath`.
+		The dot-separated path must start with the path to the desired
+		module *within* this package (but NOT prefixed with the name of
+		this package). It must be prefixed with a name of a class defined
+		in the specified module. Eg, 'subpackage.theModule.TheClass'
+		
+		Any additional arguments and keyword args will be passed to the
+		class's constructor.
+		
+		USE: The ncreate() method is used from within this package. For 
+		     normal (external) use, use the create() method.
+		
+		>>> trix.ncreate("app.console.Console")
+		"""
+		a = a or []
+		k = k or {}
+		return cls.create(cls.innerpath(innerPath), *a, **k)
+	
+	
 	
 	#
 	#
@@ -342,19 +343,6 @@ class trix(object):
 		if innerFPath:
 			ifp.append(innerFPath)
 		return "/".join(ifp)
-	
-	
-	# N-PATH
-	@classmethod
-	def npath(cls, innerFPath=None, *a, **k):
-		"""
-		Return an fs.Path for a file-system object within the trix 
-		directory.
-		
-		>>> r = trix.npath("app/config/app.conf").reader(encoding=utf8)
-		>>> r.readline()
-		"""
-		return cls.path(cls.innerfpath(innerFPath), *a, **k)
 	
 	
 	# PATH
@@ -383,6 +371,19 @@ class trix(object):
 		return p.dir() if p.isdir() else p
 	
 	
+	# N-PATH
+	@classmethod
+	def npath(cls, innerFPath=None, *a, **k):
+		"""
+		Return an fs.Path for a file-system object within the trix 
+		directory.
+		
+		>>> r = trix.npath("app/config/app.conf").reader(encoding=utf8)
+		>>> r.readline()
+		"""
+		return cls.path(cls.innerfpath(innerFPath), *a, **k)
+	
+	
 	#
 	#
 	# ---- THREADS, PROCESSES -----------------------------------------
@@ -400,8 +401,10 @@ class trix(object):
 		>>> trix.start(test)
 		"""
 		try:
-			thread.start_new_thread(x, a, k)
-			#time.sleep(0.1)
+			pt = threading.Thread(target=x, args=a, kwargs=k)
+			pt.start()
+			return pt
+			#thread.start_new_thread(x, a, k)
 		except:
 			pass
 	
@@ -422,6 +425,13 @@ class trix(object):
 		while not fn():
 			if time.time() > to:
 				raise WaitTimeout(xdata(timeout=timeout, **k))
+	
+	
+	# TID
+	@classmethod
+	def tname(cls):
+		"""Return the current thread name."""
+		return trix.__tname
 	
 	
 	# TID
@@ -1188,7 +1198,7 @@ class xdata(dict):
 #
 def debug_hook(t, v, tb):
 	
-	with thread.allocate_lock():
+	with threading.Lock():
 		
 		#
 		#if isinstance(v, KeyboardInterrupt):
