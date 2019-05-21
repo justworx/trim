@@ -47,13 +47,18 @@ class Console(BaseOutput):
 		config = config or {}
 		config.update(k)
 		
+		#print ("k:", k)
+		wrap = trix.kpop(k, 'wrap').get('wrap') # object to wrap (or None)
+		#print ('wrap', wrap)
+		
+		
 		BaseOutput.__init__(self, config)
 		
 		# debugging
 		self.__debug = config.get('debug', self.Debug)
 		
 		# wrapper
-		self.__wrap = Wrap(config.get('wrap'))
+		self.__wrap = Wrap(wrap) if wrap else None
 		
 		# formatting for textwrap
 		jc = trix.jconfig(trix.npath('util/console.json').path)
@@ -87,6 +92,12 @@ class Console(BaseOutput):
 	def prompt(self):
 		"""Console prompt."""
 		return "> "
+	
+	
+	@property
+	def wrap(self):
+		"""Current wrapped object."""
+		return self.__wrap
 	
 	
 	
@@ -203,6 +214,10 @@ class Console(BaseOutput):
 		elif e.argvl[0] == 'list':
 			self.olist.table(w=3)
 		
+		# selected
+		elif e.argvl[0] == 'selected':
+			self.oselected()
+		
 		# select
 		elif e.argvl[0] == 'select':
 			try:
@@ -236,13 +251,20 @@ class Console(BaseOutput):
 				self.output(str(r))
 	
 	
-		
+	
 	# -----------------------------------------------------------------
+	
+	def oselected(self):
+		if self.__wrap:
+			#print (self.__wrap)
+			print(self.__wrap.name)
+		else:
+			print()
 	
 	def oselect(self, name):
 		"""Select an object from the object list to wrap."""
 		try:
-			for o in cls.__olist:
+			for o in self.__olist:
 				if o.name == name:
 					self.__wrap = Wrap(o)
 		except Exception as ex:
