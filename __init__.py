@@ -4,7 +4,11 @@
 # the terms of the GNU Affero General Public License.
 #
 
-import sys, time, traceback, locale, json, threading
+import sys, time, traceback, locale, json #, threading
+try:
+	import thread
+except:
+	import _thread as thread
 
 
 #
@@ -70,17 +74,20 @@ locale.setlocale(locale.LC_ALL, DEF_LOCALE)
 #    'utf_8'.
 #
 
-
-
-# --- imported by `util.__init__` (along with trix and xdata) ---
-
 DEF_ENCODE = locale.getpreferredencoding() or 'utf_8'
+
+try:
+	DEF_LANG = locale.getlocale()[0].split('_')[0]
+except:
+	DEF_LANG = 'en'
+
 
 #
 # DEF_NEWL
 #  - The default newline sequence.
 #
 DEF_NEWL = '\r\n'
+
 
 #
 # DEFAULT INDENTATION
@@ -110,8 +117,8 @@ class trix(object):
 	__m = __module__
 	__mm = sys.modules
 	__od = {}
-	__tid = threading.current_thread().ident
-	__tname = threading.current_thread().name
+	#__tid = threading.current_thread().ident
+	#__tname = threading.current_thread().name
 	
 	
 	#
@@ -401,10 +408,7 @@ class trix(object):
 		>>> trix.start(test)
 		"""
 		try:
-			pt = threading.Thread(target=x, args=a, kwargs=k)
-			pt.start()
-			return pt
-			#thread.start_new_thread(x, a, k)
+			return thread.start_new_thread(x, a, k)
 		except:
 			pass
 	
@@ -426,29 +430,6 @@ class trix(object):
 			if time.time() > to:
 				raise WaitTimeout(xdata(timeout=timeout, **k))
 	
-	
-	# TID
-	@classmethod
-	def tname(cls):
-		"""Return the current thread name."""
-		return trix.__tname
-	
-	
-	# TID
-	@classmethod
-	def tid(cls):
-		"""
-		Return thread id. For typical trix usage, the trix class is 
-		created in the main thread, making `tid` a source for the main
-		thread id. 
-		
-		NOTE: Be aware that if the trix module is first is loaded in an 
-		      alternate thread, this method will not return the main
-		      thread id - it wall return the alternate thread's id. You
-		      must know that trix is loaded in the main thread before you
-		      can count on tid() returning the main thread id.
-		"""
-		return cls.__tid
 	
 	
 	# PID
@@ -1006,7 +987,6 @@ proxify    = trix.proxify
 scan       = trix.scan
 signals    = trix.signals
 start      = trix.start
-tid        = trix.tid
 tracebk    = trix.tracebk
 trixc      = trix.trixc
 value      = trix.value
@@ -1198,7 +1178,7 @@ class xdata(dict):
 #
 def debug_hook(t, v, tb):
 	
-	with threading.Lock():
+	with thread.allocate_lock():
 		
 		#
 		#if isinstance(v, KeyboardInterrupt):
