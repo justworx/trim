@@ -1,0 +1,34 @@
+{
+	"lang": "en",
+	
+	"title" : "\nCONSOLE",
+	"banner": [
+		"Console Session. Wrapper: {wrapper_name}",
+		" - Wrapper Command Prefix: {wrapper_cmd}",
+		" - Console Command Prefix: {console_cmd}",
+		" - Target output stream: {target_strm}",
+		" - Try {console_cmd}about and {console_cmd}help for more informaton",
+		" - Use {console_cmd}exit to exit"
+	],
+	
+	
+	"title_about" : "About the Console",
+	"about" : [
+		"The Console class is currently *UNDER CONSTRUCTION*. A lot may change before it's even remotely stable.",
+		"The console provides command-line style control over objects and access to their data.",
+		"Consolable objects (currently, only `Runner`) are automatically added/removed by their __init__ and __del__ methods. A consolable object may be passed to the init method for automatic selection via keyword argument wrap=<object>.",
+		"A custom output stream may be specified to the constructor using the 'output' keyword argument. If unspecified, default output is currently sent to the console screen.",
+		""
+	],
+	
+	"title_help" : "Console commands/descriptions",
+	"help" : [
+		"about    : Print the 'about' message", 
+		"banner   : Print the console startup banner",
+		"help     : Print (this) help message",
+		"list     : List Runners by name",
+		"select   : Select a runner by name",
+		"selected : Display name of currently selected runner",
+		"exit     : Exit the console."
+	]
+}
