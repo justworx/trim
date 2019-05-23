@@ -24,9 +24,6 @@ class Runner(Output):
 	   the pause state ends).
 	"""
 	
-	Console = trix.innerpath("util.console.Console")
-	
-	
 	# INIT
 	def __init__(self, config=None, **k):
 		"""Pass config and/or kwargs."""
@@ -38,9 +35,7 @@ class Runner(Output):
 		self.__active = False
 		self.__running = False
 		self.__threaded = False
-		
-		# the actual thread object - this could replace __threaded :-/
-		self.__threadx = None
+		self.__threadid = None
 		
 		# remote socket control
 		self.__csock = None
@@ -138,6 +133,11 @@ class Runner(Output):
 						args=ex.args, xdata=xdata()
 					)
 			
+			# EXPERIMENTAL 20190522
+			if self.__xthread:
+				del(self.__xthread)
+				self.__xthread = None
+			
 			if self.__csock:
 				try:
 					self.__csock.shutdown(SHUT_RDWR)
@@ -191,12 +191,20 @@ class Runner(Output):
 	
 	@property
 	def threaded(self):
-		"""True if running in a thead after call to self.start()."""
+		"""True if running in a thead after a call to self.start()."""
 		try:
 			return self.__threaded
 		except:
 			self.__threaded = None
 			return self.__threaded
+	
+	@property
+	def threadid(self):
+		"""
+		Returns thread id when running, else None. If not threaded, the
+		main thread id is returned (but again, only when running).
+		"""
+		return self.__threadid
 	
 	@property
 	def sleep(self):
@@ -224,11 +232,6 @@ class Runner(Output):
 		except:
 			self.__name = "Runner-%s" % str(self.ident)
 			return self.__name
-	
-	@property
-	def ident(self):
-		"""Return thread-id."""
-		return self.__threadx.ident
 	
 	@property
 	def config(self):
@@ -335,6 +338,7 @@ class Runner(Output):
 		if self.csock:
 			xio.append(self.cio)
 		
+		self.__threadid = thread.get_ident()
 		
 		#
 		# --------- MAIN LOOP ---------
@@ -353,7 +357,7 @@ class Runner(Output):
 			ps = self.paused()
 			if self.__pausestate != ps:
 				
-				with threading.Lock() as alock:
+				with thread.allocate_lock() as alock:
 					self.__pausestate = ps
 					if ps:
 						self.on_pause()
@@ -432,6 +436,11 @@ class Runner(Output):
 	# ----------------------------------------------------------------
 	def cio(self):
 		"""
+		Control IO method. This is called each pass through the run loop,
+		but only when this Runner is operating in a remote process 
+		initiated by a controlling process. (That is, the main process
+		spawned a new trix process in which this Runner is operating.)
+		
 		This is called regularly, regardless of pause-state, when a
 		remote socket controls cport.
 		"""
@@ -479,7 +488,7 @@ class Runner(Output):
 				return r
 	
 	
-	# ---- callbacks -----
+	# ---- callbacks (for subclasses) -----
 	
 	def on_pause(self):
 		pass
@@ -494,14 +503,14 @@ class Runner(Output):
 	def start(self):
 		"""Start running in a new thread."""
 		try:
-			self.__threadx = trix.start(self.run)
-			self.__threaded = True
+			if not self.__threaded:
+				trix.start(self.run)
+				self.__threaded = True
 		except Exception as ex:
 			msg = "err-runner-except;"
 			trix.log(msg, str(ex), ex.args, type=type(self), xdata=xdata())
 			self.stop()
 			raise
-	
 	
 	# STARTS - Start and return self
 	def starts(self):
@@ -513,7 +522,7 @@ class Runner(Output):
 	# SHUTDOWN
 	def shutdown(self):
 		"""Stop and close."""
-		with threading.Lock():
+		with thread.allocate_lock():
 			try:
 				self.stop()
 				self.close()
@@ -535,25 +544,25 @@ class Runner(Output):
 		# managed by Console.
 		#
 		return dict(
-			cgroup   = "Runner",     # console grouping
-			ek       = self.ek,
-			active   = self.active,
-			running  = self.running,
-			threaded = self.threaded,
-			sleep    = self.sleep,
-			config   = self.config,
-			cport    = self.__cport,
-			name     = self.name,         
-			ident    = self.ident,        # thread id
-			paused   = self.paused(),
-			newl     = self.newl,
-			target   = self.target        # Output target stream
+			cgroup   = "Runner",       # console grouping
+			ek       = self.ek,        # encoding/errors
+			active   = self.active,    # active state (true after 'open')
+			running  = self.running,   # running state (true after 'run')
+			threaded = self.threaded,  # threaded state (true after 'start')
+			threadid = self.threadid,  # threadid, or None when not running
+			sleep    = self.sleep,     # sleep time between calls to io
+			config   = self.config,    # REMOVE THIS!
+			cport    = self.__cport,   # control port for remote processes
+			name     = self.name,      # name as given to constructor  
+			paused   = self.paused(),  # True if Output paused, else False
+			newl     = self.newl,      # Output new-line char(s)
+			target   = self.target     # Output target stream
 		)
 	
 	
 	# DISPLAY
 	def display(self):
-		"""Print status."""
+		"""Print status in json display format."""
 		trix.display(self.status())
 	
 	
@@ -569,5 +578,4 @@ class Runner(Output):
 		"""
 		# REM: pause and resume are classmethods
 		Console(wrap=self).console()
-
 
