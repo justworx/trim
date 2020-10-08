@@ -230,7 +230,7 @@ class Runner(Output):
 		try:
 			return self.__name
 		except:
-			self.__name = "Runner-%s" % str(self.ident)
+			self.__name = "Runner-%s" % str(self.__threadid)
 			return self.__name
 	
 	@property
