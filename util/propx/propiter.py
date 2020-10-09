@@ -79,7 +79,7 @@ class propiter(propbase):
 	
 	def select (self, fn, *a, **k):
 		"""
-		Argument `fn` is a callable that selects/alters  items one at a 
+		Argument `fn` is a callable that selects/alters items one at a 
 		time, storing them in an xprop wrapper and returning the result.
 		
 		```
@@ -124,7 +124,11 @@ class propiter(propbase):
 	
 	def map(self, fn, *iterables):
 		"""
-		The "map" filter - call using python3 conventions (even from py2).
+		The "map" filteR.
+		
+		Call this method using python3 conventions (even when running
+		under python 2.7.x).
+		
 		"""
 		try:
 			return propx(self.T.__map(fn, iterables or self.o))

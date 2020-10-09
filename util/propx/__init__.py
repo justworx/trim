@@ -16,11 +16,11 @@ class propbase(object):
 	# INIT
 	#
 	# There are two ways to create any propbase object:
-	#  * Pass value or callback `o`, plus args/kwargs needed for 
-	#    callback.
+	#  * Pass value, object, or callable `o`, plus args/kwargs needed 
+	#    for the callable.
 	#  * Pass an instance of the object the callback would have created.
 	#
-	#  The reason both these methods are need is that sometimes it's
+	#  The reason both these methods are needed is that sometimes it's
 	#  more convenient to return a propbase subclass using a property.
 	#  This allows the property to act like a method, returning the
 	#  "normal" expected value, while still allowing the property to
@@ -34,7 +34,7 @@ class propbase(object):
 	#
 	def __init__(self, o=None, *a, **k):
 		"""
-		Pass object `o`, a value or callable that returns a value.
+		Pass object `o`, a value, or a callable that returns a value.
 		
 		In the case `o` is a callable, pass also any args/kwargs required
 		to execute that callable. When `self.o` is first accessed, the
@@ -69,6 +69,7 @@ class propbase(object):
 		The __call__ method *MUST NOT* be overridden by subclasses except
 		to make necessary subclass-specific manipulations or additions
 		before calling the superclass `__call__` method.
+		
 		"""
 		try:
 			return self.__o
@@ -77,7 +78,7 @@ class propbase(object):
 				# if self.__p is callable...
 				self.__o = self.__p(*a, **k)
 			except TypeError:
-				# or, self.__p must be an object/value
+				# otherwise, self.__p must be an object/value
 				self.__o = self.__p
 			
 			return self.__o
@@ -92,10 +93,7 @@ class propbase(object):
 		try:
 			return self.__o
 		except:
-			# __call__ sets self.__o
 			return self.__call__(*self.__a, **self.__k)
-			#self.__o = self.__call__(*self.__a, **self.__k)
-			#return self.__o
 	
 	@property
 	def a(self):
@@ -117,8 +115,11 @@ class propbase(object):
 		"""Return the type of `self.o`."""
 		return type(self.o)
 	
+	
+	#
 	#
 	# UTILITY
+	#
 	#
 	@property
 	def compenc(self):
@@ -150,7 +151,9 @@ class propbase(object):
 	# ---- Methods that can handle pretty much any data type -----
 	
 	#
+	#
 	# DISPLAY
+	#
 	#
 	def display(self, *a, **k):
 		"""Display using trix.fmt. Default params: f='JDisplay'"""
@@ -158,7 +161,9 @@ class propbase(object):
 	
 	
 	#
+	#
 	# FORMATTING
+	#
 	#
 	def json(self, *a, **k):
 		"""

@@ -8,11 +8,58 @@ import unicodedata
 from ..udata import *
 from ...util.xiter import *
 
+
 class charinfo(xiter):
-	"""Provides extended information for current unicode character."""
+	"""
+	Provides extended information for unicode characters.
+	
+	The charinfo class provides a means of looking individually at
+	unicode characters. The properties and methods of each character
+	may be examined character by character.
+	
+	Example:
+	>>> from trix.data.udata.charinfo import *
+	>>> ci = charinfo("Hello, World!")
+	>>> next(ci)
+	>>> ci.display()
+	{
+	  "__char__": ["H"],
+	  "_bidiname": {"L": "Left_To_Right"},
+	  "_catname": {"Lu": "Uppercase_Letter"},
+	  "bidirectional": "L",
+	  "block": "Basic Latin",
+	  "bracket": null,
+	  "c": "H",
+	  "category": "Lu",
+	  "combining": 0,
+	  "decimal": null,
+	  "decomposition": "",
+	  "digit": null,
+	  "east_asian_width": "Na",
+	  "linebreak": "AL",
+	  "linebreakname": "Alphabetic",
+	  "mirrored": 0,
+	  "name": "LATIN CAPITAL LETTER H",
+	  "numeric": null,
+	  "props": []
+	}
+  >>>
+  >>> next(ci).display()
+	>>> 
+	
+	#
+	# Why?
+	#
+	This dataset is available to the `trix.data.scan.Scanner` class,
+	so every available property of every unicode character can be made
+	use of for parsing.
+	
+	"""
 
 	def __init__(self, iterable_text):
-		"""Pass unicode text, iter, or generator."""
+		"""
+		Pass unicode text, iter, or generator.
+		"""
 		self.debug_text = iterable_text
 		xiter.__init__(self, iter(iterable_text))
 		self.o = 0
@@ -42,7 +89,7 @@ class charinfo(xiter):
 	# ----------------------------------------------------------------
 	@property
 	def name(self):
-		"""Return unicodedata.name."""
+		"""Return `unicodedata.name`."""
 		try:
 			return unicodedata.name(self.c)
 		except:
@@ -50,7 +97,7 @@ class charinfo(xiter):
 
 	@property
 	def decimal(self):
-		"""Return unicodedata.decimal."""
+		"""Return `unicodedata.decimal`."""
 		try:
 			return unicodedata.decimal(self.c)
 		except ValueError:
@@ -58,7 +105,7 @@ class charinfo(xiter):
 
 	@property
 	def digit(self):
-		"""Return unicodedata.digit."""
+		"""Return `unicodedata.digit`."""
 		try:
 			return unicodedata.digit(self.c)
 		except ValueError:
@@ -66,7 +113,7 @@ class charinfo(xiter):
 
 	@property
 	def numeric(self):
-		"""Return unicodedata.numeric."""
+		"""Return `unicodedata.numeric`."""
 		try:
 			return unicodedata.numeric(self.c)
 		except ValueError:
@@ -74,7 +121,7 @@ class charinfo(xiter):
 
 	@property
 	def category(self):
-		"""Return unicodedata.category."""
+		"""Return `unicodedata.category`."""
 		try:
 			return unicodedata.category(self.c)
 		except ValueError:
@@ -82,17 +129,17 @@ class charinfo(xiter):
 
 	@property
 	def bidirectional(self):
-		"""Return unicodedata.bidirectional."""
+		"""Return `unicodedata.bidirectional`."""
 		return unicodedata.bidirectional(self.c)
 
 	@property
 	def combining(self):
-		"""Return unicodedata.combining."""
+		"""Return `unicodedata.combining`."""
 		return unicodedata.combining(self.c)
 
 	@property
 	def east_asian_width(self):
-		"""Return unicodedata.east_asian_width."""
+		"""Return `unicodedata.east_asian_width`."""
 		return unicodedata.east_asian_width(self.c)
 
 	@property
@@ -102,7 +149,7 @@ class charinfo(xiter):
 
 	@property
 	def decomposition(self):
-		"""Return unicodedata.decomposition."""
+		"""Return `unicodedata.decomposition`."""
 		return unicodedata.decomposition(self.c)
 
 
@@ -111,7 +158,9 @@ class charinfo(xiter):
 	# ----------------------------------------------------------------
 	@property
 	def block(self):
-		"""Return the name of the block containing this character."""
+		"""
+		Return the name of the block containing the current character.
+		"""
 		return udata.block(self.c)
 
 	@property
@@ -184,6 +233,13 @@ class charinfo(xiter):
 	
 	@property
 	def quote(self):
+		"""
+		Returns true if the character is a quotation mark.
+		
+		As most characters will *not* be quotation marks, this method is
+		sped up by faster preliminary checks (for bidi=ON, and cat='Po').
+		
+		"""
 		# do the fast checks (bidi, cat) first, then do self.props
 		return ((self.bidi=='ON') and (self.cat=='Po') and (
 			'Quotation_Mark' in self.props))
@@ -340,7 +396,11 @@ class charinfo(xiter):
 		return result
 
 
+	#
+	#
 	# DISPLAY
+	#
+	#
 	def display(self, value=None, **k):
 		"""Display all info on the current character."""
 

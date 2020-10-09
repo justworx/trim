@@ -1,8 +1,8 @@
 
 # propx
 
-The propx package contains a set of modules defining classes that
-each wraps suitable objects with a set of appropriate convinence
+The `trix.util.propx` package contains a set of modules defining 
+classes that wrap suitable objects with a set of appropriate 
 properties and methods.
 
 The propx function, defined in propx.__init__.py, receives any object
@@ -19,7 +19,7 @@ The following modules/classes are currently available.
 
  * propbase - generic encoding, compression, and display methods. 
  * propiter - adds methods suitable to iterable objects
- * propseq  - methods suitable to any sequence item (based on propset) 
+ * propseq  - methods suitable to any sequence items 
  * proplist - methods for list manipulation/display
    propgrid - proplist subclass for list of lists of equal length 
  * propdict - covers dict-like objects

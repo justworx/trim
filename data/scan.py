@@ -4,19 +4,57 @@
 # the terms of the GNU Affero General Public License.
 #
 
+
 from ..data.udata.charinfo import *
 from ..util.stream.buffer import *
 
 
 class Scanner(object):
-	"""Scan unicode text one character at a time."""
+	"""
+	Scan unicode text one character at a time.
+	
+	The Scanner class is a utility to help with the parsing of unicode
+	text. Pass any iterable that produces unicode characters, then use
+	the Scanner methods to parse the text.
+	
+	The high-level "split" method separates items based on their 
+	enclosure of the typical set of brackets, parentheses, etc...
+	
+	EXAMPLE:
+	>>>
+	>>> trix.scan('[1,2,3] frog {"x":"stream"}').split()
+	['[1,2,3]', 'frog', '{"x":"stream"}']
+	>>>
+	
+	The Scanner class works not with characters, but with charinfo 
+	objects, defined in the `trix.data.udata.charinfo` module. To make
+	fullest use of the Scanner class, read and understand the charinfo
+	documentation.
+	
+	>>> from trix.data.udata.charinfo import *
+	>>> help(charinfo)
+	
+	
+	
+	
+	"""
 	
 	#Debug = False
 	Escape = "\\"
 	BufSize = 2048
 	
 	def __init__(self, iterable_text, **k):
-		"""Pass anything iterable that produces unicode characters."""
+		"""
+		Pass anything iterable that produces unicode characters.
+		
+		 * Adjust escape character (default, self.Escape, the backslash) 
+		   as needed using keyword argument 'escape'.
+		 * Adjusting buffer size for extremly large files may help improve
+		   performance. (I honestly don't know. I've never run into a 
+		   problem.) In any case, you can use keyword argumnet 
+		   bufsz=<A-LARGER-NUMBER>. The default is `scan.BufSize` (2048).
+		
+		"""
 		self.__k = k
 		self.__escape = k.get('escape', self.Escape)
 		self.__bufsz = k.get('bufsz', self.BufSize)
@@ -32,7 +70,7 @@ class Scanner(object):
 	@property
 	def r(self):
 		"""
-		Returns a Scanner object that reads any text in this stream
+		Returns a Scanner object that parses any text from the stream
 		backward.
 		"""
 		return RScan(self.collect(lambda c: True), **self.__k)
@@ -43,7 +81,9 @@ class Scanner(object):
 	#
 	@property
 	def c(self):
-		"""Return current character info object."""
+		"""
+		Return current character info object.
+		"""
 		if self.eof:
 			raise StopIteration()
 		try:

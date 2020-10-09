@@ -25,9 +25,9 @@ class Table(Grid):
 	# FORMAT
 	def format(self, data, **k):
 		"""
-		Format the given list `data` by separating it into a grid (a list of
-		lists) and passing it to Grid.format. Keyword arguments are passed
-		on to Grid.format().
+		Format the given list `data` by separating it into a grid (a list 
+		of lists) and passing it to Grid.format. Keyword arguments are 
+		passed on to Grid.format().
 		"""
 		if data:
 			datalist = self.merge(data, **k)
@@ -35,6 +35,11 @@ class Table(Grid):
 	
 	# MERGE
 	def merge(self, data, **k):
+		"""
+		Utility; Merges cells into collumns of the specified width. This
+		is the workhorse that formats a list into a grid of specified
+		width.
+		"""
 		width = k.get('width', self.__width)
 		y = []
 		x = 0

@@ -14,35 +14,42 @@ from ..fs.file import *
 
 class JConfig(EncodingHelper):
 	"""
-	JConfig is a config-file manager that reads JSON or text files that 
-	ast.literal_eval can parse.
+	A config file utility.
+	
+	JConfig is a config-file manager that reads JSON, or text files  
+	that `ast.literal_eval` can parse.
 	
 	Once created, JConfig provides methods that let you navigate,
-	display, edit, and eventually save the text representation of the
-	config data structure as JSON.
+	display, and edit configuration files, then eventually save the
+	text representation of the config data structure as JSON.
 	
-	JConfig's nomenclature favor dict structures as the config type,
+	JConfig's nomenclature favors dict structures as the config type,
 	but list-like structures can also be parsed and used as config.
 	The naming of methods and properties, however, typically make more
-	sense for dicts. 
+	sense for use with dicts.
+	
 	"""
 	
 	
 	def __init__(self, path, default=None, **k):
 		"""
-		Pass config file path, an optional `default` config template, 
-		and encoding-related keyword arguments. If the file specified
-		by `path` does not exist, it will be created immediately. If
-		the `default` argument is given, it's contents are coppied to
-		the `path` immediately.
+		Pass config file `path` string, an optional `default` config 
+		template,  and encoding-related keyword arguments.
+		
+		If the file specified by `path` does not exist, it will be created 
+		immediately.
+		
+		If the `default` argument is given, it's contents are coppied to
+		the file at `path` immediately.
 		
 		NOTES:
 		 * JSON is the default input format, but a file readable by 
 		   `ast.literal_eval` may also be given as keyword arg `default`.
 		   This provides an easy way to initialize a config file with
 		   default contents.
+		   
 		 * If `default` argument is given, its path points to an existing
-		   file. The contents of the file (along with. any subsequent 
+		   file. The contents of the file (along with any subsequent 
 		   alterations) will replace any data in the file at `self.path` 
 		   when the `self.save()` method is called.
 		
@@ -51,9 +58,11 @@ class JConfig(EncodingHelper):
 		 * The default file is never written to by this class.
 		
 		IMPORTANT:
-		 * Be sure to pass affirm='touch' for new config files.
-		 * If the file or default file is not utf8, pass it's encoding
-		   as a keyword argument.
+		 * You can pass keyword argumnets such as affirm='touch' for new
+		   config files.
+		 * If the file or default file is not menat to be DEF_ENCODE, 
+		   pass its desired encoding as a keyword argument.
+		 
 		"""
 		
 		k.setdefault('encoding', DEF_ENCODE)
@@ -323,7 +332,9 @@ class JConfig(EncodingHelper):
 		
 		except IsADirectoryError as ex:
 			raise type(ex)(ex.args, xdata(
-				k=k, txt=TXT, path=self.path, dfile=self.default
+				k=k, txt=TXT, path=self.path, dfile=self.default,
+				NOTE="This seems to be happening when the file path" +
+				     "is invalid."
 			))
 	
 	
