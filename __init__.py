@@ -1,5 +1,5 @@
 #
-# Copyright 2018-2019 justworx
+# Copyright 2018-2020 justworx
 # This file is part of the trix project, distributed under
 # the terms of the GNU Affero General Public License.
 #
@@ -55,11 +55,11 @@ DEF_LOGLET = "./loglet"
 #               `locale.setlocale` must not be reset over the life of 
 #               the process. However, a thread-safe system for getting
 #               alternate locale data is under construction. We'll see
-#               how that goes.
+#               how that goes. (See: `trix.loc()`, below.)
 #
 DEF_LOCALE = ''
 
-# set the locale as specified above
+# Set the locale as specified above.
 locale.setlocale(locale.LC_ALL, DEF_LOCALE)
 
 
@@ -253,7 +253,8 @@ class trix(object):
 		any packages, or the operation will fail.
 		
 		Likewise, prepending `trix` would also cause the operation to 
-		fail. The `innerPath` string argument must be a dot-separated path starting within the `trix` package.
+		fail. The `innerPath` string argument must be a dot-separated path 
+		starting within the `trix` package.
 		
 		#
 		# EXAMPLES:
@@ -370,7 +371,7 @@ class trix(object):
 		from a trix subpackage given a path to the object.
 		
 		#
-		# EXAMPLES
+		# EXAMPLE
 		#
 		>>> #
 		>>> # Load a base-64 encoder/decoder into variable `b64` and use
@@ -767,11 +768,18 @@ class trix(object):
 		arguments and/or keyword arguments needed for the creation and 
 		operation of the object.
 		
+		Calling `trix.process` is much like calling `trix.ncreate`. Pass 
+		the object's full dot-separated python path, appending arguments 
+		and keyword args as required or needed.
+		
 		A `trix.util.process.Process` object will be returned to the
 		calling process (the terminal or python script from which the 
-		remote process is being launched). Store the return value so
-		that you may control the remote process and receive any data 
-		which may result of its operation.
+		remote process is being launched).
+		
+		Store the return value so that you may control the remote process and receive any data which may result of its operation.
+		
+				>>> p = trix.process("trix.net.server.Server", 9999)
+		
 		
 		Pass a class `path` and any needed args/kwargs. An object of type 
 		`trix.util.process.Process` is returned. Call the returned Process 
@@ -780,14 +788,13 @@ class trix(object):
 		object contained in the remote process starts processing on its 
 		own).
 		
-		Calling `trix.process` is much like calling `trix.ncreate`. Pass 
-		the object's full dot-separated python path, appending arguments 
-		and keyword args as required or needed.
+				>>> p.launch('run')
+		
 		
 		The trix.process() method supports trix.nprocess(), which accepts
-		the same arguments (but, of course, with the path beginning at
-		a module in the set of trix subpackages, specifying a full inner
-		path to the required class instance.
+		the same arguments (but, of course, with the path leading to a
+		module in the set of trix subpackages, specifying a full path to 
+		the required class definition.
 		
 		#
 		# EXAMPLE:
@@ -804,7 +811,7 @@ class trix(object):
 		>>> p = trix.process("trix.net.server.Server", 9999)
 		>>>
 		>>> #
-		>>> # Launch the process, calling the Server object's "run"
+		>>> # Launch the process, calling the `Server` object's `run`
 		>>> # method.
 		>>> #
 		>>> p.launch('run')
