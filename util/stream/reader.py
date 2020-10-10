@@ -25,6 +25,7 @@ class Reader(Stream):
 		even with non-binary streams. (This can be useful if you need 
 		more extensive seeking operations than the default provided by 
 		most file streams.) 
+		
 		"""
 		
 		# init with stream

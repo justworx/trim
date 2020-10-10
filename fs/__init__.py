@@ -1,5 +1,5 @@
 #
-# Copyright 2018-2019 justworx
+# Copyright 2018-2020 justworx
 # This file is part of the trix project, distributed under the terms 
 # of the GNU Affero General Public License.
 #
@@ -8,14 +8,72 @@ from ..util import mime
 from ..util.enchelp import *
 import shutil, os, os.path as ospath
 
+VALID_AFFIRM = ['touch','makedirs','makepath','checkdir','checkfile',
+								'checkpath']
+
+
 class Path(object):
-	"""Represents a file system path."""
+	"""
+	Objects of class `Path` represent a file system path.
 	
+	The `trix.fs.Path` class is the base for all trix subclasses that
+	deal with file system objects. Path provides a common interface
+	for accessing information about paths such as:
+	 
+	 * the file name, size, path, pathtype, mime info, parent directory
+	 * useful data like md5, sha256 and sha512 hashes, reasonable 
+	   values for blocksizes
+	 * the files `stat`, and whether it `exists`.
+	
+	Path also provides methods for manipulation and access of files.
+	
+	 * the `touch` method makes it easy to update file dates 
+	 * the `dir` method returns a Dir object.
+	
+	"""
+	
+	
+	#
+	#
 	# INIT
+	#
+	#
 	def __init__(self, path=None, **k):
 		"""
-		Represents `path` given as string, or current working directory. 
-		Pass kwargs as to the expand() method.
+		Pass optional `path` argument. Default is the current working 
+		directory.
+		
+		Pass optional keyword arguments accepted by the expand() method.
+		
+		Keyword 'affirm' lets you assign (or restrict) actions to be
+		taken if the given path does not exist.
+		
+		 * checkpath - default; raise if parent path does not exist.
+		 * checkfile - raise if `path` doesn't specify an existing file.
+		 * checkdir - raise if full given path does not exist.
+		 * makepath - create parent path as directory if none exists.
+		 * makedirs - create full path as directory if none exists.
+		 * touch - create a file at the given path if none exists.
+		
+		REMEMBER:
+		The default 'affirm' keyword argument value is "checkpath".
+		To ignore all validation, you must pass affirm=None.
+		
+		EXAMPLE:
+		>>> 
+		>>> from trix.fs import *
+		>>> p = Path("~/tests/myTest.txt", affirm="touch")
+		>>> 
+		>>> #
+		>>> # Note that the `p` object created above points to a file, so 
+		>>> # the `p.dir()` call must be directed outward to the enclosing 
+		>>> # directory so that we can call the `ls()` method to list the 
+		>>> # file.
+		>>> # 
+		>>> p.dir("..").ls()
+		['myTest.txt']
+		>>> 
+		
 		"""
 		self.sep = os.sep
 		self.__p = self.expand(k.get('path', path or '.'), **k)
@@ -29,75 +87,243 @@ class Path(object):
 			self.__n = ospath.normpath(self.__p).split(self.sep)[-1]
 	
 	
-	# CALL
-	def __call__(self, path=None):
+	#
+	#
+	# CALL - Shortcut for creating new Path and Dir objects based 
+	#        on the path of this (self) object.
+	#
+	#
+	def __call__(self, mergepath=None, **k):
 		"""
-		Returns a new Path object representing this path "merged" with 
-		the (required) given `path`.
+		Shortcut for creating new Path and Dir objects based on the 
+		path of this object.
+		
+		When you call the Path object as a function a new Path or Dir
+		object will be returned based on the type of file system object
+		that is selected.
+		
+		#
+		# Calling With no Argument:
+		#
+		If you call this method as a function without passing an argument,
+		a Dir object will be returned if the target file system object is
+		a directory. Otherwise, a Path object will be returned
+		
+		EXAMPLE:
+		>>>
+		>>> from trix.fs import *
+		>>> trixpath = trix.innerfpath()
+		>>> p = Path(trixpath)
+		>>> p()
+		<trix.fs.dir.Dir '/home/nine/trix' (d)>
+		>>>
+		>>> # 
+		>>> # you can use the result as a temporary object
+		>>> #
+		>>> p().ls.sorted.table(width=6)
+		.git         .gitignore   LICENSE  NOTES  README.md  __init__.py
+		__main__.py  __pycache__  app      data   fmt        fs         
+		net          scripts      test     util   x                     
+		>>> 
+		
+		#
+		# Calling with Arguments:
+		#
+		If you pass a partial file path to this method it will be merged
+		into a new Path or Dir object, depending on the type of file 
+		system object being encapsulated.
+		
+		EXAMPLE:
+		>>>
+		>>> from trix.fs import *
+		>>> trixpath = trix.innerfpath()
+		>>>
+		>>> p('data').ls()
+		['__init__.py', 'database.py', 'cursor.py', 'param.py', 'udata', 'pdq.py', 'dbgrid.py', 'param.md', 'scan.py']
+		>>> 
+
 		"""
-		#
-		# I'm getting rid of the FileBase and Dir __call__ methods and
-		# just letting Path handle this the same way for all subclasses.
-		#
-		#return Path(self.merge(path) or self.path)
-		#
-		with Path(self.merge(path) or self.path) as p:
-			try:
-				return p.dir()
-			except ValueError:
-				return p
+		
+		# If a merge path is given, merge it to this object's path.
+		if mergepath:
+			
+			# Get the new object's path.
+			mpath = self.merge(mergepath)
+			#print ("MPATH:"+mpath)
+			
+			# If the target file system object is a directory, wrap it in a
+			# Dir object and return it.
+			if self.isdir(mpath):
+				return self.dir(mpath, **k)
+			
+			# If it's something else, wrap it in a path object.
+			else:
+				return Path(mpath, **k)
+		
+		# OTHERWISE: Just make a Path or Dir from this object's self.path
+		else:
+			if self.isdir(self.path):
+				return self.dir(self.path, **k)
+			else:
+				return Path(self.path, **k)	
 	
 	
+	#
+	#
 	# ENTER/EXIT
+	#
+	#
 	def __enter__(self):
+		"""
+		There's really no reason for this except to make it available
+		to people who like to write code this way.
+		"""
 		return self
 	
 	def __exit__(self, *args):
+		"""
+		There's really no reason for this except to make it available
+		to people who like to write code this way.
+		"""
 		pass
 	
 	
+	#
+	#
 	# GET-ITEM
+	#
+	#
 	def __getitem__(self, i):
+		"""
+		
+		"""
 		return self.path.split(self.sep)[i]
 	
 	
+	#
+	#
 	# REPR
+	#
+	#
 	def __repr__(self):
+		"""
+		Returns a representation string specifying:
+		 * full class path
+		 * full file path
+		 * file system object type abbreviated:
+		     f = file
+		     d = directory
+		     l = link
+		     m = mount
+		
+		EXAMPLE:
+		>>> 
+		>>> from trix.fs import *
+		>>> repr(p())
+		"<trix.fs.dir.Dir '/home/nine/trix' (d)>"
+		>>> 
+		"""
 		return "<%s.%s '%s' (%s)>" % (
 				str(type(self).__module__),
 				str(type(self).__name__), self.path, self.pathtype
 			)
 	
 	
+	#
+	#
 	# STR
+	#
+	#
 	def __str__(self):
-		"""The path as a string."""
+		"""
+		Returns the path as a string.
+		
+		>>> from trix.fs import *
+		>>> str( p() )
+		>>> 
+		"""
 		return self.path
 	
 	
+	#
+	#
 	# UNICODE
+	#
+	#
 	def __unicode__(self):
 		"""The path as a unicode string (python 2 support)"""
 		return unicode(self.path)
 	
 	
 	#
+	#
 	# PROPERTIES
 	#
-	
+	#
 	@property
 	def mime(self):
-		"""Return a Mime object for this object's path."""
+		"""
+		Return a Mime object for this object's path.
+		
+		The `Path.mime` method is a utility that supports several features
+		in the `trix.fs` package. However, it can certainly be used when
+		needed for other purposes.
+		
+		#
+		# EXAMPLE:
+		#
+		>>> import trix
+		>>> p = trix.path(trix.innerpath("__init__.py"))
+		>>> p.mime.guess
+		('text/x-python', None)
+		>>> p.mime.type
+		'text'
+		>>> p.mime.subtype
+		'x-python'
+		>>> p.mime.mimetype
+		'text/x-python'
+		>>>
+		
+		#
+		# MORE INFO:
+		#
+		>>> import trix.util.mime
+		>>> help(trix.util.mime)
+		
+		"""
 		return trix.ncreate('util.mime.Mime', self.path)
 	
 	@property
 	def parent(self):
-		"""Return the path to this path's parent directory."""
+		"""
+		Return the path to this path's parent directory.
+		
+		#
+		# EXAMPLE:
+		#
+		>>> import trix
+		>>> p = trix.path(trix.innerfpath("__init__.py"))
+		>>> p.parent
+		'/home/<USER>/trix'
+		>>>
+		
+		"""
 		return ospath.dirname(self.path)
 	
 	@property
 	def name(self):
-		"""Return current path's last element."""
+		"""
+		Return current path's last element.
+		
+		#
+		# EXAMPLE:
+		#
+		>>> import trix
+		>>> p = trix.path(trix.innerfpath("__init__.py"))
+		>>> p.name
+		'__init__.py'
+		>>>
+		"""
 		return self.__n
 	
 	@property
@@ -111,7 +337,15 @@ class Path(object):
 	
 	@property
 	def pathtype(self):
-		"""Return or set this path."""
+		"""
+		Return the type of this object's target file system object.
+		
+		  f = file
+		  d = directory
+		  l = link
+		  m = mount
+		
+		"""
 		if self.isfile():
 			return 'f' #file'
 		elif self.isdir():
@@ -141,9 +375,17 @@ class Path(object):
 		WARNING:
 		This method is intended for ONLY for internal use. 
 		
+		DANGER:
 		Path.setpath does NOT move file system objects - other classes 
 		handle that kind of thing. The `setpath` method is used ONLY to 
 		reset an object's path once such a move has been made.
+		
+		NOTE ALSO:
+		I'll probably rename it to _setpath to conform to pythonic
+		conventions. If I remember correctly, we're supposed to treat
+		identifiers prefixed with an underscore as though they were
+		"protected" members.
+		
 		"""
 		self.__p = path
 		self.__n = ospath.normpath(path).split(self.sep)[-1]
@@ -167,9 +409,57 @@ class Path(object):
 		"""True if path is a mount point."""
 		return ospath.ismount(self.merge(path))
 	
+	
+	#
+	#
 	# TOUCH
-	def touch(self, path=None, times=None):
-		"""Touch file at path. Arg times applies to os.utime()."""
+	#
+	#
+	def touch(self, mergepath=None, times=None):
+		"""
+		Touch a file.
+		
+		Typical usage is to call Path.touch() with no arguments. This 
+		will reset the file to the current times.
+		
+		>>>
+		>>> from trix.fs import *
+		>>>
+		>>> #
+		>>> # Take a file's time back to yesterday
+		>>> #
+		>>> import time
+		>>> h_minus_24 = time.time() - 60*60*24
+		>>> p = Path(trix.innerfpath('README.md'))
+		>>> p.stat()
+		>>> p.touch(h_minus_24, h_minus_24)
+		>>>
+		
+		If a "mergepath" keyword argument is specified, it will be merged  
+		with this Path object's current path. This allows Path objects 
+		that contain a directory to be called multiple times for the 
+		purpose of altering some or all files within the directory to the 
+		same `utime` values.
+		
+		>>> 
+		>>> from trix.fs import *
+		>>> p = Path(trix.innerfpath('README.md'))
+		>>> p.touch(times)
+		>>>
+		
+		If a "times" keyword argument is passed, it must consist of a
+		tupel containing (atime, mtime), where each member is an int or
+		float expressing seconds.
+		
+		#
+		# TO DO:
+		#
+		Trix does not currently support the nanosecond parameter. This 
+		is on the to-do list, but will have to wait for now. I need a
+		way to safely catch excptions for pre-3.6 and pre-3.3 systems so
+		that older systems can still make use of the method.
+
+		"""
 		p = self.merge(path)
 		try:
 			with self.wrapper(p) as w:
@@ -178,9 +468,28 @@ class Path(object):
 			with open(p, 'a'):
 				os.utime(p, times)
 	
+	
+	#
+	#
 	# MERGE
+	#
+	#
 	def merge(self, path):
-		"""Return the given path relative to self.path."""
+		"""
+		Return the given path relative to self.path.
+		
+		Build a new path based on the `path` string argument.
+		
+		EXAMPLE:
+		>>> from trix.fs import *
+		>>> p = Path( trix.innerfpath('net/server.py') )
+		>>> p.merge( "../connect.py" )
+		'/home/YOU/trix/net/connect.py'
+		>>>
+		>>> p.merge( ".." )
+		'/home/YOU/trix/net'
+
+		"""
 		if not path:
 			return self.path
 		p = ospath.expanduser(path)
@@ -190,12 +499,27 @@ class Path(object):
 			p = ospath.join(self.path, p)
 			return ospath.abspath(ospath.normpath(p))
 	
+	
+	#
+	#
 	# HASH
+	#
+	#
 	def hash(self, algo, blocksize=None):
 		"""
+		Hash this file given string `algo` for the hashing algorithm, and
+		an optional blocksize.
+		
 		Hash the file at self.path using the given algo; optional argument
-
 		`blocksize` defaults to value returned by self.blocksizer().
+		
+		Example:
+		>>> from trix.fs import *
+		>>> p = Path(trix.innerfpath('LICENSE'))
+		>>> p.hash('sha256')
+		'8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef'
+		>>>
+		 
 		"""
 		blocksize or self.blocksizer()
 		try:
@@ -211,55 +535,174 @@ class Path(object):
 				b = f.read(blocksize)
 		return h.hexdigest()
 	
+	
+	#
+	#
 	# MD5
+	#
+	#
 	def md5(self, blocksize=None):
-		"""Hash using md5 algo."""
+		"""
+		Hash using md5 algo.
+		
+		Example:
+		>>> 
+		>>> p = Path(trix.innerfpath('LICENSE'))
+		>>> p.md5()
+		'4ae09d45eac4aa08d013b5f2e01c67f6'
+		>>> 
+			
+		"""
 		return self.hash('md5', blocksize or self.blocksizer())
 	
+
+	#
+	#
 	# SHA-256
+	#
+	#
 	def sha256(self, blocksize=None):
-		"""Hash using sha256 algo."""
+		"""
+		Hash using sha256 algo.
+		
+		Example:
+		>>> 
+		>>> p.sha256()
+		'8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef'
+		>>> 
+
+		"""
 		return self.hash('sha256', blocksize or self.blocksizer())
 	
+
+	#
+	#
 	# SHA-512
+	#
+	#
 	def sha512(self, blocksize=None):
-		"""Hash using sha512 algo."""
+		"""
+		Hash using sha512 algo.
+		
+		Example:
+		>>> 
+		>>> p.sha512()
+		
+		"""
 		return self.hash('sha512', blocksize or self.blocksizer())
 	
+	
+	#
+	#
 	# BLOCK-SIZER
+	#
+	#
 	def blocksizer(self, path=None):
-		"""Recommended block size (4K-16M), based on size of file."""
+		"""
+		Recommended block size (4K-16M), based on size of file.
+		
+		This method is overwhelmingly for internal use. The algorithm is
+		completely based on my own intuition, and on some trial and error
+		experiments. It's intended to provide the fastest hashing results
+		with the minimum use of memory.
+		
+		EXAMPLE:
+		>>> 
+		>>> from trix.fs import *
+		>>> p = Path( trix.innerfpath() )
+		>>> p('__main__.py').blocksizer() # 215 bytes
+		1024
+		>>> p('LICENSE').blocksizer()     # 34.5k
+		65536
+		>>> 
+		
+		"""
 		sz = ospath.getsize(path or self.path)
-		for x in [12,14,20,23]:
+		for x in [10,11,12,13,14,16,17,20,22]:
 			blocksize = 2**x
 			if sz < blocksize:
 				return blocksize
 		return 2**24 # max
 	
+	
+	#
+	#
 	# SIZE
-	def size(self, path=None):
-		p = self.merge(path)
+	#
+	#
+	def size(self, mergepath=None):
+		"""
+		Return the size of the file at this object's path.
+		
+		EXAMPLE:
+		>>> 
+		>>> from trix.fs import *
+		>>> p = Path( trix.innerfpath() )
+		
+		"""
+		p = self.merge(mergepath)
 		return ospath.getsize(p)
 	
+	
+	#
+	#
 	# STAT
-	def stat(self, path=None):
-		p = Path(self.merge(path))
+	#
+	#
+	def stat(self, mergepath=None):
+		p = Path(self.merge(mergepath))
 		if p.pathtype == 'l':
 			return os.lstat(p.path)
 		else:
 			return os.stat(p.path)
 	
+	
+	#
+	#
 	# EXISTS
-	def exists(self, path=None):
-		"""True if path exists."""
-		return ospath.exists(self.merge(path))
+	#
+	#
+	def exists(self, mergepath=None):
+		"""
+		Returns `True` if path exists.
+
+		Pass `mergepath` string to append string aditional path elements.
+		
+		Example:
+		>>> 
+		>>> from trix.fs import *
+		>>> p = Path( trix.innerfpath() )
+		>>> p.exists()
+		True
+		>>> p.exists("fs")
+		True
+		>>> 
+		
+		"""
+		return ospath.exists(self.merge(mergepath))
 			
+
+	#
+	#
 	# DIR
-	def dir(self, path=None):
+	#
+	#
+	def dir(self, mergepath=None):
 		"""
-		Return a dir.Dir object for this path. Pass path string to merge.
+		Return an `fs.dir.Dir` object for the given path. 
+
+		Pass `mergepath` string to append string aditional path elements.
+		
+		Example:
+		>>> 
+		>>> from trix.fs import *
+		>>> p = Path( trix.innerfpath() )
+		>>> p.dir("fs")
+		<trix.fs.dir.Dir '/home/nine/trix/fs' (d)>
+		>>> 
+		
 		"""
-		return trix.ncreate('fs.dir.Dir', self.merge(path))
+		return trix.ncreate('fs.dir.Dir', self.merge(mergepath))
 	
 	
 	#
@@ -272,6 +715,19 @@ class Path(object):
 		Returns a File-based object wrapping the fs object at this
 		path. The default for files whose mime type can't be matched 
 		here is fs.file.File.
+		
+		EXAMPLE 1:
+		>>> 
+		>>> from trix.fs import *
+		>>> x = Path( trix.innerfpath('README.md') ).wrapper()
+		>>> r = x.reader(encoding='utf-8')
+		>>> r.readline()
+		>>> r.readline()
+		>>> r.readline()
+		>>> r.read()
+		>>> 
+		
+		
 		"""
 		# MIME, VALIDATION
 		if self.isdir() or self.ismount():
@@ -310,7 +766,11 @@ class Path(object):
 		return trix.ncreate('fs.file.File', self.path, **k)
 	
 	
+	#
+	#
 	# READER
+	#
+	#
 	def reader(self, **k):
 		"""
 		Return a reader for this object's path based on the mime type of
@@ -398,7 +858,18 @@ class Path(object):
 		 * touch - create a file at the given path if none exists.
 		
 		To ignore all validation, pass affirm=None.
+		
 		"""
+		
+		if 'affirm' in k:
+			if k['affirm'] not in VALID_AFFIRM:
+				raise ValueError("invalid-expand-selector", xdata(
+					affirm  = k.get('affirm'),
+					message = "Invalid keyword argument.",
+					detail  = "`trix.fs.Path.expand`",
+					__doc__ = cls.expand.__doc__
+				))
+		
 		OP = ospath
 		if path in [None, '.']:
 			path = os.getcwd()
@@ -435,11 +906,32 @@ class Path(object):
 
 
 
+# -------------------------------------------------------------------
+#
 #
 # FILE BASE
 #
+#
+# -------------------------------------------------------------------
+
 class FileBase(Path, EncodingHelper):
-	"""Common methods fs.file.File and subclasses will need."""
+	"""
+	Common methods `fs.file.File` and subclasses will need.
+	
+	This object provides the most basic needs for the system of
+	subclasses that implement the opening of various types of files.
+	
+	FileBase can create, touch, move, rename, and remove files, and 
+	provides the bases of these actions to subclasses. Apart from a
+	utility "dir" method, that returns the directory in which a file
+	is contained, that's about the extent of it.
+	
+	However, being based on Path, all the Path class methods are 
+	available to FileBase and its subclasses. The only exception is
+	that the Path.setpath method is disabled, since use of the `setpath` 
+	method would corrupt the object's integrity.
+	
+	"""
 	
 	#
 	# INIT
@@ -490,7 +982,14 @@ class FileBase(Path, EncodingHelper):
 	# TOUCH - touch file without possibility of "merging" the path.
 	#
 	def touch(self, times=None):
-		"""Touch this file."""
+		"""
+		Touch the file at this path.
+		
+		Unlike the `Path.touch` method, which can touch files within a 
+		directory path, the FileBase `touch` method can touch only itself.
+		
+		
+		"""
 		with open(self.path, 'a'):
 			os.utime(self.path, times)  
 	

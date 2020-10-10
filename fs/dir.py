@@ -1,5 +1,5 @@
 #
-# Copyright 2018-2019 justworx
+# Copyright 2018-2020 justworx
 # This file is part of the trix project, distributed under the terms 
 # of the GNU Affero General Public License.
 #
@@ -13,8 +13,8 @@ class Dir(Path):
 	
 	def __init__(self, path=None, **k):
 		"""
-		Pass an optional file system path. Default is '.'. Kwargs apply 
-		as to Path.expand().
+		Pass an optional file system path. Default is '.' 
+		Kwargs apply as to Path.expand().
 		"""
 		p = k.get('dir', path)
 		if not 'affirm' in k:
@@ -55,7 +55,7 @@ class Dir(Path):
 		Returns proplist containing names of files in this directory.
 		
 		When called as though it were a method, this property returns
-		the list of items in this directory.
+		the list of names of items in this directory.
 		
 		```Dir().ls() # returns list of items in this directory```
 		
@@ -104,7 +104,9 @@ class Dir(Path):
 	
 	
 	#
+	#
 	# --- Navigation -------------------------------------------------
+	#
 	#
 	
 	def cd(self, path):
@@ -116,7 +118,9 @@ class Dir(Path):
 	
 	
 	#
+	#
 	# --- Directory Manipulation -------------------------------------
+	#
 	#
 	
 	def mkdir(self, path, *a):
@@ -151,7 +155,11 @@ class Dir(Path):
 				os.remove(px)
 	
 	
+	#
+	#
 	# Directory manipulation features - applied to self.
+	#
+	#
 	
 	def copy(self, dst, symlinks=False, ignore=None):
 		"""Use shutil.copytree to copy this directory."""

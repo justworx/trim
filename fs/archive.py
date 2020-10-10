@@ -1,5 +1,5 @@
 #
-# Copyright 2018 justworx
+# Copyright 2018-2020 justworx
 # This file is part of the trix project, distributed under the terms 
 # of the GNU Affero General Public License.
 #
@@ -12,6 +12,9 @@ from .bfile import * # trix, stream, enchelp
 class Archive(FileBase):
 	"""
 	Archive files that contain member files (Zip and Tar).
+	
+	The `trix.fs.archive.Archive` class is the base class for archive
+	file system objects tar and zip.
 	"""
 	
 	def __init__(self, path, **k):

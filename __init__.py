@@ -1944,7 +1944,11 @@ except:
 # -------------------------------------------------------------------
 
 class xdata(dict):
-	"""Package extensive exception data into a dict."""
+	"""
+	Package extensive exception data into a dict.
+	
+	Pass optional data and keyword arguments. A
+	"""
 
 	def __init__(self, data=None, **k):
 
@@ -1979,6 +1983,13 @@ class xdata(dict):
 # DEBUG HOOK
 #
 def debug_hook(t, v, tb):
+	"""
+	# ARGS:
+	t  = Type      - eg, <class 'Exception'>
+	v  = Value     - the arguments (probably packed into xdata)
+	tb = Traceback 
+	
+	"""
 	
 	with thread.allocate_lock():
 		
@@ -2042,6 +2053,7 @@ def debug_hook(t, v, tb):
 									print ("  ", a)
 						print ("]")
 				
+				
 				#
 				# TRACEBACK
 				#  - show traceback, if enabled
@@ -2058,7 +2070,7 @@ def debug_hook(t, v, tb):
 				print ("\n#\n# DEBUG HOOK FAILED!")
 				try:
 					xxtype, xxval = sys.exc_info()[:2]
-					print ("# - Debug Hook Err: %s %s\n#" % (xxtype, str(xxval)))
+					print ("# - Debug Hook Err: %s %s\n#"%(xxtype, str(xxval)))
 				except:
 					pass
 				

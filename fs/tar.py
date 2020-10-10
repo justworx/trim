@@ -51,7 +51,9 @@ class Tar(Archive):
 	
 	@property
 	def members(self):
-		"""Dict with member name : member file info."""
+		"""
+		Returns a dict with member name : member file info.
+		"""
 		rr = {}
 		with self.archopen('r|*') as f:
 			mm = f.getmembers()
@@ -61,7 +63,10 @@ class Tar(Archive):
 	
 	@property
 	def compression(self):
-		"""Return the compression string, 'gz', 'bz2', or ''"""
+		"""
+		Return the compression string, 'gz', 'bz2', or ''
+		
+		"""
 		#
 		# This weirdness is because the touch() method, which may be 
 		# called by Archive.__init__, needs to know the compression.

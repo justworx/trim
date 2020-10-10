@@ -14,7 +14,9 @@ from ....util.xiter import *
 if __name__ == '__main__':
 
 	
-	f = trix.path('data/unicode/UCD.zip').wrapper(member="LineBreak.txt", encoding="utf8")
+	f = trix.path('data/unicode/UCD.zip').wrapper(
+				member="LineBreak.txt", encoding="utf8"
+			)
 	r = f.reader(member="LineBreak.txt", encoding="utf_8")
 	
 	R = {}
