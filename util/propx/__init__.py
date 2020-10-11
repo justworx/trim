@@ -1,5 +1,5 @@
 #
-# Copyright 2019 justworx
+# Copyright 2019-2020 justworx
 # This file is part of the trix project, distributed under 
 # the terms of the GNU Affero General Public License.
 #
@@ -260,8 +260,8 @@ class propbase(object):
 		the propbase.compact() method).
 		
 		```
-		from trix import *
-		pc = propx.compact("Hello, World!")
+		from trix.util.propx import *
+		pc = propx("Hello, World!").compact()
 		propx(pc).expand().o.decode('utf8')
 		
 		```
