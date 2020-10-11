@@ -208,7 +208,7 @@ class trix(object):
 		
 		This methods exists mainly to support the `trix.nmodule` method,
 		described below, but could be of use in any project as a way to
-		“load on demand,” which may be especially useful in cases
+		"load on demand," which may be especially useful in cases
 		where such values as may be needed are only rarely needed.
 		
 		Additionally, the trix.module method might be of use in cases 
@@ -421,7 +421,8 @@ class trix(object):
 		
 		>>> sock = trix.create("socket.socket")
 		>>> sock
-		<socket.socket fd=3, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('0.0.0.0', 0)>
+		<socket.socket fd=3, family=AddressFamily.AF_INET, 
+		type=SocketKind.SOCK_STREAM, proto=0, laddr=('0.0.0.0', 0)>
 		>>>
 		
 		"""
@@ -496,7 +497,12 @@ class trix(object):
 		"""
 		a = a or []
 		k = k or {}
-		return cls.create(cls.innerpath(innerPath), *a, **k)
+		
+		try:
+			return cls.create(cls.innerpath(innerPath), *a, **k)
+		except Exception as ex:
+			raise type(ex)(xdata(innerPath=innerPath, a=a, k=k))
+			
 	
 	
 	
@@ -748,8 +754,6 @@ class trix(object):
 				cls.__shlex = cls.module('shlex')
 				cmd = cls.__shlex.split(cmd)
 			
-			#cmd = cmd.split()
-			
 			return m.Popen(cmd, *a, **k)
 	
 	
@@ -936,8 +940,11 @@ class trix(object):
 		>>> #
 		>>> # Get the result text:
 		>>> #
-		>>> ps.text() 
-		'  PID TTY          TIME CMD\n13766 pts/4    00:00:00 bash\n16203 pts/4    00:00:00 python3\n16205 pts/4    00:00:00 ps\n'
+		>>> print (ps.text()) 
+		  PID TTY          TIME CMD
+		3405 pts/2    00:00:00 bash
+		3413 pts/2    00:00:00 python3
+		3414 pts/2    00:00:00 ps
 		
 		MORE:
 		More documentation is available in the `callx` module.
@@ -976,6 +983,8 @@ class trix(object):
 		The `config` classmethod is the simplest of a set of methods that
 		make it easy to generate, retrieve, and store configuration data.
 		
+		# SIMPLE CONFIG
+		
 		If `config` is given as a dict, the dict is updated with any 
 		given keyword arguments and returned immediately.
 		
@@ -995,6 +1004,7 @@ class trix(object):
 		{'a': 1, 'b': 9, 'c': 4, 'd': 'Light'}
 		>>> 
 
+		# CONFIG FILE PATHS:
 		
 		If `config` is the path to a JSON or ast-parsable text file, the
 		file is parsed and the resulting structure is returned as a dict.
@@ -1010,7 +1020,7 @@ class trix(object):
 		{'A': 'Alpha', 'B': 'Bet'}
 		>>> 
 		>>> # 
-		>>> # NOTE:
+		>>> # IMPORTANT:
 		>>> #  - Keyword args are passed to the JConfig constructor.
 		>>> #    Pass only file-related keyword arguments when loading  
 		>>> #    config from a file.
@@ -1050,7 +1060,7 @@ class trix(object):
 	@classmethod
 	def nconfig(cls, config=None, **k):
 		"""
-		Read and return a config file or dict.
+		Read and return a config file from within the trix package.
 		
 		The `trix.nconfig` classmethod works the same as `trix.config`,
 		but file paths must be given as partial paths starting within the
@@ -1061,7 +1071,17 @@ class trix(object):
 		>>> # 
 		>>> import trix
 		>>> trix.nconfig("app/config/example.conf")
-		>>>
+		{'A': 'Alpha', 'B': 'Bet'}
+		>>> 
+		>>> # 
+		>>> # IMPORTANT:
+		>>> #  - Keyword args are passed to the JConfig constructor.
+		>>> #    Pass only file-related keyword arguments when loading  
+		>>> #    config from a file.
+		>>> #  - Inappropriate keyword arguments could cause invalid
+		>>> #    results, or damage to existing config files.
+		>>> # 
+		>>> 
 		
 		"""
 		if config == None:
@@ -1080,7 +1100,7 @@ class trix(object):
 	@classmethod
 	def jconfig(cls, filepath, **k):
 		"""
-		Pass string `filepath` to a JSON (or ast-parsable) config file.
+		Pass string `filepath` to a JSON or ast-parsable config file.
 		 
 		Optional `default` kwarg identifies file path containing default 
 		contents for a new config file in case no file exists at 
@@ -1097,15 +1117,38 @@ class trix(object):
 		   set to the same path as the `filepath` argument, or your
 		   original default file may be overwritten.
 		
-		EXAMPLE:
+		EXAMPLE 1:
 		>>>
+		>>> #
+		>>> # Load an existing config file.
+		>>> #
 		>>> import trix
-		>>> jc = trix.jconfig(trix.innerfpath("app/config/example.conf"))
+		>>> jc = trix.jconfig()
 		>>> print (jc.config)
 		{'A': 'Alpha', 'B': 'Bet'}
 		>>>
 		
+		EXAMPLE 2:
+		>>>
+		>>> #
+		>>> # Create a config file from an existing default config file.
+		>>> #
+		>>> import trix
+		>>> default_conf = trix.innerfpath("app/config/example.conf")
+		>>> jc = trix.jconfig("my.conf", default=default_conf)
+		>>> jc.display()
+		{
+		  "A": "Alpha",
+		  "B": "Bet"
+		}
+		>>>
+		 
 		"""
+		
+		#
+		# Handle specification of a default config file on which your
+		# new config file will be based.
+		#
 		default = k.get('default', cls.npath(k.get('ndefault')).path)
 		k['default'] = default
 		
@@ -1118,6 +1161,7 @@ class trix(object):
 					default=default, filepath=filepath, k=k
 				))
 		
+		# create the new file
 		m = cls.nmodule("util.jconfig")
 		return m.JConfig(filepath, **k)
 	
@@ -1132,6 +1176,10 @@ class trix(object):
 		"""
 		Parse json to object.
 		
+		EXAMPLE:
+		>>>
+		>>> Parse some JSON test to a python object.
+		>>>
 		>>> import trix
 		>>> trix.jparse('{"a": 1, "b": 9, "c": 4}')
 		{'a': 1, 'b': 9, 'c': 4}
@@ -1349,13 +1397,13 @@ class trix(object):
 		>>>
 		
 		The examples here barely scratch the surface of all the propx
-		module can do.
+		package can do.
 		
 		SEE ALSO:
 		More documentation is available in the `propx` objects. It's 
 		currently sparse, but (we should hope) will be improved overtime.
 		>>>
-		>>> from trix.util.propx import *
+		>>> from trix.util.propx._propall import *
 		>>> help(propbase)
 		>>> help(propiter)
 		>>> help(propseq)
@@ -1376,7 +1424,7 @@ class trix(object):
 	@classmethod
 	def scan(cls, *a, **k):
 		"""
-		Returns a scanner created with given args/kwargs.
+		Returns a scanner to parse given text data.
 		
 		The `trix.scan` classmethod calls on the `trix.data.scan` module
 		to help with the parsing of text data.
@@ -1955,7 +2003,9 @@ class xdata(dict):
 		# argument management
 		data = data or {}
 		data.update(k)
-
+		
+		self['python-version'] = sys.version
+		
 		# create and populate the return dict
 		self['xdata'] = data
 		self.setdefault('xtime', time.time())
