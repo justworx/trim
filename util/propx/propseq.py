@@ -28,6 +28,7 @@ class propseq(propiter):
 	def __getitem__(self, key):
 		return type(self)(self.o[key])
 	
+	
 	def __setitem__(self, key, v):
 		self.o[key] = v
 	
@@ -53,6 +54,10 @@ class propseq(propiter):
 	
 	@property
 	def proplist(self):
+		"""
+		Return this object's sequence, self.o, as a list wrapped inside
+		a `proplist` object.
+		"""
 		return trix.ncreate("util.propx.proplist.proplist", list(self.o))
 	
 	@property
@@ -64,5 +69,6 @@ class propseq(propiter):
 					error='err-grid-fail', reason="not-a-grid",
 					english="Grid rows must be of equal length."
 				))
-		return trix.ncreate('util.propx.proplist.propgrid', self.o)
+		
+		return trix.ncreate('util.propx.proplist.propgrid', list(self.o))
 

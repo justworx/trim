@@ -1,7 +1,8 @@
 
 
-# NEW EXPERIMENTAL DEV
-tx.py
+# TEST PACKAGE IS BROKEN!
+test
+test/
 
 
 # these shouldn't be posted with the project
@@ -23,6 +24,7 @@ bu/
 #
 # _ directory is ignored, too - I put doc, examples, and such in them
 #
+_
 _/
 
 

@@ -270,7 +270,17 @@ class propbase(object):
 	
 	
 	#
-	# CAST - Experimental
+	#
+	#
+	#
+  # Experimental
+	#
+	#
+	#
+	#
+	
+	#
+	# CAST
 	#
 	def cast(self, T):
 		"""
@@ -278,6 +288,55 @@ class propbase(object):
 		This would typically be used to cast an iterator as a list.
 		"""
 		return propx(T(self.o))
+	
+	
+	#
+	# OUTPUT - Print Contents
+	#
+	def output(self):
+		"""
+		The `output` method prints the object's contents, `self.o`.
+		"""
+		print (self.o)
+	
+	
+	#
+	# SPLITLINES - Bytes or Strings
+	#
+	def splitlines(self, *a, **k):
+		"""
+		Alter this propx-based object's contents by splitting bytes or
+		strings.
+		
+		Applies only to bytes/text values. (I guess.)
+		
+		"""
+		try:
+			self.o = self.o.splitlines(**k)
+		except:
+			self.o = self.o.splitlines(self.o, **k)
+	
+	
+	#
+	# Maybe gather all the conversions here
+	#
+	
+	def propdict(self):
+		return propdict(self.o)
+	
+	def propiter(self):
+		return propiter(self.o)
+	
+	def proplist(self):
+		return proplist(self.o)
+	
+	def propseq(self):
+		return propseq(self.o)
+	
+	def propstr(self):
+		return propstr(self.o)
+	
+	
 
 
 
@@ -286,12 +345,16 @@ class propbase(object):
 
 
 
-
+#
+#
+#
 #
 #
 # CONVENIENCE
 #  - Easy access to subclasses defined in other modules within
 #    this package.
+#
+#
 #
 #
 
@@ -310,76 +373,33 @@ def propx(o, *a, **k):
 		if o.values and o.keys:
 			return trix.ncreate("util.propx.propdict.propdict", o, *a, **k)
 	except AttributeError as ex:
-		#print(1, ex)
 		pass
 		
 	try:
 		o.encode
 		return trix.ncreate("util.propx.propstr.propstr", o, *a, **k)
 	except AttributeError as ex:
-		#print(2, ex)
 		pass
 	
 	try:
 		o.__setitem__
 		return trix.ncreate("util.propx.proplist.proplist", o, *a, **k)
 	except AttributeError as ex:
-		#print(3, ex)
 		pass
 	
 	try:
 		o.__getitem__
 		return trix.ncreate("util.propx.propseq.propseq", o, *a, **k)
 	except AttributeError as ex:
-		#print(4, ex)
 		pass
 	
 	try:
 		if o.__iter__ or (type(o).__name__ == 'generator'):
 			return trix.ncreate("util.propx.propiter.propiter", iter(o),*a,**k)
 	except AttributeError as ex:
-		#print(5, ex)
 		pass
 	
 	
 	# anything else...
 	return propbase(o, *a, **k)
-	
-	
-	
-	"""
-	#
-	# COMPARE/TEST THIS, BUT....
-	#
-	# The propx function will propably be called A LOT, so we *MIGHT* 
-	# need to figure out a way to do avoid the more expensive ncreate
-	# way of creating them. Can't import from the modules that import
-	# this module, so maybe something like this:
-	#	
-	@classmethod
-	def propx(cls, o, *a, **k):
-		try:
-			if o.values and o.keys:
-				try:
-					return cls.__pdict( o, *a, **k)
-				except AttributeError:
-					cls.__pdict = trix.nvalue('util.propx.propdict', "propdict')
-					return cls.__pdict( o, *a, **k)
-		except:
-			pass
-		
-		# ... and like this (above) for the other possibile classes...
-		
-		
-		# ...and finally, anything else...
-		return propbase(o, *a, **k)
-	
-	
-	#
-	# I've been doing a lot of this sort of thing, but I've never
-	# really checked to see whether there's any kind of performance
-	# boost... :-/
-	#
-	
-	"""
 

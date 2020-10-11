@@ -89,10 +89,48 @@ class proplist(propseq):
 		It is exactly: `return self.extend(additems).unique()`
 		"""
 		return propx(self.extend(additems)).unique()
+	
+	
+	def each(self, x, *a, **k):
+		"""
+		Alter each item given callable `x` and arguments.
+		
+		Perform callable `x` on each item in the list, applying arguments
+		`*a` and keyword arugments `**k`.
+		
+		Returns a new proplist containing altered items.
 		
 		
+		EXAMPLE:
+		#
+		# Decode encoded list items
+		#
+		from trix.util.propx._propall import *
+		tp = trix.popen("ps").communicate()
+		propx(tp).proplist.each(bytes.decode, encoding='utf8').o
+		
+		"""
+		L = []
+		for item in self.o:
+			L.append( x(item, *a, **k) )
+			
+		return proplist(L)
+
+"""
 
 
+
+
+"""
+
+
+# -------------------------------------------------------------------
+#
+#
+# PROP GRID
+#
+#
+# -------------------------------------------------------------------
 
 class propgrid(proplist):
 	"""
