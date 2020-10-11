@@ -207,7 +207,7 @@ class trix(object):
 		be external to the trix package.
 		
 		This methods exists mainly to support the `trix.nmodule` method,
-		described below, but could be of use in any project as a way to
+		defined below, but could be of use in any project as a way to
 		"load on demand," which may be especially useful in cases
 		where such values as may be needed are only rarely needed.
 		
