@@ -135,9 +135,11 @@ class proplist(propseq):
 		#
 		# Decode encoded list items
 		#
-		from trix.util.propx._propall import *
-		tp = trix.popen("ps").communicate()
-		propx(tp).proplist.each(bytes.decode, encoding='utf8').o
+		>>>
+		>>> from trix.util.propx._propall import *
+		>>> tp = trix.popen("ps").communicate()
+		>>> propx(tp).proplist.each(bytes.decode, encoding='utf8').o
+		>>>
 		
 		"""
 		L = []
