@@ -66,6 +66,12 @@ d.list.grid()         # call as a property to access display methods
 
 
 
+d.list.grid()
+
+```
+
+
+
 The root of sequence items is	`propiter`, which provides most of the
 functionality for manipulation of lists.
 
