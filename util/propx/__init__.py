@@ -318,24 +318,28 @@ class propbase(object):
 	
 	
 	#
-	# Maybe gather all the conversions here
+	# Maybe gather all the conversions here...? No, guess not.
 	#
 	
+	# this one seems to work
+	def propstr(self):
+		return trix.ncreate("util.propx.propstr.propstr", str(self.o))
+	
+	# The rest will probably have to be specifically defined in the
+	# appropriate classes.
+	"""
 	def propdict(self):
-		return propdict(self.o)
+		return trix.ncreate("util.propx.propdict.propdict", self.o)
 	
 	def propiter(self):
-		return propiter(self.o)
+		return trix.ncreate("util.propx.propiter.propiter", self.o)
 	
 	def proplist(self):
-		return proplist(self.o)
+		return trix.ncreate("util.propx.proplist.proplist", list(self.o))
 	
 	def propseq(self):
-		return propseq(self.o)
-	
-	def propstr(self):
-		return propstr(self.o)
-	
+		return trix.ncreate("util.propx.propseq.propseq", (self.o))
+	"""
 	
 
 
