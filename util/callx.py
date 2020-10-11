@@ -1,15 +1,18 @@
 #
-# Copyright 2018-2019 justworx
+# Copyright 2018-2020 justworx
 # This file is part of the trix project, distributed under
 # the terms of the GNU Affero General Public License.
 #
+
 
 from .. import *
 import shlex
 
 
 class callx(object):
-	"""Creates and handles Popen calls."""
+	"""
+	Creates and handles Popen calls.
+	"""
 	
 	@classmethod
 	def cline(cls, cmd, **k):
@@ -29,13 +32,52 @@ class callx(object):
 	
 	
 	
-	
 	def __init__(self, cmd=None, **k):
 		"""
+		Makes a system call and returns the response.
+		
 		Pass argument `cmd`, which may be one of the following:
 		 * a string containing a command line, to be split with shlex
 		 * a list containing the exact arguments to pass to popen
+		
+		ALTERNATELY:
+		Pass a keyword argument specifying a cline command.
+		
+		
+		# Example 1 - Call a system command.
+		The following line of code creates a callx object to gather text
+		describing currently running processes.
+		
+		>>>
+		>>> from trix.util.callx import *
+		>>>
+		>>> callx('ps').text.display()
+		"  PID TTY          TIME CMD\n 3405 pts/2    00:00:00 bash\n 4094 pts/2    00:00:00 python3\n 4134 pts/2    00:00:00 ps\n"
+		>>>
+		>>> trix.callx('ps').list()
+		
+		
+		
+		
+		
+		>>>
+		>>> # Example 2 - Call a command line handler (cline).
+		>>>
+		>>> from trix.util.callx import *
+		>>> 
+		
+		>>>
+		>>> # Example 2 - Call a command line handler (cline).
+		>>>
+		>>> from trix.util.callx import *
+		>>> 
+		
+		
+		
 		"""
+		
+		#print ("CMD: %s" % cmd)
+		#print ("KRG: %s" % k)
 		
 		# pop kwargs meant for reader
 		self.__rk = trix.kpop(k, "encoding errors mode max_size")
@@ -71,7 +113,11 @@ class callx(object):
 		try:
 			self.__a = args
 		except Exception as ex:
-			raise type(ex)(xdata(error="cline-args-required"))
+			raise type(ex)(xdata(
+					error="cline-args-required",
+					en="Command line argument or a cline keyword argument required."
+				)
+			)
 				
 			
 			
