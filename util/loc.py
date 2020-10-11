@@ -4,12 +4,15 @@
 # the terms of the GNU Affero General Public License.
 #
 
+
 from .. import *
 import locale
 
 
 class BaseLocale(object):
-	"""Base for SysLoc subclass and, potentially, future variants."""
+	"""
+	Base for SysLoc subclass and, potentially, future variants.
+	"""
 	
 	def __init__(self, loc_data):
 		"""
@@ -44,6 +47,11 @@ class BaseLocale(object):
 
 
 class Locale(BaseLocale):
+	"""
+	The `Locale` class provides access to data from multiple locale 
+	files by generating data for any given locale in a separate process.
+	
+	"""
 	
 	AssetPath = '%s/assets/locale_json.tar.gz' % DEF_CACHE
 	
