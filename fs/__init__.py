@@ -84,8 +84,8 @@ class Path(object):
 				self.sep = self.sep.encode()
 			else:
 				self.sep = self.sep.decode()
-			self.__n = ospath.normpath(self.__p).split(self.sep)[-1]
-	
+				self.__n = ospath.normpath(self.__p).split(self.sep)[-1]
+		
 	
 	#
 	#
@@ -95,8 +95,7 @@ class Path(object):
 	#
 	def __call__(self, mergepath=None, **k):
 		"""
-		Shortcut for creating new Path and Dir objects based on the 
-		path of this object.
+		A shortcut for creating new Path and Dir objects.
 		
 		When you call the Path object as a function a new Path or Dir
 		object will be returned based on the type of file system object
@@ -136,7 +135,6 @@ class Path(object):
 		EXAMPLE:
 		>>>
 		>>> from trix.fs import *
-		>>> trixpath = trix.innerfpath()
 		>>>
 		>>> p('data').ls()
 		['__init__.py', 'database.py', 'cursor.py', 'param.py', 'udata', 'pdq.py', 'dbgrid.py', 'param.md', 'scan.py']
