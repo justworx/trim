@@ -148,6 +148,10 @@ class Scanner(object):
 		Collect each character that matches the criteria of `fn`. The 
 		pointer is left directly after the last matching character.
 		
+		EXAMPLE:
+		>>>
+		>>> from trix.data.scan import *
+		>>>
 		>>> s = Scanner("Abc 123")
 		>>> s.char                          # 'A'
 		>>> s.collect(lambda ci: ci.alpha)  # 'Abc'
