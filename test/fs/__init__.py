@@ -9,7 +9,7 @@ from ...fs import *
 
 # clear the directory
 for f in trix.path(TEST_DIR, affirm="makedirs").search():
-	trix.path(f).wrapper().remove()
+	trix.path(f).wrapper(encoding=DEF_ENCODE).remove()
 
 
 # TXT
