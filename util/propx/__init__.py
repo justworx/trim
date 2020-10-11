@@ -8,8 +8,99 @@ from ... import *
 
 class propbase(object):
 	"""
-	Wraps objects with a set of methods convenitent for manipulation,
-	query, display, and compression.
+	Wraps objects with a set of methods convenitent for query, 
+	display, and manipulation.
+	
+	The trix package can be of great use and, once you learn the 
+	concepts, the propx package classes make working in code or in
+	the terminal easy and fun.
+	
+	The `trix.util.propx` package defines a small set of classes that
+	push results forward through dot notation and method calls. This
+	allows a fun and intuitive way to gather, manipulate, and display
+	data.
+	
+	
+	# PROPX CLASS HIERARCHY
+	All propx classes descend from propbase. The propiter class is the
+	base for propdict, propseq, propstr, and proplist. The propgrid
+	class is based on proplist.
+	
+    * propbase
+    * |_ propiter
+    *    |_propdict
+    *    |_propseq
+    *    |_propstr
+    *    |_proplist
+    *      |_propgrid
+	
+	
+	To illustrate how propx objects work, let's take a look at a very
+	simple example. The `trix.fs.Path` and its descendants make use of
+	propx objects to (among other things) display directory listings.
+	
+	EXAMPLES: Directory Listing
+	>>>
+	>>> import trix
+	>>> 
+	>>> # sure this is fun...
+	>>> trix.path('trix/util/propx').ls() 
+	>>> 
+	>>> # ...but isn't this nicer?
+	>>> trix.path('trix/util/propx').ls.display()
+	>>> 
+	>>> # ...or this?
+	>>> trix.path('trix/util/propx').list.grid()
+	
+	
+	# EXPLANATION:
+	So what is happening here?
+	
+	In the example above, the call to trix.path returns an `fs.Path` 
+	object, (or an `fs.Dir` object, which is based on `fs.Path`). Many 
+	of the properties of these methods return a propx object.
+	
+	When we call `trix.path('trix/util/propx').ls` property, a proplist
+	object encapsulating the directory listing is returned. The default 
+	behavior for calling a propx object as a function is to return the
+	actual value held by the object. That is, the object's .o method: 
+	the object `o` contained by the propx object. Therefore, calling
+	`trix.path('trix/util/propx').ls()` returns a list containing the
+	names of the items in the list (as provided to the proplist object's
+	constructor.
+	
+	However, the __call__ method is only one of many methods available
+	in `proplist.` The `proplist` class is based on propseq, which is
+	based on propiter, and propbase, so a plethora of manipulation and
+	display options are available here.
+	
+	  * propbase
+    * |_propiter
+    *   |_proplist
+	
+	In the "Directory Listing" examples, above, you will notice the 
+	following calls:
+	
+	>>> trix.path('trix/util/propx').ls()          # ex 1
+	>>> trix.path('trix/util/propx').ls.display()  # ex 2
+	>>> trix.path('trix/util/propx').list.grid()   # ex 3
+	
+	In the first call, the `trix.path` method returns the default
+	value from the proplist's __call__ method: A simple list of the
+	names of files within the directory.
+	
+	The second example produces a proplist object, too, but instead of
+	the retrieving the result of the `__call__()` method, the returned
+	proplist object's display() method is called, printing a JSON 
+	representation of the list of directory item names.
+	
+	In the third example, instead of calling `ls` for a simple list,
+	the `list` method is called, producing a full directory listing with
+	name, type, size, uid, gid, atime, mtime, and ctime.
+	
+	The `proplist` subclass, `propgrid`, is used to print the entire
+	listing to the terminal.
+	
 	"""
 	
 	#
@@ -36,10 +127,53 @@ class propbase(object):
 		"""
 		Pass object `o`, a value, or a callable that returns a value.
 		
+		There are two ways to create propx object:
+		 * Pass value, object, or callable `o`, plus args/kwargs needed 
+		   for the callable.
+		 * Pass an instance of the object the callable would have created.
+		
 		In the case `o` is a callable, pass also any args/kwargs required
 		to execute that callable. When `self.o` is first accessed, the
 		value will be calculated and stored as self.o (even if it's the
 		first calling of property `self.o`).
+		
+		
+		CALLING
+		
+		Until the final closing parentheses are added to an	expression, 
+		dot-notation values continue producing propx objects.
+		
+		In the examples below, `trix.path()` produces an fs.Dir object 
+		that manages, manipulates, and generally deals with directories.
+		The `fs.Dir` class features several properties that produce propx
+		object as results.
+		
+		The result returned by `trix.fs.path()` is a propx 
+		object, which provides properties and methods related to file
+		system paths.
+		
+		```
+		#
+		# trix.path() returns a propx object
+		#
+		>>> import trix
+		>>> trix.path()
+		>>> <trix.fs.dir.Dir '/home/nine' (d)>
+		
+		
+		
+		#
+		# ls() returns a list for programatic
+		#
+		trix.path().ls()
+		
+		#
+		# ls.table lets you take a peek at the data before using it
+		#
+		trix.path().ls.table(width=3)
+		
+		```
+		
 		"""
 		self.__p = o
 		self.__a = a
@@ -57,7 +191,7 @@ class propbase(object):
 		On first call, sets the value for the `self.o` property. On
 		subsequent calls, returns that value.
 		
-		The value of `self.o` is, on the first call to this method,
+		The value of `self.o`, on the first call to this method, is
 		undefined. If this object has been constructed given a callable
 		as the first argument, it will be calculated here (given any
 		additional constructor args/kwargs) and stored as a private
@@ -399,7 +533,9 @@ def propx(o, *a, **k):
 	
 	try:
 		if o.__iter__ or (type(o).__name__ == 'generator'):
-			return trix.ncreate("util.propx.propiter.propiter", iter(o),*a,**k)
+			return trix.ncreate(
+					"util.propx.propiter.propiter", iter(o), *a ,**k
+				)
 	except AttributeError as ex:
 		pass
 	
