@@ -66,11 +66,36 @@ class proplist(propseq):
 		 * '=' : objects contained by self.o and other
 		 * '-' : objects contained by other, but not self.o 
 		
+		EXAMPLE:
+		#
+		# Compare list [1,2,3] against list [2,3,4]
+		#
+		>>> from trix.util.propx import *
+		>>> propx([1,2,3]).compare([2,3,4]).o
+		{'-': [4], '+': [1], '=': [2, 3]}
+		>>>
+		
+		In the example, above, the original list [1,2,3] was compared
+		to comparison list [2,3,4].
+		
+		Key values show results as follows:
+		 * The minus sign (-) shows items not found in the original list,
+		   but found in the comparison list.
+		 * The plus sign (+) shows items found in the original list but 
+		   not in the comparison list.
+		 * The equal sign (=) shows items found in both lists.
+		
+		The results of comparison are:
+		 - 4 was missing from the original list, [1,2,3]
+		 + 1 was found in the original list [1,2,3] but not in the 
+		   comparison list.
+		 = 2 and 3 were found in both lists
+		
 		"""
 		d = {'-':[], '+':[], "=":[]}
 		for o in self.o:
 			if o in other_list:
-				d["="].append(o)   # items in both list
+				d["="].append(o)   # items in both lists
 			else:
 				d["+"].append(o)   # items in self.o but not other_list
 		
@@ -84,9 +109,15 @@ class proplist(propseq):
 	def merge(self, additems):
 		"""
 		Return a proplist containing a unique set of items from this list
-		and the given list `additems`. 
+		and the given `additems` list. 
 		
 		It is exactly: `return self.extend(additems).unique()`
+		
+		EXAMPLE:
+		>>> px = propx([1,2,3]).merge([3,4,5])
+		[1, 2, 3, 4, 5]
+		>>>
+		
 		"""
 		return propx(self.extend(additems)).unique()
 	
@@ -99,7 +130,6 @@ class proplist(propseq):
 		`*a` and keyword arugments `**k`.
 		
 		Returns a new proplist containing altered items.
-		
 		
 		EXAMPLE:
 		#
@@ -116,12 +146,8 @@ class proplist(propseq):
 			
 		return proplist(L)
 
-"""
 
 
-
-
-"""
 
 
 # -------------------------------------------------------------------
@@ -206,7 +232,9 @@ class propgrid(proplist):
 	
 	@property
 	def h(self):
-		"""Short alias. Returns the value of the header row."""
+		"""
+		Short alias. Returns the value of the header row.
+		"""
 		try:
 			return self.__h
 		except:
@@ -247,7 +275,10 @@ class propgrid(proplist):
 		try:
 			yield(self.__h)
 		except AttributeError:
-			#self.__call__()
+			#
+			# Calling self.o will generate the table if it has not already
+			# been created.
+			#
 			self.o
 			yield(self.__h)
 		
@@ -262,6 +293,7 @@ class propgrid(proplist):
 		
 		Overrides `proplist.grid` to expose the header, which propgrid
 		separates from the data for easier data-manipulation.
+		
 		"""
 		
 		k['f'] = 'Grid'
@@ -283,9 +315,10 @@ class propgrid(proplist):
 		keyword) will be created in the resulting `DBGrid` object.
 		
 		NOTE: 
-		Calling this method will fail if `self.o` (or any suplimentary
-		tables defined by the passage of keyword arguments) is not a list
-		of lists each containing an equal number of items. 
+		This method will fail if `self.o` (or any suplimentary tables
+		defined by the passage of keyword arguments) is not a list
+		of lists each containing an equal number of items.
+		
 		"""
 		g = trix.ncreate('data.dbgrid.DBGrid', **k)
 		g.add(tableName, self.o, self.h)
