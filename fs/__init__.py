@@ -137,7 +137,8 @@ class Path(object):
 		>>> from trix.fs import *
 		>>>
 		>>> p('data').ls()
-		['__init__.py', 'database.py', 'cursor.py', 'param.py', 'udata', 'pdq.py', 'dbgrid.py', 'param.md', 'scan.py']
+		['__init__.py', 'database.py', 'cursor.py', 'param.py', 'udata',   
+		 'pdq.py','dbgrid.py', 'param.md', 'scan.py']
 		>>> 
 
 		"""
@@ -147,7 +148,6 @@ class Path(object):
 			
 			# Get the new object's path.
 			mpath = self.merge(mergepath)
-			#print ("MPATH:"+mpath)
 			
 			# If the target file system object is a directory, wrap it in a
 			# Dir object and return it.
@@ -193,6 +193,19 @@ class Path(object):
 	#
 	def __getitem__(self, i):
 		"""
+		Return the path to an item from a directory by its integer index.
+		
+		The purpose of this method is to facilitate the iteration through 
+		path elements in a full file path.
+		
+		EXAMPLE:
+		>>> from trix.fs import *
+		>>> p = Path( trix.innerfpath() )
+		>>>
+		>>> p[0] # on linux, the zero path element is always ''
+		''
+		>>> p[1]
+		'home'
 		
 		"""
 		return self.path.split(self.sep)[i]
@@ -208,7 +221,7 @@ class Path(object):
 		Returns a representation string specifying:
 		 * full class path
 		 * full file path
-		 * file system object type abbreviated:
+		 * file system object's type, abbreviated:
 		     f = file
 		     d = directory
 		     l = link
@@ -249,7 +262,7 @@ class Path(object):
 	#
 	#
 	def __unicode__(self):
-		"""The path as a unicode string (python 2 support)"""
+		"""The path as a unicode string (for python 2 support)."""
 		return unicode(self.path)
 	
 	
@@ -482,10 +495,10 @@ class Path(object):
 		>>> from trix.fs import *
 		>>> p = Path( trix.innerfpath('net/server.py') )
 		>>> p.merge( "../connect.py" )
-		'/home/YOU/trix/net/connect.py'
+		'/home/<USER>/trix/net/connect.py'
 		>>>
 		>>> p.merge( ".." )
-		'/home/YOU/trix/net'
+		'/home/<USER>/trix/net'
 
 		"""
 		if not path:
@@ -635,7 +648,7 @@ class Path(object):
 		EXAMPLE:
 		>>> 
 		>>> from trix.fs import *
-		>>> p = Path( trix.innerfpath() )
+		>>> p = Path( trix.innerfpath("README.md") )
 		
 		"""
 		p = self.merge(mergepath)
@@ -648,11 +661,62 @@ class Path(object):
 	#
 	#
 	def stat(self, mergepath=None):
-		p = Path(self.merge(mergepath))
-		if p.pathtype == 'l':
-			return os.lstat(p.path)
+		"""
+		Return file stat in a proplist.
+		
+		EXAMPLE:
+		>>>
+		>>> from trix.fs import *
+		>>> p = Path( trix.innerfpath("README.md") )
+		>>> p.stat()
+		>>>
+		
+		"""
+		merged_path = self.merge(mergepath)
+		try:
+			if self.pathtype == 'l':
+				st = os.lstat(merged_path)
+			else:
+				st = os.stat(merged_path)
+				
+		except FileNotFoundError:
+			raise FileNotFoundError(xdata(
+					err="file-not-found", path=mergepath
+				))
+		
+		# return status
+		return st
+	
+	
+	#
+	#
+	# STAT DICT
+	#
+	#
+	@property
+	def statd(self):
+		"""
+		Return a propdict containing stats.
+		"""
+		
+		if self.pathtype == 'l':
+			x = trix.propx.proplist(os.lstat(self.p))
 		else:
-			return os.stat(p.path)
+			x = os.stat()
+		
+		return trix.ncreate("util.propx.propdict.propdict", dict(
+				st_mode  = x.st_mode,
+				st_ino   = x.st_ino,
+				st_dev   = x.st_dev,
+				st_uid   = x.st_uid,
+				st_gid   = x.st_gid,
+				st_size  = x.st_size,
+				st_atime = x.st_atime,
+				st_mtime = x.st_mtime,
+				st_ctime = x.st_ctime,
+				pathtype = self.pathtype
+			)
+		)
 	
 	
 	#
