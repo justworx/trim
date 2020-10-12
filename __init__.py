@@ -622,9 +622,9 @@ class trix(object):
 		>>> #
 		>>> # Create a reader and read a line.
 		>>> #
-		>>> r = trix.npath("app/config/app.conf").reader(encoding='utf8')
+		>>> r = trix.npath("LICENSE").reader(encoding='utf8')
 		>>> r.readline()
-		'#\n'
+		'                    GNU AFFERO GENERAL PUBLIC LICENSE\n'
 		>>> 
 		
 		"""
@@ -780,7 +780,8 @@ class trix(object):
 		calling process (the terminal or python script from which the 
 		remote process is being launched).
 		
-		Store the return value so that you may control the remote process and receive any data which may result of its operation.
+		Store the return value so that you may control the remote process
+		and receive any data which may result of its operation.
 		
 				>>> p = trix.process("trix.net.server.Server", 9999)
 		
@@ -1658,6 +1659,11 @@ class trix(object):
 					cls.__log(*a, **k)
 	
 	
+	
+	
+	
+	# ---- unsorted classmethods --------------------------------------
+	
 	#
 	#
 	# TRIX-C
@@ -1678,10 +1684,6 @@ class trix(object):
 		"""
 		return cls
 	
-	
-	
-	
-	# ---- unsorted classmethods --------------------------------------
 	
 	#
 	#
@@ -1707,6 +1709,23 @@ class trix(object):
 		trix.signals().add(SIGINT, lambda i,sf: on_interrupt(i,sf))
 			
 		```
+		
+		EXAMPLE
+		>>>
+		>>> import trix
+		>>>
+		>>> #
+		>>> # Create signal handler
+		>>> #
+		>>> def on_interrupt(signum, stackframe):
+		>>> 	print ("Signal %i!" % signum)
+		>>>
+		>>> #
+		>>> # Add signal handler
+		>>> #
+		>>> SIGINT = 2
+		>>> trix.signals().add(SIGINT, lambda i,sf: on_interrupt(i,sf))
+		>>>
 		
 		See `trix.util.signals` for more information.
 		
