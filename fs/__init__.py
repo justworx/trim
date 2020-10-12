@@ -471,10 +471,23 @@ class Path(object):
 		that older systems can still make use of the method.
 
 		"""
-		p = self.merge(path)
 		try:
-			with self.wrapper(p) as w:
-				w.touch(times)
+			p = self.merge(mergepath)
+		except Exception as ex:
+			raise type(ex)('touch-fail', xdata(
+					p         = p,         # same as mergepath
+					path      = self.path, 
+					mergepath = mergepath, Tmergepath = type(mergepath),
+					times     = times,     Ttimes     = type(times)
+				))
+		
+		try:
+			if times:
+				with self.wrapper(p) as w:
+					w.touch(times)
+			else:
+				w.touch()
+				
 		except:
 			with open(p, 'a'):
 				os.utime(p, times)
@@ -503,9 +516,11 @@ class Path(object):
 		"""
 		if not path:
 			return self.path
+		
 		p = ospath.expanduser(path)
 		if ospath.isabs(p):
 			return ospath.normpath(p)
+		
 		else:
 			p = ospath.join(self.path, p)
 			return ospath.abspath(ospath.normpath(p))
@@ -789,8 +804,8 @@ class Path(object):
 		>>> r.read()
 		>>> 
 		
-		
 		"""
+		
 		# MIME, VALIDATION
 		if self.isdir() or self.ismount():
 			raise Exception('open-fail', xdata(
@@ -835,7 +850,9 @@ class Path(object):
 	#
 	def reader(self, **k):
 		"""
-		Return a reader for this object's path based on the mime type of
+		Return an object of class `trix.util.stream.reader.Reader`.
+		
+		Return a Reader for this object's path based on the mime type of
 		the file there. If this Path object points to a tar or zip file,
 		a member keyword must specify the member to read. In such cases,
 		the returned Reader object will be suitable to the mime type of
@@ -1060,6 +1077,7 @@ class FileBase(Path, EncodingHelper):
 	# COPY
 	#
 	def copy(self, dest, **k):
+		"""Copy this file to string path `dest`."""
 		src = self.path
 		dst = self.dir().merge(dest)
 		try:
