@@ -33,6 +33,17 @@ class Dir(Path):
 		Dir objects can act as lists of the full path to the items inside
 		the directory to which they point; Dir()[0] returns the full path
 		to the first item in its directory listing.
+		
+		EXAMPLE:
+		>>> from trix.fs.dir import *
+		>>> d = Dir( trix.innerfpath() )
+		>>> d[0]
+		'/home/nine/trix/util'
+		>>>
+		
+		The purpose of this method is to facilitate the iteration through 
+		file system objects within the current directory.
+		
 		"""
 		return self.merge(self.ls()[key])
 	
