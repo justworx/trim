@@ -7,9 +7,30 @@
 from .. import *
 from ...fs import *
 
-# clear the directory
-for f in trix.path(TEST_DIR, affirm="makedirs").search():
+
+#
+# Get the Path to the TEST_DIR directory
+#
+p = trix.path(TEST_DIR, affirm="makedirs")
+
+#
+# Next, get a list of the files in TEST_DIR.
+# This line puts the list of files into `pso`.
+#
+pso = p.search().o[0].get('files', [])
+
+#
+# Now loop through the files, removing each.
+#
+for f in pso:
 	trix.path(f).wrapper(encoding=DEF_ENCODE).remove()
+
+#
+# The above for-loop should have cleared the TEST_DIR
+# directory of all files.
+#
+
+
 
 
 # TXT

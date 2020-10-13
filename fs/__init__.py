@@ -77,6 +77,8 @@ class Path(object):
 		"""
 		self.sep = os.sep
 		self.__p = self.expand(k.get('path', path or '.'), **k)
+		
+		
 		try:
 			self.__n = ospath.normpath(self.__p).split(self.sep)[-1]
 		except TypeError:
@@ -446,11 +448,11 @@ class Path(object):
 		>>> p.touch(h_minus_24, h_minus_24)
 		>>>
 		
-		If a "mergepath" keyword argument is specified, it will be merged  
-		with this Path object's current path. This allows Path objects 
-		that contain a directory to be called multiple times for the 
-		purpose of altering some or all files within the directory to the 
-		same `utime` values.
+		If a "mergepath" keyword argument is specified, it will be 
+		merged with this Path object's current path. This allows Path 
+		objects that contain a directory to be called multiple times 
+		for the purpose of altering some or all files within the 
+		directory to the same `utime` values.
 		
 		>>> 
 		>>> from trix.fs import *
