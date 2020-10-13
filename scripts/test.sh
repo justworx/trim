@@ -1,4 +1,7 @@
 
+# python  -m trix test
+
+
 cd ..
 
 echo " "
