@@ -11,14 +11,67 @@ from .bfile import * # trix, stream, enchelp
 
 class Archive(FileBase):
 	"""
-	Archive files that contain member files (Zip and Tar).
+	The base class Zip and Tar files.
 	
 	The `trix.fs.archive.Archive` class is the base class for archive
-	file system objects tar and zip.
+	file system objects tar and zip. This class defines the methods used
+	to write to and read from members, to list members and names, and to
+	delete members.
+	
+	EXAMPLE:
+	>>>
+	>>> Create an archive; write and read memebers.
+	>>>
+	# 
+	# Create a path object to a test archive
+	# 
+	p = trix.path("~/test.tar.gz", affirm="touch")
+	
+	# 
+	# Get a tar file wrapper, `z`.
+	# 
+	z = p.wrapper()
+	
+	# 
+	# Create a member passing member name, "Test1", and some text.
+	# 
+	z.write("Test1", "This is a test.\n")
+	
+	# 
+	# Until you call the `Tar.flush` method, no changes take place
+	# in the file, so `z.members` returns an empty dict.
+	# 
+	z.members
+	
+	# 
+	# After calling `flush()`, the member is in the archive.
+	# 
+	z.flush()
+	z.members
+	
+	# 
+	# After calling `flush()`, the member is in the archive.
+	# 
+	z.read("Test1")
+	
+	
+	READING AND WRITING:
+	See the `read`, `reader`, `write`, and `writer` method documentation
+	for a description of how to "mode" and "encoding" keyword arguments
+	to maintain strict control of how data is read from and written to
+	archive members.
+	
 	"""
 	
+	#
+	#
+	# INIT
+	#
+	#
 	def __init__(self, path, **k):
-		"""Pass archive file path and kwargs relevant to file type."""
+		"""
+		Pass archive file path and kwargs relevant to file type.
+		"""
 		
 		#
 		# Keep changed members in __writers dict. Each key is an archive 
@@ -35,7 +88,12 @@ class Archive(FileBase):
 		FileBase.__init__(self, path, **k)
 	
 	
+	
+	#
+	#
 	# DEL
+	#
+	#
 	def __del__(self):
 		try:
 			if self.__writers or self.__deleted:
@@ -58,25 +116,52 @@ class Archive(FileBase):
 	
 	
 	#
+	#
+	#
 	# ABSTRACT PROPERTIES AND METHODS
 	#  - All classes based on Archive must implement these.
+	#
+	#
+	#
+	
+	
+	#
+	#
+	# MEMBERS
+	#
 	#
 	@property
 	def members(self):
 		"""The member objects within the archive."""
 		raise NotImplementedError("abstract-property-required", 'members')
 	
+	
+	#
+	#
+	# NAMES
+	#
+	#
 	@property
 	def names(self):
 		"""List of the names of member objects in this archive."""
 		raise NotImplementedError("abstract-property-required", 'names')
 	
+	
+	#
+	#
 	# ARCH-READ
+	#
+	#
 	def archread(self, member, **k):
 		"""Read a single member from the archive."""
 		raise NotImplementedError("abstract-method-required", 'archread')
 	
+	
+	#
+	#
 	# ARCH-STORE
+	#
+	#
 	def archstore(self, membergen, **k):
 		"""Write all non-deleted members to the new archive."""
 		raise NotImplementedError("abstract-method-required", 'archstore')
@@ -84,26 +169,64 @@ class Archive(FileBase):
 	
 	
 	#
-	# ------------ ARCHIVE METHODS ------------
+	#
+	#
+	#
+	# ARCHIVE METHODS
+	#
+	#
+	#
 	#
 	
+	
+	#
 	#
 	# READ
+	#
 	#
 	def read(self, member, **k):
 		"""
 		Return the entire contents of the member. Use "mode", "encoding",
-		and "errors" kwargs to tailor the result type.
+		and "errors" keyword arguments to tailor the result type.
+		
+    MODE  ENCODING      I/O      NOTE 
+    'r'                 unicode  decode with DEF_ENCODE
+    'r'   encoding=enc  unicode  decode with <enc>
+    'rb'                bytes    bytes are returned
+    'rb'  encoding=enc  unicode  bytes are decoded after reading
+    
+		See also:
+    >>> from trix.util.reader import *
+    >>> help(Stream)
+    >>> help(Reader)
+    
 		"""
 		return self.reader(member, **k).read()
 	
+	
+	#
+	#
 	# READER
+	#
+	#
 	def reader(self, member, **k):
 		"""
 		Return a Buffer.reader() to read the given member. Pass Reader
-		kwargs to specify how data should be read. Buffer kwargs are also
+		kwargs to specify how data should be read. Stream kwargs are also
 		accepted, but are only applicable on the first call for any given
 		member.
+		
+    MODE  ENCODING      I/O      NOTE 
+    'r'                 unicode  decode with DEF_ENCODE
+    'r'   encoding=enc  unicode  decode with <enc>
+    'rb'                bytes    bytes are returned
+    'rb'  encoding=enc  unicode  bytes are decoded after reading
+    
+		See also:
+    >>> from trix.util.reader import *
+    >>> help(Stream)
+    >>> help(Reader)
+		
 		"""
 		if member in self.__writers:
 			b = self.__writers[member]
@@ -121,20 +244,58 @@ class Archive(FileBase):
 	
 	
 	#
+	#
 	# WRITE
 	#
+	#
 	def write(self, member, data, **k):
-		"""Write the new contents of the member."""
+		"""
+		Write the new contents of the member.
+		
+		Pass member name string argument `member`, and any `data` that
+		needs to be written.
+		
+		Keyword arguments will be passed to a `trix.util.stream.writer`
+		object's constructor. The mode and encoding arguments default to:
+		 
+    MODE  ENCODING      I/O      NOTE 
+    'w'                 unicode  encode with DEF_ENCODE
+    'w'   encoding=enc  unicode  encode with <enc>
+    'wb'                bytes    bytes are written
+    'wb'  encoding=enc  unicode  bytes are encoded before writing
+    
+		See also:
+    >>> from trix.util.reader import *
+    >>> help(Stream)
+    >>> help(Writer)
+		
+		"""
 		self.writer(member, **k).write(data)
 	
-		
+	
+	#
+	#
 	# WRITER
+	#
+	#
 	def writer(self, member, **k):
 		"""
 		Return a Buffer.writer() to write to the given member. Pass Writer
 		kwargs to specify how data should be read. Buffer kwargs are also
 		accepted, but are only applicable on the first call (when the 
 		buffer is first created).
+		
+    MODE  ENCODING      I/O      NOTE 
+    'w'                 unicode  encode with DEF_ENCODE
+    'w'   encoding=enc  unicode  encode with <enc>
+    'wb'                bytes    bytes are written
+    'wb'  encoding=enc  unicode  bytes are encoded before writing
+    
+		See also:
+    >>> from trix.util.reader import *
+    >>> help(Stream)
+    >>> help(Writer)
+		
 		"""
 		
 		# a buffer already writable
@@ -172,7 +333,9 @@ class Archive(FileBase):
 	
 	
 	#
+	#
 	# DELETE
+	#
 	#
 	def delete(self, member):
 		"""Mark the given member for deletion on the next flush."""
@@ -185,7 +348,9 @@ class Archive(FileBase):
 	
 	
 	#
+	#
 	# UNDO CHANGES
+	#
 	#
 	def undelete(self, member):
 		"""Remove a member from the deletion list."""
@@ -212,7 +377,9 @@ class Archive(FileBase):
 	
 	
 	#
+	#
 	# MEM-GEN
+	#
 	#
 	def memgen(self):
 		"""Used internally by subclasses to write archive members."""
@@ -246,13 +413,18 @@ class Archive(FileBase):
 	
 	
 	#
+	#
 	# FLUSH
+	#
 	#
 	def flush(self):
 		"""
-		Flush is called automatically when an ARchive object is destroyed.
+		Flush changes to archive members' contents.
+		
+		Flush is called automatically when an Archive object is destroyed.
 		If any changes are buffered, the archive will be rewritten to
 		reflect the current members and their content.
+		
 		""" 
 		
 		#
