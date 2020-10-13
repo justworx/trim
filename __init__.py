@@ -4,7 +4,7 @@
 # the terms of the GNU Affero General Public License.
 #
 
-import sys, time, traceback, locale, json #, threading
+import sys, time, traceback, locale, json
 try:
 	import thread
 except:
