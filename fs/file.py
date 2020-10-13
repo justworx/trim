@@ -12,7 +12,80 @@ from ..util.open import Opener
 
 
 class File(FileBase):
-	"""Access plain files.""" 
+	"""
+	Access plain files.
+	
+	Providing an "encoding" specification causes Writer and Reader 
+	stream objects to translate the encoding from and to bytes before 
+	returning or writing them to the contained stream. The following 
+	table shows the type of data strings produced or consumed with 
+	various combinations of "mode" and "encoding".
+
+    MODE  ENCODING      I/O      NOTE 
+    'r'                 unicode  decode with DEF_ENCODE
+    'r'   encoding=enc  unicode  decode with <enc>
+    'rb'                bytes    bytes are returned
+    'rb'  encoding=enc  unicode  bytes are decoded after reading
+    'w'                 unicode  encode with DEF_ENCODE
+    'w'   encoding=enc  unicode  encode with <enc>
+    'wb'                bytes    bytes are written
+    'wb'  encoding=enc  unicode  bytes are encoded before writing
+	
+		EXAMPLE:
+		>>>
+		>>> import trix
+		>>>
+		>>> #
+		>>> # Create a test file name and make a Path object
+		>>> #
+		>>> filename = "~/test-%s.txt"%trix.value('time.time')()
+		>>> p = trix.path(filename, affirm="touch")
+		>>>
+		>>> #
+		>>> # Create a file wrapper.
+		>>> #
+		>>> w = p.wrapper()
+		>>> w.write("Hello, world!\n", encoding='utf8')
+		14
+		>>>
+		>>> #
+		>>> #  Because an encoding is specified to neither the wrapper 
+		>>> #  nor the `read` method, the result is returned as bytes.
+		>>> #
+		>>> w.read()
+		b'Hello, world!\n'
+		>>>
+		>>> #
+		>>> # This time we'll specify an encoding to the wrapper.
+		>>> #
+		>>> w = p.wrapper(encoding='utf8')
+		>>> w.write("Hello, world!\n")
+		14
+		>>> #
+		>>> # Because wrapper `w` was constructed with a given encoding,
+		>>> # that encoding is used as the default in calls to w.read()
+		>>> # which lack a given encoding specification. The result will
+		>>> # be returned as unicode text.
+		>>> #
+		>>> w.read()
+		'Hello, world!\n'
+		>>>
+		>>> #
+		>>> # Finally, we should clean up the test file.
+		>>> #
+		>>> w.remove()
+		>>> 
+		
+		See also:
+    >>> from trix.util.reader import *
+    >>> help(Stream)
+    >>> help(Reader)
+    
+		See also:
+    >>> from trix.util.writer import *
+    >>> help(Writer)
+	
+	""" 
 	
 	# OPEN
 	def open(self, mode, **k):
@@ -84,8 +157,7 @@ class File(FileBase):
 	def writer(self, **k):
 		"""Return a Writer object."""
 		
-		k = self.applyEncoding(k) # i think it should be like this
-		#k.update(self.ek)        # not sure why i had it like this
+		k = self.applyEncoding(k)
 		
 		k.setdefault('mode', "w" if self.ek else "wb")
 		k.setdefault('encoding', DEF_ENCODE)

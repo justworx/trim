@@ -99,7 +99,6 @@ class Zip(Archive):
 		
 		for item in self.members:
 			itemdict = dict(
-				#from_file      = item.from_file,
 				is_dir         = item.is_dir(),
 				filename       = item.filename,
 				date_time      = item.date_time,
