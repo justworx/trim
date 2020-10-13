@@ -1,18 +1,62 @@
 #
-# Copyright 2018 justworx
+# Copyright 2018-2020 justworx
 # This file is part of the trix project, distributed under the terms 
 # of the GNU Affero General Public License.
 #
+
 
 from ..enchelp import * # trix
 
 
 # STREAM
 class Stream(EncodingHelper):
-	"""Basic streaming functions."""
+	"""
+	The purpose of streams is to provide a common interface for dealing
+	with objects that read and write data.
+	
+	Stream-based objects hold their stream, manage their encoding-related
+	issues, provide a set of features for reading, writing, and working
+	with stream data, and clean themselves up when finished.
+	
+	Stream use is divided into two areas: Read data with a `Reader` and
+	write data with a `Writer`. Both these classes are based on `Stream`, 
+	so properties `stream` and `mode` give access to the contained stream
+	(or other producer/consumer of data), and the mode (bytes or unicode) 
+	that the stream produces/consumes.
+	
+	The Stream object is based on EncodingHelper, so the `ek` property 
+	and other methods for applying, extracting, and otherwise using any
+	encoding-related keyword arguments (as provided to the Stream 
+	object's constructor) are available.
+
+	Providing an "encoding" specification causes Writer and Reader 
+	stream objects to translate the encoding from and to bytes before 
+	returning or writing them to the contained stream. The following 
+	table shows the type of data strings produced or consumed with 
+	various combinations of "mode" and "encoding".
+
+    MODE  ENCODING      I/O      NOTE 
+    'r'                 unicode  decode with DEF_ENCODE
+    'r'   encoding=enc  unicode  decode with <enc>
+    'rb'                bytes    bytes are returned
+    'rb'  encoding=enc  unicode  bytes are decoded after reading
+    'w'                 unicode  encode with DEF_ENCODE
+    'w'   encoding=enc  unicode  encode with <enc>
+    'wb'                bytes    bytes are written
+    'wb'  encoding=enc  unicode  bytes are encoded before writing
+	
+	"""
 	
 	# init
 	def __init__(self, stream, **k):
+		"""
+		Pass argument `stream`, a stream.
+		
+		Valid keyword arguments are:
+		 * Anything EncodingHelper accepts. (See: trix.util.enchelp)
+		 * A specific mode using keyword argument "mode". (See above)
+		 
+		"""
 		
 		EncodingHelper.__init__(self, **k)
 		self.__mode = k.get('mode')
@@ -31,7 +75,9 @@ class Stream(EncodingHelper):
 	
 	# del
 	def __del__(self):
-		"""Flush and close the contained stream (if open)."""
+		"""
+		Flush and close the contained stream (if open).
+		"""
 		#
 		# REMEMBER: Some subclasses may not call `Stream.__init__()` 
 		#           immediately, so it IS possible that self.__stream
@@ -92,6 +138,7 @@ class Stream(EncodingHelper):
 		work with stream objects should replace this method with cleanup
 		suitable to their own non-stream "producer".
 		"""
+		
 		# don't raise an exception here if the stream was never set
 		try:
 			self.__stream
