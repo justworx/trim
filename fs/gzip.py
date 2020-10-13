@@ -78,7 +78,12 @@ class Gzip(BFile):
 	
 	# GZ OPEN
 	def open(self, mode=None, **k):
-		"""Return a gzip file pointer."""
+		"""
+		Return a gzip file pointer.
+		
+		Optional keyword argument `compresslevel` defaults to 9.
+		
+		"""
 		ok = trix.kcopy(k, "compresslevel")
 		return trix.create("gzip.GzipFile", self.path, mode, **ok)
 	
