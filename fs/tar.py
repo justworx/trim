@@ -1,15 +1,61 @@
 #
-# Copyright 2018 justworx
+# Copyright 2018-2020 justworx
 # This file is part of the trix project, distributed under the terms 
 # of the GNU Affero General Public License.
 #
+
 
 import tarfile, fnmatch
 from .archive import *
 
 
 class Tar(Archive):
-	"""Tar file support."""
+	"""
+	Tar file support.
+	
+	EXAMPLE:
+	>>>
+	>>> import trix
+	>>>
+	>>> #
+	>>> # Create a path object to a test file
+	>>> #
+	>>> p = trix.path("~/test.tar.gz", affirm="touch", encoding="utf-8")
+	>>>
+	>>> #
+	>>> # Get a tar file wrapper, `z`.
+	>>> #
+	>>> z = p.wrapper()
+	>>> 
+	>>> #
+	>>> # Create a member passing member name, "Test1", and some text.
+	>>> #
+	>>> z.write("Test1", "This is a test.\n")
+	>>> 
+	>>> #
+	>>> # Until the `Tar.flush` method is called, no changes take place
+	>>> # in the file, so `z.members` returns an empty dict.
+	>>> #
+	>>> z.members
+	{}
+	>>>
+	>>> #
+	>>> # After calling `flush()`, the member is in the archive.
+	>>> #
+	>>> z.flush()
+	>>> z.members
+	{'Test1': <TarInfo 'Test1' at 0x7f420065d9a8>}
+	>>>
+	>>> #
+	>>> # After calling `flush()`, the member is in the archive.
+	>>> #
+	>>> z.read("Test1", encoding='utf8')
+	'This is a test.\n'
+	>>> z.read("Test1")
+	'This is a test.\n'
+	>>> 
+	
+	"""
 	
 	__DEF_ENC = dict(gzip='gz', bzip2='bz2')
 	
@@ -29,19 +75,26 @@ class Tar(Archive):
 	
 	@property
 	def openk(self):
+		"""
+		Return a dict of 'openk' keyword arguments.
+		"""
 		return dict(compression=self.compression)
+	
 	
 	@property
 	def names(self):
 		"""
 		Member names in a proplist. Call this property as a function to
-		return the list of names. See `trix.propx.proplist` for more
-		options.
+		return the list of names.
 		
-		```
-		arch = trix.path("my_archive.tar.gz")
-		arch.names()                             # returns list
-		arch.wrapper.names.sorted.table(width=2) # displays member paths
+		>>> arch = trix.path("my_archive.tar.gz")
+		>>> arch.names()                             # returns list
+		>>> arch.wrapper.names.sorted.table(width=2) # displays member paths
+		
+		SEE ALSO:
+		>>> from trix.propx.proplist import *
+		>>> help(proplist)
+		>>>
 		
 		```
 		"""
@@ -49,23 +102,11 @@ class Tar(Archive):
 			self.__names = f.getnames()
 		return propx(self.__names)
 	
-	@property
-	def members(self):
-		"""
-		Returns a dict with member name : member file info.
-		"""
-		rr = {}
-		with self.archopen('r|*') as f:
-			mm = f.getmembers()
-			for m in mm:
-				rr[m.name] = m
-			return rr
 	
 	@property
 	def compression(self):
 		"""
 		Return the compression string, 'gz', 'bz2', or ''
-		
 		"""
 		#
 		# This weirdness is because the touch() method, which may be 
@@ -104,40 +145,71 @@ class Tar(Archive):
 			return self.__compression
 	
 	
-	# MEMBER INFO
+	@property
+	def members(self):
+		"""
+		Returns a dict with member name : member file info.
+		"""
+		rr = {}
+		with self.archopen('r|*') as f:
+			mm = f.getmembers()
+			for m in mm:
+				rr[m.name] = m
+			return rr
+	
+	
+	@property
 	def memberinfo(self):
 		"""
-		Return a dict with member names as keys; each value is a dict 
-		containing information on the corresponding member.
+		Return member info listing.
+		
+		>>>
+		>>> #
+		>>> # The memberinfo property returns a propdict object.
+		>>> # Call as a method to get the actual dict object.
+		>>> #
+		>>> myTarFile.memberinfo()
+		>>>
+		>>> # For easier reading in a terminal, try this:
+		>>> myTarFile.memberinfo.display()
+		>>> 
+		
+		Returns a propx object containing a dict with member names as 
+		keys; each value is a dict containing information on the 
+		corresponding member.
+    
+		SEE ALSO:
+    >>> from trix.util.propx.propdict import *
+    >>> help(propdict)
+		
 		"""
-		try:
-			return self.__meminfo
-		except:
-			rr = {}
-			with self.archopen('r|*') as f:
-				mm = f.getmembers()
-				for m in mm:
-					rr[m.name] = dict(
-						name = m.name,
-						size = m.size,
-						mtime = m.mtime,
-						mode = m.mode,
-						type = m.type,
-						linkname = m.linkname,
-						uid = m.uid,
-						gid = m.gid,
-						uname = m.uname,
-						gname = m.gname #,pax = m.pax_headers	
-					)
+		rr = {}
+		with self.archopen('r|*') as f:
+			mm = f.getmembers()
+			for m in mm:
+				rr[m.name] = dict(
+					name = m.name,
+					size = m.size,
+					mtime = m.mtime,
+					mode = m.mode,
+					type = m.type,
+					linkname = m.linkname,
+					uid = m.uid,
+					gid = m.gid,
+					uname = m.uname,
+					gname = m.gname #,pax = m.pax_headers	
+				)
 						
-			self.__meminfo = rr
-			return rr
+		return trix.propx(rr)
 	
 	
 	#
 	# TOUCH
 	#
 	def touch(self, times=None):
+		"""
+		Touch the file to create and/or alter times.
+		"""
 		# be sure not to overwrite the file when it already exists!
 		if not self.exists():
 			# touch and create
@@ -155,7 +227,7 @@ class Tar(Archive):
 	
 	
 	#
-	# ARCH STORE
+	# ARCH STORE (internal use)
 	#
 	def archstore(self, memgen, **k):
 		"""Write member data from the `memgen` iterable."""
@@ -179,14 +251,14 @@ class Tar(Archive):
 	
 	
 	#
-	# ARCH READ
+	# ARCH READ (internal use)
 	#
 	def archread(self, member, **k):
 		return self.archopen("r:*").extractfile(member).read()
 	
 	
 	#
-	# ARCH OPEN
+	# ARCH OPEN (internal use)
 	#
 	def archopen(self, mode, **k):
 		"""Open the tarfile; return the TarFile object."""
