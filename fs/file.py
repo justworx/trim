@@ -1,5 +1,5 @@
 #
-# Copyright 2018 justworx
+# Copyright 2018-2020 justworx
 # This file is part of the trix project, distributed under the terms 
 # of the GNU Affero General Public License.
 #
@@ -13,9 +13,9 @@ from ..util.open import Opener
 
 class File(FileBase):
 	"""
-	Access plain files.
+	Access and manipulate plain files.
 	
-	Providing an "encoding" specification causes Writer and Reader 
+	Providing an "encoding" specification causes `Writer` and `Reader` 
 	stream objects to translate the encoding from and to bytes before 
 	returning or writing them to the contained stream. The following 
 	table shows the type of data strings produced or consumed with 
@@ -76,12 +76,12 @@ class File(FileBase):
 		>>> w.remove()
 		>>> 
 		
-		See also:
+		SEE ALSO:
     >>> from trix.util.reader import *
     >>> help(Stream)
     >>> help(Reader)
     
-		See also:
+		SEE ALSO:
     >>> from trix.util.writer import *
     >>> help(Writer)
 	
