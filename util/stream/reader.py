@@ -1,5 +1,5 @@
 #
-# Copyright 2018 justworx
+# Copyright 2018-2020 justworx
 # This file is part of the trix project, distributed under the terms 
 # of the GNU Affero General Public License.
 #
@@ -77,6 +77,7 @@ class Reader(Stream):
 					suggest=['remove-mode-b', 'provide-correct-encoding'],
 					reason="text-mode-required"
 				))
+		
 		x = self.read(1)
 		while x:
 			yield x
@@ -84,13 +85,33 @@ class Reader(Stream):
 		raise StopIteration()
 
 
+
+
+	#
+	#
+	#
 	#
 	# READING PROPERTIES
-	#  -
+	#  - These properties act as methods so that the best reading 
+	#    object for any given situation can be automatically selected.
+	#
+	#
+	#
 	#
 	@property
 	def read(self):
-		"""Return all content from current position."""
+		"""
+		Return all content from current position.
+    
+    Use the "mode" and "encoding" keyword arguments in combination to
+    specify exactly how results should be returned.
+    
+    MODE  ENCODING      I/O      NOTE 
+    'r'                 unicode  decode with DEF_ENCODE
+    'r'   encoding=enc  unicode  decode with <enc>
+    'rb'                bytes    bytes are returned
+    'rb'  encoding=enc  unicode  bytes are decoded after reading
+		"""
 		try:
 			return self.__read
 		except AttributeError:
@@ -98,7 +119,19 @@ class Reader(Stream):
 	
 	@property
 	def readline(self):
-		"""Return content from current position to the next endline."""
+		"""
+		Return content from current position to the next endline.
+    
+    Use the "mode" and "encoding" keyword arguments in combination to
+    specify exactly how results should be returned.
+    
+    MODE  ENCODING      I/O      NOTE 
+    'r'                 unicode  decode with DEF_ENCODE
+    'r'   encoding=enc  unicode  decode with <enc>
+    'rb'                bytes    bytes are returned
+    'rb'  encoding=enc  unicode  bytes are decoded after reading
+		
+		"""
 		try:
 			return self.__readline
 		except AttributeError:
@@ -106,7 +139,13 @@ class Reader(Stream):
 	
 	
 	#
+	#
+	#
+	#
 	# READING INITIALIZERS
+	#
+	#
+	#
 	#
 	def __readinit(self, *a):
 		return self.__readinits(self.stream.read(*a))
@@ -178,7 +217,13 @@ class Reader(Stream):
 
 
 #
+#
+#
+#
 # READERS
+#
+#
+#
 #
 class xreader(object):
 	def __init__(self, x):

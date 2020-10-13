@@ -1,10 +1,10 @@
 #
-# Copyright 2018 justworx
+# Copyright 2018-2020 justworx
 # This file is part of the trix project, distributed under the terms 
 # of the GNU Affero General Public License.
 #
 
-from . import * # trix
+from . import * # Stream, enchelp, trix
 
 
 # WRITER
@@ -13,7 +13,20 @@ class Writer(Stream):
 	
 	# WRITE
 	def write(self, data):
-		"""Write `data`."""
+		"""
+		Write `data` to this stream.
+		
+    Use the "mode" and "encoding" keyword arguments in combination to
+    specify exactly how results should be written.
+		
+    MODE  ENCODING      I/O      NOTE 
+    'w'                 unicode  encode with DEF_ENCODE
+    'w'   encoding=enc  unicode  encode with <enc>
+    'wb'                bytes    bytes are written
+    'wb'  encoding=enc  unicode  bytes are encoded before writing
+    
+    See Also: help(Stream)
+		"""
 		try:
 			self.write = self.stream.write
 			return self.write(data)
