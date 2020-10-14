@@ -11,12 +11,25 @@ from ..util.xjson import *  # json, JSONDisplay
 class JSON(FormatBase):
 	
 	def __init__(self, **k):
-		"""Kwargs are passed directly to json.dump(s) functions."""
+		"""
+		Keyword arguments are passed directly to json.dump(s) functions.
+		
+		# EXAMPLE
+		>>> from trix.fmt import *
+		>>> JSON([1,2,3]).format()
+		>>> JSON().format([1,2,3])
+		'[1, 2, 3]'
+		>>> 
+		
+		"""
 		k.setdefault('cls', JSONDisplay)
 		FormatBase.__init__(self, **k)
 	
+	
 	def format(self, data):
-		"""Format data as json strings in a pretty format."""
+		"""
+		Format data as json strings in a pretty format.
+		"""
 		return json.dumps(data, **self.kwargs)
 
 
@@ -25,15 +38,35 @@ class JSON(FormatBase):
 # JSON DISPLAY - Big, pretty, and readable.
 #
 class JDisplay(JSON):
-	"""JSON in a more human-readable, display format."""
+	"""
+	JSON in a more human-readable, display format.
+		
+	# EXAMPLE
+	>>> from trix.fmt import *
+	>>> JDisplay().format({'a':1,'c':4,'b':9})
+	'{\n  "a": 1,\n  "c": 4,\n  "b": 9\n}'
+	>>> 
+		
+	"""
 	
+	#
+	# INIT
+	#
 	def __init__(self, **k):
-		"""Kwargs are passed directly to json.dump(s) functions."""
+		"""
+		Kwargs are passed directly to json.dump(s) functions.
+		"""
 		k.setdefault('indent', JSON_INDENT)
 		JSON.__init__(self, **k)
 	
+	
+	#
+	# FORMAT
+	#
 	def format(self, data):
-		"""Format data as json strings in a pretty format."""
+		"""
+		Format data as json strings in a pretty format.
+		"""
 		return json.dumps(data, **self.kwargs)
 
 
@@ -44,14 +77,31 @@ class JDisplay(JSON):
 # JSON FORMAT - Tight as possible; for transmission/storage.
 #
 class JCompact(JSON):
-	"""Compact JSON format. Unneeded spaces removed."""
+	"""
+	Compact JSON format. Unneeded spaces removed.
+		
+	# EXAMPLE
+	>>> from trix.fmt import *
+	>>> JCompact().format({'a':1,'c':4,'b':9})
+	'{"a":1,"c":4,"b":9}'
+	>>> 
+		
+	"""
 	
 	def __init__(self, **k):
-		"""Kwargs are passed directly to json.dump(s) functions."""
+		"""
+		Kwargs are passed directly to json.dump(s) functions.
+		"""
 		k.setdefault('separators', (',',':'))
 		JSON.__init__(self, **k)
-
+	
+	
 	def format(self, data):
-		"""Format as compact json; no unnecessary white space."""
+		"""
+		Format as compact json; no unnecessary white space.
+		"""
 		return ''.join(json.dumps(data, **self.kwargs).splitlines())
+
+
+
 
