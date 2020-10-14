@@ -1,43 +1,75 @@
 #
-# Copyright 2019 justworx
+# Copyright 2019-2020 justworx
 # This file is part of the trix project, distributed under the terms 
 # of the GNU Affero General Public License.
 #
+
 
 from ..util.propx.proplist import *   # trix, propgrid, et al
 import sqlite3, re
 
 
 class DBGrid(object):
-	"""Add and query a set of named, in-memory sqlite3 tables."""
+	"""
+	Add and query a set of named, in-memory sqlite3 tables.
 	
-	re_columns = re.compile("^[_A-Za-z0-9]*$")
+	EXAMPLE:
+	>>> from trix.data.dbgrid import *
+	>>> g = DBGrid()
+	>>> g.add('four', [[1,2], [3,4]], columns=['left','right'])
+	>>> g("select * from four").grid()
+	>>>
 	
+	EXAMPLE 2:
+	>>>
+	>>> import trix
+	>>> g = trix.path("~/trix").list.propgrid.dbgrid('lg')
+	>>>
+	
+	UNDER CONSTRUCTION!
+	This class is under construction. I can't leave it out of  
+	the trix package because it's too useful for sorting grids.
+	Meanwhile, development continues.
+	
+	"""
 	
 	def __init__(self, **k):
 		"""
 		Initialize grid database. See the `add()` method for details on
 		how to create tables.
 		"""
+		
+		type(self).re_columns = re.compile("^[_A-Za-z0-9]*$")
+		
 		self.con = sqlite3.connect(":memory:")
+		
+		# maintain a table list
 		self.__T = []
 		
-		# experimental
-		for table in k:
-			self.add(table, k[table])
 	
-	
-	
-	
+	#
+	# CALL
+	#
 	def __call__(self, sql, *a, **k):
 		"""
+		WARNING:
+		THIS CURRENTLY ONLY WORKS FOR SELECT STATEMENTS!
+		Running updates, deletions, etc... will cause a failure.
+		I'm working on a plan to make this more flexible. We'll see 
+		how that goes.
+		
+		For now, use `DBGrid.execute()` to update/delete/etc...
+		
 		Shortcut for `select()`. Returns a DataGrid containing results
 		of valid sqlite3 queries.
 		"""
-		return self.select(sql, *a, **k)
-	
-	
-	
+		try:
+			return self.select(sql, *a, **k)
+		except BaseException as ex:
+			raise type(ex)("dbgrid-select-error", xdata(
+						sql=sql, a=a, k=k
+					)
+				)
 	
 	@property
 	def tables(self):
@@ -54,6 +86,22 @@ class DBGrid(object):
 		Pass a table name and a grid (list of lists of equal length).
 		Column names must be either prepended to the grid or specified 
 		as a list using the optional `columns` argument.
+		
+		>>>
+		>>> from trix.data.dbgrid import *
+		>>> t = DBGrid()
+		>>> t.add('four', [[1,2],[3,4]], columns=["L","R"])
+		>>> t('select * from four')
+		<trix/propgrid list len=2>
+		>>> t('select * from four').grid()
+		L  R
+		1  2
+		3  4
+		>>>
+		>>> t.execute('delete from four where R = "4"')
+		>>> t.execute('delete from four where R = "4"')
+		>>>
+		
 		"""
 		
 		#
@@ -78,7 +126,7 @@ class DBGrid(object):
 		for columnName in cols:
 			valid_chars = []
 			for c in columnName:
-				if self.re_columns.match(c):
+				if type(self).re_columns.match(c):
 					valid_chars.append(c)
 			if valid_chars:
 				valid_cols.append("".join(valid_chars))
@@ -100,12 +148,12 @@ class DBGrid(object):
 				))
 		
 		# get the cursor
-		cur = self.cur = self.con.cursor()
+		self.cur = self.con.cursor()
 		
 		# populate database
 		qms = ",".join("?"*len(cols))
 		sql = "insert into %s values (%s)" % (table_name, qms)
-		cur.executemany(sql, iter(rows))
+		self.cur.executemany(sql, iter(rows))
 		
 		# add tablename
 		self.__T.append(table_name)
@@ -117,9 +165,9 @@ class DBGrid(object):
 		"""
 		Remove table `tableName` from the temporary database.
 		
-		NOTE: Do not use "DROP TABLE <tablename>" to remove tables or
-		      the table list will not be updated to reflect the removed
-		      table.
+		WARNING: Do not use "DROP TABLE <tablename>" to remove tables 
+		         or the table list will not be updated to reflect the 
+		         removed table.
 		"""
 		if tablename in self.__T:
 			self.execute('drop table %s'%tablename)
@@ -135,7 +183,10 @@ class DBGrid(object):
 		try:
 			return self.cur.execute(sql, *a)
 		except sqlite3.OperationalError as ex:
-			raise type(ex)(xdata(sql=sql))
+			raise type(ex)(xdata(sql=sql, a=a, cols=self.cols, 
+					tables=self.__T
+				)
+			)
 	
 	
 	
@@ -154,6 +205,9 @@ class DBGrid(object):
 	
 	def select(self, sql, *a, **k):
 		"""
+		THIS CURRENTLY ONLY WORKS FOR SELECT STATEMENTS!
+		See: __call__(), above.
+		
 		Execute select query `sql`.	Returns a propgrid loaded with the
 		query result. A column name list is prepended by default, unless
 		you pass the kwarg header=False.
@@ -163,9 +217,13 @@ class DBGrid(object):
 		"""
 		newgrid = self.query(sql, *a)
 		if k.get('h', k.get('header', True)):
-			r = [self.get_column_names()]
-			r.extend(newgrid)
-			return propgrid(r)
+			try:
+				r = [self.get_column_names()]
+				r.extend(newgrid)
+				return propgrid(r)
+			except BaseException as ex:
+				print ("TEMP DEBUG: %s" % str(ex))
+				return []
 		else:
 			return propgrid(newgrid)
 	

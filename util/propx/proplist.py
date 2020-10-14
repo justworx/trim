@@ -147,7 +147,13 @@ class proplist(propseq):
 			L.append( x(item, *a, **k) )
 			
 		return proplist(L)
-
+	
+	@property
+	def propgrid(self):
+		"""
+		Use only with lists that contain a set of lists of equal length.
+		"""
+		return propgrid(self.o)
 
 
 
@@ -169,6 +175,10 @@ class propgrid(proplist):
 	NOTE: data.dbgrid always prepends the header row to query results.
 	      The 'header' kwarg is accepted in case we need to pass a grid
 	      (list of lists) that's not prepended with column titles.
+	      
+	EXAMPLE
+	
+	
 	"""
 	
 	def __call__(self, *a, **k):
@@ -309,17 +319,24 @@ class propgrid(proplist):
 	def dbgrid(self, tableName, **k):
 		"""
 		Returns a `DBGrid` object containing this object's data in a table
-		named `tableName`.
+		named by the string `tableName` argument.
 		
 		The value of any keyword arguments given must be a grid - a list
 		of lists containing an equal number of values, with a column name
 		list prepended as item zero. An additional table (named for the
 		keyword) will be created in the resulting `DBGrid` object.
 		
-		NOTE: 
+		#
+		# NOTE: Database Tables are Always Grids!
+		#
 		This method will fail if `self.o` (or any suplimentary tables
 		defined by the passage of keyword arguments) is not a list
 		of lists each containing an equal number of items.
+		
+		EXAMPLE:
+		import trix
+		lgrid = trix.path("~/trix").list.propgrid.dbgrid('lgrid')
+		return lgrid('select * from lgrid order by mtime desc')
 		
 		"""
 		g = trix.ncreate('data.dbgrid.DBGrid', **k)

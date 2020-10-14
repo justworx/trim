@@ -28,9 +28,15 @@ class Database(object):
 			return r
 	
 	
-	def __init__(self, conf=None, *a, **k):
+	def __init__(self, config=None, *a, **k):
 		"""
-		Pass config dict `conf` and/or kwargs with keys:
+		Create a DB-API-2 Database.
+		
+		Pass config dict `config` and/or keyword arguments. As always,
+		kwargs replace matching keys in the `config` dict. 
+		
+		The following config keys are critical:
+		
 		 - module: a db-api-2 module or module name (default: "sqlite3")
 		 - args  : arguments to be passed to the open() method.
 		 - path  : file path to the db file (if applicable); if included,
@@ -44,8 +50,36 @@ class Database(object):
 		           triggered by the `Database.opq` and `Database.ops`
 		           methods.
 		
-		Alternately, `config` may be a file-based database's path with
-		optional kwargs specifying the other params.
+		#
+		# ALTERNATE CONFIG SPEC:
+		#
+		For easy use, `config` may be a database's file path with 
+		optional keyword argumentss specifying the other params.
+		
+		
+		#
+		# SIMPLE USE
+		#
+		>>>
+		>>> from trix.data.database import *
+		>>> d = Database("~/foo2.db")
+		>>> d.active
+		False
+		>>> d.open()
+		>>> d.active
+		True
+		>>> d.execute("create table FOO (food, fools, folly)")
+		>>> d.execute("insert into FOO values ('spam','dorks','python')")
+		>>> c = d.execute("select * from FOO")
+		>>> c.fetchone()
+		('spam', 'dorks', 'python')
+		>>> 
+		
+		#
+		# ADVANCED USE
+		#
+		Create JSON files with database configuration.
+		
 		"""
 		
 		# path might be None for some DBMS
@@ -55,25 +89,25 @@ class Database(object):
 		self.__args = a
 		
 		if 'nconfig' in k:
-			conf = trix.nconfig(k['nconfig'])
+			config = trix.nconfig(k['nconfig'])
 		elif 'config' in k:
-			conf = trix.config(k['config'])
+			config = trix.config(k['config'])
 		
 		# get the configuration
-		conf = conf or {}
+		config = config or {}
 		try:
 			#
 			# REM: DB path is *NOT* required - some db-api-2 modules don't
 			#      want it!
 			#
-			conf.update(k)
-			path = conf.get('path')
+			config.update(k)
+			path = config.get('path')
 		
 		except AttributeError:
 			# if config is not a dict, it must be a db file path
-			path = conf
-			conf = {}
-			conf.update(k)
+			path = config
+			config = {}
+			config.update(k)
 		
 		#
 		# PATH
@@ -95,7 +129,7 @@ class Database(object):
 		self.__args = a
 		
 		# store configuration
-		self.__config = conf
+		self.__config = config
 		
 		# init runtime values
 		self.__con = None
@@ -105,7 +139,7 @@ class Database(object):
 		# MODULE
 		#  - module may be given by name or by passing the actual module
 		#
-		mod = conf.get('module', 'sqlite3')
+		mod = config.get('module', 'sqlite3')
 		try:
 			self.__mod = trix.module(mod)
 			self.__modname = mod
@@ -114,9 +148,15 @@ class Database(object):
 			self.__modname = type(self.__mod).__name__
 		
 		#
+		#
+		#
+		#
 		# SQL
 		#
-		sql = conf.get('sql', {})
+		#
+		#
+		#
+		sql = config.get('sql', {})
 		try:
 			# string path to sql file
 			rdr = trix.path(sql).reader()
@@ -125,7 +165,7 @@ class Database(object):
 			sql = sql
 		
 		# sql/op
-		self.__sql = conf.get('sql', {})
+		self.__sql = config.get('sql', {})
 		self.__op = self.__sql.get('op', {})
 		
 		#
@@ -135,7 +175,7 @@ class Database(object):
 		#    in the `sql` parameter's content.
 		#  - An `sql` value must exist, or autoinit will remain False.
 		#
-		self.__autoinit =  self.__sql and conf.get('auto', False)
+		self.__autoinit =  self.__sql and config.get('auto', False)
 	
 	
 	
@@ -150,12 +190,14 @@ class Database(object):
 	
 	@property
 	def active (self):
-		"""True if the database is open/connected."""
+		"""Returns True if the database is open/connected."""
 		return True if self.__con else False
 	
 	@property
 	def config (self):
-		"""True if the database is open/connected."""
+		"""
+		Returns the database configuration as given to the constructor.
+		"""
 		return self.__config
 	
 	@property
@@ -178,9 +220,17 @@ class Database(object):
 		"""Return the DB module name. (It may be None for some DBMS.)"""
 		return self.__path
 	
+	
+	
+	
 	@property
 	def sql(self):
-		"""Return the full config sql dict."""
+		"""
+		Return the full config sql dict.
+		
+		The Database class allows specification of a text configuration file that 
+		
+		"""
 		return self.__sql
 	
 	@property
