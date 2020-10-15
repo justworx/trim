@@ -67,7 +67,7 @@ class propseq(propiter):
 			if len(o) != ilen:
 				raise type(ex)(xdata(
 					error='err-grid-fail', reason="not-a-grid",
-					english="Grid rows must be of equal length."
+					en="Grid rows must be of equal length."
 				))
 		
 		return trix.ncreate('util.propx.proplist.propgrid', list(self.o))
