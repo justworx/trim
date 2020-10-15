@@ -2,10 +2,12 @@
 # ROADMAP
 roadmap.md
 
-
-# TEST PACKAGE IS BROKEN!
-test
-test/
+#
+# TEST PACKAGE IS FIXED!
+# (though it is incomplete)
+#
+#test
+#test/
 
 
 # these shouldn't be posted with the project
@@ -14,6 +16,10 @@ doc/
 wiki
 wiki/
 
+
+# experimental / under construction
+*.x.md
+*.x.py
 
 
 # temporary backups
