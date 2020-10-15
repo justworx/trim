@@ -38,7 +38,7 @@ class Path(object):
 	# INIT
 	#
 	#
-	def __init__(self, path=None, **k):
+	def __init__(self, path=None, *a, **k):
 		"""
 		Pass optional `path` argument. Default is the current working 
 		directory.
@@ -78,6 +78,10 @@ class Path(object):
 		self.sep = os.sep
 		self.__p = self.expand(k.get('path', path or '.'), **k)
 		
+		#<EXPERIMENTAL>
+		#for pathelement in a:
+		#	self.__p = self.merge(pathelement)
+		#</EXPERIMENTAL>
 		
 		try:
 			self.__n = ospath.normpath(self.__p).split(self.sep)[-1]
@@ -1009,8 +1013,8 @@ class FileBase(Path, EncodingHelper):
 	
 	However, being based on Path, all the Path class methods are 
 	available to FileBase and its subclasses. The only exception is
-	that the Path.setpath method is disabled, since use of the `setpath` 
-	method would corrupt the object's integrity.
+	that the Path.setpath method is disabled, since use of the 
+	`setpath` method would corrupt the object's integrity.
 	
 	"""
 	
