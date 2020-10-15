@@ -148,13 +148,19 @@ class proplist(propseq):
 			
 		return proplist(L)
 	
+	
+	
 	@property
 	def propgrid(self):
 		"""
 		Use only with lists that contain a set of lists of equal length.
 		"""
 		return propgrid(self.o)
-
+	
+	
+	@property
+	def dbgrid(self):
+		return trix.ncreate('data.dbgrid', self.o)
 
 
 
