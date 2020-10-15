@@ -1,5 +1,5 @@
 #
-# Copyright 2018 justworx
+# Copyright 2018-2020 justworx
 # This file is part of the trix project, distributed under
 # the terms of the GNU Affero General Public License.
 # 
@@ -7,48 +7,102 @@
 from .. import *
 
 
+
+SAMPLE_CONFIG_DICT = {
+	"create" : [
+		"create table foo ('bar','baz')",
+		"insert into 'foo' values ('barnone', 'baz00kas')"
+	],
+	"op" : {
+		"getfoo" : "select * from foo"
+	}
+}
+
+
+
 class Database(object):
 	"""
 	Wrapper for DB-API 2.0 database access, plus additional features.
+	
+	EXAMPLE 1:
+	#
+	# Simple use of the Database class:
+	#
+	>>> from trix.data.database import *
+	>>> db = Database("test-simple.db")
+	>>> db.open()
+	>>> d.execute("create table fos (food, fools, folly)")
+	>>> d.execute("insert into fos values ('spam','dorks','python')")
+	>>> c = d.execute("select * from fos")
+	>>> c.fetchone()
+	
+	EXAMPLE 2:
+	#
+	# Create database using a config file (or dict).
+	#
+	>>> from trix.data.database import *
+	>>> db = Database("test-config.db", sql=SAMPLE_CONFIG_DICT)
+	>>> db.open()
+	>>> db.create()
+	>>> c = db.execute("select * from foo")
+	>>> c.fetchall()
+	[('barnone', 'baz00kas')]
+	>>> 
+	
+	EXAMPLE 3:
+	>>> # 
+	>>> # USING 'ops' with `Database.opq`.
+	>>> # 
+	>>> from trix.data.database import *
+	>>> db = Database("test-config.db", sql=SAMPLE_CONFIG_DICT)
+	>>> db.open()
+	>>> db.opq('getfoo')
+	[('barnone', 'baz00kas')]
+	>>> 
+	
 	"""
 	
-	@classmethod
-	def fetchn(cls, cursor, n=None):
-		"""
-		This classmethod returns a list of `n` number of rows from 
-		`cursor`, starting at its current position. If value is None, 
-		all rows are returned.
-		"""
-		if n == None:
-			return cursor.fetchall()
-		else:
-			r = []
-			while n > 0:
-				r.append(cursor.fetchone())
-			return r
-	
-	
+	#
+	# NOTES:
+	#  - config may be a dict or a string path.
+	#
 	def __init__(self, config=None, *a, **k):
 		"""
 		Create a DB-API-2 Database.
 		
 		Pass config dict `config` and/or keyword arguments. As always,
-		kwargs replace matching keys in the `config` dict. 
+		kwargs replace matching keys in `config` dict. 
 		
-		The following config keys are critical:
+		Alternately, the value of `config` may be a file path. The mess 
+		of code below will sort it out. Ultimately, passing a file path 
+		as the `config` argument is equivalent to passing a config dict 
+		with only a "path"=<filepath> key (OR, passing keyword argument
+		path=<filepath>. It all works out.
 		
-		 - module: a db-api-2 module or module name (default: "sqlite3")
+		REMEMBER THIS:
+		The thing to remember here is that `config` is specifically for
+		Database parameters, while `a` arguments are available *ONLY* 
+		for arguments needed by a given DBMS's `connect` method.
+		
+		Note also, here, that the internally stored list, self.__a, 
+		which is set to the value of the `a` arguments, may in some 
+		cases be prepended by necessary values.
+		
+		
+		IMPORTANT KEYWORD ARGUMENTS:
+		 - module: A db-api-2 module or module name (default: "sqlite3").
 		 - args  : arguments to be passed to the open() method.
 		 - path  : file path to the db file (if applicable); if included,
 		           this value is prepended to args.
 		 - auto  : Bool; auto-init blank database if True.
-		 - sql   : If auto is True, a config key "sql" must also exist 
-		           with a dict value containing a "create" key with a 
-		           list of sql statements that define the structure of
-		           the database. This dict may also contain an "op" key
-		           with a dict containing named sql queries that will be
-		           triggered by the `Database.opq` and `Database.ops`
-		           methods.
+		 - sql   : If auto is True, a config key "sql" must also be  
+		           passed as a dict containing:
+		            * a "create" key with a list of sql statements that 
+		              define the structure of the database.
+		            * This dict may also contain an "op" key with a dict
+		              containing named sql queries that will be
+		              triggered by the `Database.opq` and `Database.ops`
+		              methods.
 		
 		#
 		# ALTERNATE CONFIG SPEC:
@@ -80,12 +134,18 @@ class Database(object):
 		#
 		Create JSON files with database configuration.
 		
+		  * coming soon -_- *
+		
 		"""
 		
-		# path might be None for some DBMS
+		# the `path` might be None for some DB-API-2 classes.
 		path = None
 		
-		# store args for opening database
+		#
+		# ARGS:
+		#  - Store args for opening database. These args
+		#    are held until it's time to open the db file.
+		#
 		self.__args = a
 		
 		if 'nconfig' in k:
@@ -147,13 +207,10 @@ class Database(object):
 			self.__mod = mod
 			self.__modname = type(self.__mod).__name__
 		
-		#
-		#
+
 		#
 		#
 		# SQL
-		#
-		#
 		#
 		#
 		sql = config.get('sql', {})
@@ -206,6 +263,17 @@ class Database(object):
 		return self.__con
 	
 	@property
+	def master(self):
+		"""
+		List information about tables (and hopefully other things).
+		"""
+		con = self.con
+		with con:
+			cur = con.cursor()
+			cur.execute("SELECT * FROM sqlite_master")
+			return trix.propx(cur.fetchall())
+	
+	@property
 	def mod (self):
 		"""Return the DB module object."""
 		return self.__mod
@@ -220,15 +288,14 @@ class Database(object):
 		"""Return the DB module name. (It may be None for some DBMS.)"""
 		return self.__path
 	
-	
-	
-	
 	@property
 	def sql(self):
 		"""
 		Return the full config sql dict.
 		
-		The Database class allows specification of a text configuration file that 
+		The Database class allows specification of a text configuration 
+		file (or dict) that as shown in the SAMPLE_CONFIG_DICT and in 
+		the example code in the Database class comments, above.
 		
 		"""
 		return self.__sql
@@ -239,7 +306,9 @@ class Database(object):
 		return self.__op
 	
 	
+	#
 	# CAT
+	#
 	def cat(self, cat):
 		"""
 		Returns the named SQL query category as a list or a dict as 
@@ -249,7 +318,9 @@ class Database(object):
 		return self.__sql[cat]
 		
 	
+	#
 	# CREATE
+	#
 	def create(self):
 		"""
 		Initialize database using the "create" category of the sql dict
@@ -267,7 +338,9 @@ class Database(object):
 		self.commit()
 	
 	
+	#
 	# OPEN
+	#
 	def open(self, **k):
 		"""
 		Open database using preconfigured arguments and optional kwargs.
@@ -319,8 +392,9 @@ class Database(object):
 			self.__con = None
 	
 	
-	
+	#
 	# EXEC
+	#
 	def execute(self, *a):
 		"""Execute a query with given args. Returns a cursor."""
 		return self.__con.execute(*a)
@@ -468,9 +542,38 @@ class Database(object):
 		if self.path:
 			d['path'] = self.path
 		return xdata(d, **k)
+
+
+
+	
+	@classmethod
+	def fetchn(cls, cursor, n=None):
+		"""
+		This classmethod returns a list of `n` number of rows from 
+		`cursor`, starting at its current position. If value is None, 
+		all rows are returned.
+		"""
+		if n == None:
+			return cursor.fetchall()
+		else:
+			r = []
+			while n > 0:
+				r.append(cursor.fetchone())
+			return r
 	
 	
+	
+	#	
+	#	
 	# EXPERIMENTAL
-	def master(self, sql, *a, **k):
-		pass
+	#	
+	#	
+	def cdesc(self, c):
+		"""
+		Returns a description of the cursor; names of fields selected.
+		"""
+		desc = map(lambda x: x[0], c.description)
+		return list(desc)
+	
+
 
