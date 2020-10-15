@@ -4,16 +4,19 @@
 # of the GNU Affero General Public License.
 #
 
-
+from trix import *
+from .database import *
 from ..util.propx.proplist import *   # trix, propgrid, et al
-import sqlite3, re
+import sqlite3, re, time
+import atexit
 
 
-class DBGrid(object):
+class DBGrid(Database):
 	"""
-	Add and query a set of named, in-memory sqlite3 tables.
+	Query a set of named, in-memory sqlite3 tables.
 	
 	EXAMPLE:
+	>>>
 	>>> from trix.data.dbgrid import *
 	>>> g = DBGrid()
 	>>> g.add('four', [[1,2], [3,4]], columns=['left','right'])
@@ -27,93 +30,285 @@ class DBGrid(object):
 	>>>
 	
 	UNDER CONSTRUCTION!
-	This class is under construction. I can't leave it out of  
-	the trix package because it's too useful for sorting grids.
-	Meanwhile, development continues.
+	 - This class is under construction. I can't leave it out of  
+	   the trix package because it's too useful for sorting grids.
+	   Meanwhile, development continues.
 	
 	"""
 	
-	def __init__(self, **k):
-		"""
-		Initialize grid database. See the `add()` method for details on
-		how to create tables.
-		"""
-		
-		type(self).re_columns = re.compile("^[_A-Za-z0-9]*$")
-		
-		self.con = sqlite3.connect(":memory:")
-		
-		# maintain a table list
-		self.__T = []
-		
+	PATHLIST = []
 	
 	#
-	# CALL
 	#
-	def __call__(self, sql, *a, **k):
+	# INIT
+	#
+	#
+	def __init__(self, **k):
 		"""
-		WARNING:
-		THIS CURRENTLY ONLY WORKS FOR SELECT STATEMENTS!
-		Running updates, deletions, etc... will cause a failure.
-		I'm working on a plan to make this more flexible. We'll see 
-		how that goes.
+		Create a database for manipulation of grids
 		
-		For now, use `DBGrid.execute()` to update/delete/etc...
+		A `grid` is a list containing a set of lists of equal length.
 		
-		Shortcut for `select()`. Returns a DataGrid containing results
-		of valid sqlite3 queries.
+		NOTES:
+		 * DBGrid database files are always sqlite3.
+		 * DBGrid database files are always temporary. Their names are
+		   always auto-generated.
+		 * The temporary database files are stored in DEF_CACHE, 
+		   and are deleted by the class destructor.
+		 
+		USAGE NOTES:
+		 * See the `add()` method for details on how to create tables.
+		 * It seems that once you've closed a DBGrid, you can't open it 
+		   again. I'm not sure if that's a bug or a feature. It doesn't
+		   seem to conflict with the purpose of this class.
+		
+		 
+		"""
+		
+		self.__cache = trix.path(DEF_CACHE).path
+		
+		#
+		# Generate time-based filename in DEF_CACHE.
+		#
+		f='%s/dbgrid/dbgrid.%s.sqlite3' % (
+				DEF_CACHE, str(time.time())
+			)
+		self.__fpath = f
+		
+		
+		#
+		# List of files to delete on exit.
+		#
+		type(self).PATHLIST.append(self.__fpath)
+		
+		
+		#
+		# Initialize the base class, Database.
+		#
+		Database.__init__(self, self.__fpath)
+		
+		#
+		# Set up a class value containing a regex that validates
+		# and (if necessary) deletes characters sqlite3 can't use
+		# as column names.
+		#
+		self.__T = type(self)
+		self.__T.re_columns = re.compile("^[_A-Za-z0-9]*$")
+	
+		
+		#
+		# Open the database immediately (unless autoopen=False).
+		# I can't imagine that ever being the case, but what do
+		# I know?
+		#
+		self.__autoopen = k.get('autoopen', True)
+		if self.__autoopen:
+			self.open()
+	
+	
+	#
+	#
+	# DEL
+	#
+	#
+	def __del__(self):
+		"""
+		Delete the temp file.
 		"""
 		try:
-			return self.select(sql, *a, **k)
+			self.close()
 		except BaseException as ex:
-			raise type(ex)("dbgrid-select-error", xdata(
-						sql=sql, a=a, k=k
-					)
+			print ("DBGrid __del__ Error: " + ex)
+	
+	
+	#
+	#
+	# CALL METHOD - Returns result of `self.execute`.
+	#
+	#
+	def __call__(self, sql, *a):
+		"""
+		Execute an sql query on the grid data.
+		
+		 * Pack the data (and hopefully headers) into a DBGrid.
+		 * In the event of an error, the connection is rolled back.
+		
+		>>>
+		>>> from trix.data.dbgrid import *
+		>>> 
+		>>> # make a dbgrid
+		>>> t = DBGrid()
+		>>> 
+		>>> #
+		>>> # Add the tablename `lr`, the columns (left and right),
+		>>> # and the data.
+		>>> #
+		>>> t.add("lr", [ ['left', 'right'], [1,2], [3,4] ])
+		>>> 
+		>>> #
+		>>> pl = t("select * from lr")
+		>>> pl()
+		[(1, 2), (3, 4)]
+		>>> 
+		>>> #
+		>>> t('insert into lr values (5,6)')
+		>>> t.commit()
+		>>> 
+		>>> #
+		>>> t("select * from lr order by left").grid()
+		1  2
+		3  4
+		5  6
+		>>> 
+				
+		"""
+		try:
+			c = self.cur.execute(sql, *a)
+			try:
+				ca = c.fetchall()
+				if ca:
+					#print ('debug ca', ca)
+					
+					cal = list(ca)
+					#print ('debug cal', cal)
+					
+					# prepend column names
+					cal.insert(0, self.cols)
+					#print ('debug cal.insert', cal)
+					
+					return trix.propx(cal)
+			except:
+				raise
+			
+		except sqlite3.OperationalError as ex:
+			#
+			# If there was an error, rollback and rethrow the exception.
+			#
+			self.con.rollback()
+			raise type(ex)(xdata(
+					sql=sql, a=a
 				)
+			)
+	
+	
+	
+	@property
+	def fpath(self):
+		"""Return the file path to this sqlite3 file."""
+		return self.__fpath
+	
+	
 	
 	@property
 	def tables(self):
 		"""
-		Return the names of tables that have been added to this dbgrid.
+		Return a propx object containing the names of tables added to
+		this object.
+		
+		If you want a straight python list, call this property as though
+		it were a method.
+		
+		Otherwise, all the proplist features are available.
+		
+		EXAMPLE:
+		>>> from trix.data.dbgrid import *
+		>>> g = DBGrid()
+		>>> g.add('four', [[1,2], [3,4]], columns=['left','right'])
+		>>> g("select * from four").grid()
+		left  right
+		1     2    
+		3     4 
+		>>>   
+		>>> g.tables()
+		['four']
+
 		"""
-		return list(self.__T)
+		
+		i = 0
+		tableList = []
+		while True:
+			try:
+				tableList.append(self.master()[i][1])
+				i+=1
+			except:
+				pass
+			
+			return trix.propx(tableList)
 	
 	
 	
-	
+	#
+	#
+	# ADD - It converts the grid to a real table.
+	#
+	#
 	def add(self, table_name, grid, columns=None):
 		"""
-		Pass a table name and a grid (list of lists of equal length).
-		Column names must be either prepended to the grid or specified 
-		as a list using the optional `columns` argument.
+		Add a table to this dbgrid.
+		
+		To add a table, pass the following arguments to the `DBGrid.add`
+		method:
+		
+		 * table_name: a string value, the name of the table to add 
+		   into this dbgrid.
+		   
+				>>>
+				>>> dg = DBGrid()
+				>>>
+				
+		 * grid: a list of lists.
+				
+				>>>
+				>>> #
+				>>> # Here, there is no `columns` argument, so the
+				>>> # first list is taken to be the column headings.
+				>>> #
+				>>> dg.add("oh_my_grid", [ ['left','right'], [1,2], [3,4] ])
+				>>> 
+		 	
+				OR
+		 	
+				If you pass a `grid` with `columns` specified, do not pass 
+				the column names in the list of lists.
+				
+				>>> #
+				>>> # Here, there IS a third (`columns`) argument, so the
+				>>> # column names should NOT be prepended to the second
+				>>> # argument's list.
+				>>> #
+				>>> dg.add("oh_my_grid", [[1,2],[3,4]], columns)
+				>>> 
+		
+		REMEMBER: When you pass your grid without a `columns` specifier,
+		          the first list in the grid is taken as a list of column
+		          names.
 		
 		>>>
 		>>> from trix.data.dbgrid import *
 		>>> t = DBGrid()
-		>>> t.add('four', [[1,2],[3,4]], columns=["L","R"])
+		>>> t.add('four', [[1,2],[3,4]], columns=["left","right"])
 		>>> t('select * from four')
 		<trix/propgrid list len=2>
 		>>> t('select * from four').grid()
-		L  R
-		1  2
-		3  4
-		>>>
-		>>> t.execute('delete from four where R = "4"')
-		>>> t.execute('delete from four where R = "4"')
-		>>>
+		left  right
+		1     2
+		3     4
 		
 		"""
 		
 		#
-		# SET UP THE INITIAL DATABASE IN MEMORY
-		#  - Copy `grid` (a list of lists) into a :memory: database.
-		#    This init method
+		# If a columns value was specified, it will be set directly
+		# into the `cols` value, and rows will be separated into 
+		# the `rows` variable.
 		#
-		
-		# get setup values
 		if columns:
 			cols = columns
 			rows = grid
+		
+		#
+		# If a columns value is NOT specified, the first list in the
+		# grid is taken to be the heading, providing column names.
+		#
 		else:
 			cols = grid[0]
 			rows = grid[1:]
@@ -126,7 +321,7 @@ class DBGrid(object):
 		for columnName in cols:
 			valid_chars = []
 			for c in columnName:
-				if type(self).re_columns.match(c):
+				if self.__T.re_columns.match(c):
 					valid_chars.append(c)
 			if valid_chars:
 				valid_cols.append("".join(valid_chars))
@@ -134,118 +329,92 @@ class DBGrid(object):
 				valid_cols.append("COLUMN_%i" % i)
 				i+=1
 		
+		#
+		# Set the validated columns in `self.cols`.
+		#
 		self.cols = cols = valid_cols
 		
 		#
-		# create memory database
+		# Create a table in the temporary database.
 		#
-		sql = "create table %s (%s)" % (table_name, ','.join(cols))
+		sql = "create table %s (%s)" % (table_name, ','.join(self.cols))
 		try:
 			self.con.execute(sql)
 		except:
 			raise Exception("dbgrid.add", xdata(
-					columns=cols, row_ct=len(rows), sql=sql, table=table_name
+					columns=self.cols, row_ct=len(rows), sql=sql, table=table_name
 				))
 		
 		# get the cursor
 		self.cur = self.con.cursor()
 		
 		# populate database
-		qms = ",".join("?"*len(cols))
+		qms = ",".join("?"*len(self.cols))
 		sql = "insert into %s values (%s)" % (table_name, qms)
 		self.cur.executemany(sql, iter(rows))
 		
-		# add tablename
-		self.__T.append(table_name)
+		return self
 	
 	
 	
-	
-	def remove(self, tableName):
-		"""
-		Remove table `tableName` from the temporary database.
-		
-		WARNING: Do not use "DROP TABLE <tablename>" to remove tables 
-		         or the table list will not be updated to reflect the 
-		         removed table.
-		"""
-		if tablename in self.__T:
-			self.execute('drop table %s'%tablename)
-			del(self.T[tablename]) 
-	
-	
-	
-	
+	#
+	#
+	# EXECUTE - returns a cursor
+	#
+	#
 	def execute(self, sql, *a):
 		"""
 		Execute an sql query on the grid data. Returns an sqlite3 cursor.
+		In the event of an error, the connection is rolled back.
+		
+		Returns a cursor.
+		
 		"""
 		try:
-			return self.cur.execute(sql, *a)
+			return Database.execute(self, sql, *a)
+		
 		except sqlite3.OperationalError as ex:
-			raise type(ex)(xdata(sql=sql, a=a, cols=self.cols, 
-					tables=self.__T
+			#
+			# If there was an error, rollback and rethrow the exception.
+			#
+			self.con.rollback()
+			raise type(ex)(xdata(
+					sql=sql, a=a, cols=self.cols, tables=self.__T
 				)
 			)
+
 	
 	
-	
-	
-	def query(self, sql, *a):
-		"""
-		Execute an sql query on the grid data. Returns a list of lists 
-		(grid) matching the query result.
-		"""
-		cc = self.execute(sql, *a)
-		if cc:
-			return cc.fetchall()
-	
-	
-	
-	
-	def select(self, sql, *a, **k):
-		"""
-		THIS CURRENTLY ONLY WORKS FOR SELECT STATEMENTS!
-		See: __call__(), above.
-		
-		Execute select query `sql`.	Returns a propgrid loaded with the
-		query result. A column name list is prepended by default, unless
-		you pass the kwarg header=False.
-		
-		NOTE: Passing an statement that does not select data will return
-		      a propgrid containing an empty list.
-		"""
-		newgrid = self.query(sql, *a)
-		if k.get('h', k.get('header', True)):
-			try:
-				r = [self.get_column_names()]
-				r.extend(newgrid)
-				return propgrid(r)
-			except BaseException as ex:
-				print ("TEMP DEBUG: %s" % str(ex))
-				return []
-		else:
-			return propgrid(newgrid)
-	
-	
-	
-	
-	def get_column_names(self):
-		"""Returns the list of columns from the most recent query."""
+	def close(self):
 		try:
-			colnames = []
-			for x in self.cur.description:
-				colnames.append(x[0])
-			return colnames
-		except:
-			raise
+			Database.close(self)
+		except BaseException as ex:
+			pass
+		try:
+			trix.path(self.fpath).wrapper().remove()
+		except BaseException as ex:
+			pass
 	
-	#
-	# ALIASES
-	#  - Helpful for use in lambda callbacks.
-	#  - Note that the alias for select is the `__call__()` method
-	#
-	q = query
-	tt = tables
-	rm = remove
-	ex = execute
+	
+	
+	
+	# AT EXIT
+	@classmethod
+	def _at_exit(cls):
+		for path in cls.PATHLIST:
+			w = trix.path(path).wrapper()
+			try:
+				w.close()
+				w.remove()
+			except:
+				try:
+					w.remove()
+				except:
+					pass
+
+
+#
+# Close and clean up temp files when program terminates.
+#
+atexit.register(DBGrid._at_exit)
+
