@@ -29,11 +29,6 @@ class DBGrid(Database):
 	>>> g = trix.path("~/trix").list.propgrid.dbgrid('lg')
 	>>>
 	
-	UNDER CONSTRUCTION!
-	 - This class is under construction. I can't leave it out of  
-	   the trix package because it's too useful for sorting grids.
-	   Meanwhile, development continues.
-	
 	"""
 	
 	PATHLIST = []
@@ -221,6 +216,14 @@ class DBGrid(Database):
 		>>>   
 		>>> g.tables()
 		['four']
+		
+		
+		EXAMPLE 2: 
+		#
+		# All on one line (sort of).
+		#
+		trix.npath().list.dbgrid('lgrid').x(
+			'select * from lgrid order by size').grid()
 
 		"""
 		
@@ -382,7 +385,15 @@ class DBGrid(Database):
 					sql=sql, a=a, cols=self.cols, tables=self.__T
 				)
 			)
-
+	
+	
+	
+	def x(self, *a, **k):
+		"""
+		Execute an sql statement returning any selected values.
+		"""
+		return trix.propx(self.__call__(*a, **k))
+	
 	
 	
 	def close(self):
