@@ -19,71 +19,105 @@ class propbase(object):
 	push results forward through dot notation and method calls. This
 	allows a fun and intuitive way to gather, manipulate, and display
 	data.
-	
-	
-	# PROPX CLASS HIERARCHY
-	All propx classes descend from propbase. The propiter class is the
-	base for propdict, propseq, propstr, and proplist. The propgrid
-	class is based on proplist.
-	
-    * propbase
-    * |_ propiter
-    *    |_propdict
-    *    |_propseq
-    *    |_propstr
-    *    |_proplist
-    *      |_propgrid
-	
-	
-	To illustrate how propx objects work, let's take a look at a very
-	simple example. The `trix.fs.Path` and its descendants make use of
-	propx objects to (among other things) display directory listings.
+	                                             
+	# PROPX CLASS HIERARCHY                         
+	All propx classes descend from propbase.        propbase  
+	The propiter class is the base for propdict,    |_ propiter  
+	propseq, propstr, and proplist. The propgrid      |_propdict
+	class is based on proplist.                       |_propseq
+	                                                  |_propstr
+	To illustrate how propx objects work, let's       |_proplist  
+	take a look at a very simple example. The           |_propgrid
+	`trix.fs.Path` and its descendants make use of
+	propx objects to (among other things) display 
+	directory listings.
 	
 	EXAMPLES: Directory Listing
 	>>>
 	>>> import trix
 	>>> 
-	>>> # sure this is fun...
-	>>> trix.path('trix/util/propx').ls() 
+	>>> #
+	>>> # Sure this is fun...
+	>>> #
+	>>> trix.npath('util/propx').ls() 
+	['__init__.py', 'propstr.py', 'propiter.py', 'propdict.py', 
+	'proplist.py', '_propall.py', 'propseq.py']
 	>>> 
+	>>> #
 	>>> # ...but isn't this nicer?
-	>>> trix.path('trix/util/propx').ls.display()
+	>>> #
+	>>> trix.npath('util/propx').ls.display()
+	[
+	  "__init__.py",
+	  "propstr.py",
+	  "propiter.py",
+	  "propdict.py",
+	  "proplist.py",
+	  "_propall.py",
+	  "propseq.py"
+	]
 	>>> 
+	>>> #
 	>>> # ...or this?
-	>>> trix.path('trix/util/propx').list.grid()
+	>>> #
+	>>> trix.npath('util/propx').list.grid()
+	name         type size  uid  gid  atime      mtime      ctime     
+	__init__.py  f    13362 1000 1000 1602791711 1602791711 1602791711
+	propstr.py   f    1438  1000 1000 1602739773 1602625146 1602625146
+	propiter.py  f    7583  1000 1000 1602789805 1602789708 1602789708
+	propdict.py  f    1301  1000 1000 1602739773 1602625146 1602625146
+	proplist.py  f    7873  1000 1000 1602791475 1602790478 1602790478
+	_propall.py  f    370   1000 1000 1602739773 1602625146 1602625146
+	propseq.py   f    1677  1000 1000 1602744617 1602744125 1602744125
+	>>>
 	
 	
 	# EXPLANATION:
-	So what is happening here?
+	So what is happening up there?
 	
-	In the example above, the call to trix.path returns an `fs.Path` 
-	object, (or an `fs.Dir` object, which is based on `fs.Path`). Many 
-	of the properties of these methods return a propx object.
+	Because "trix/util/propx" is a directory, the call to `trix.path`
+	returns an `fs.Dir` object (based on `fs.Path`). Many properties of
+	`fs.Dir` (including `list` and `ls`) return a propx object.
 	
-	When we call `trix.path('trix/util/propx').ls` property, a proplist
-	object encapsulating the directory listing is returned. The default 
-	behavior for calling a propx object as a function is to return the
-	actual value held by the object. That is, the object's .o method: 
-	the object `o` contained by the propx object. Therefore, calling
-	`trix.path('trix/util/propx').ls()` returns a list containing the
-	names of the items in the list (as provided to the proplist object's
-	constructor.
+	When we call `trix.npath('util/propx').ls`, (see `trix.npath`) a
+	proplist object encapsulating the directory listing is returned.
 	
-	However, the __call__ method is only one of many methods available
-	in `proplist.` The `proplist` class is based on propseq, which is
+	The default behavior for calling a propx object *as a function* is 
+	to return the actual value held by the object. It is an alias for
+	the object's .o property.
+	
+	>>>
+	>>> trix.npath('util/propx').ls.o 
+	['__init__.py', 'propstr.py', 'propiter.py', 'propdict.py', 
+	'proplist.py', '_propall.py', 'propseq.py']
+	>>>
+	>>> trix.npath('util/propx').ls() 
+	['__init__.py', 'propstr.py', 'propiter.py', 'propdict.py', 
+	'proplist.py', '_propall.py', 'propseq.py']
+	>>> 
+	
+	Therefore, despite that `Path.ls` is a property, calling 
+	`trix.path('trix/util/propx').ls()` returns a  list containing the
+	directory listing.
+	
+	
+	# A PLETHORA OF FEATURES
+	The __call__ method is only one of many methods made available by 
+	`proplist.` The `proplist` class is based on propseq, which is
 	based on propiter, and propbase, so a plethora of manipulation and
 	display options are available here.
 	
 	  * propbase
     * |_propiter
     *   |_proplist
+    *     |_propgrid
 	
 	In the "Directory Listing" examples, above, you will notice the 
 	following calls:
 	
-	>>> trix.path('trix/util/propx').ls()          # ex 1
-	>>> trix.path('trix/util/propx').ls.display()  # ex 2
-	>>> trix.path('trix/util/propx').list.grid()   # ex 3
+	>>> trix.npath('util/propx').ls()          # ex 1
+	>>> trix.npath('util/propx').ls.display()  # ex 2
+	>>> trix.npath('util/propx').list.grid()   # ex 3
 	
 	In the first call, the `trix.path` method returns the default
 	value from the proplist's __call__ method: A simple list of the
@@ -99,8 +133,20 @@ class propbase(object):
 	name, type, size, uid, gid, atime, mtime, and ctime.
 	
 	The `proplist` subclass, `propgrid`, is used to print the entire
-	listing to the terminal.
+	listing to the terminal. The `propgrid` class includes a method for
+	returning a `trix.data.dbgrid.DBGrid` object wrapping the directory
+	results in a temporary sqlite3 table, so results may be sorted or
+	otherwise adjusted as necessary using sql statements.
 	
+	EXAMPLE:
+	>>>
+	>>> import trix
+	>>> 
+	>>> # get a `trix.fs.dir.Dir` object the safe way
+	>>> d = trix.npath('util/propx').list
+	>>>
+	>>> dg = d.list.dbgrid("tb")
+	>>>
 	"""
 	
 	#
