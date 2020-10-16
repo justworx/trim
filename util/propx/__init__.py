@@ -6,12 +6,21 @@
 
 from ... import *
 
+
+# -------------------------------------------------------------------
+#
+#
+# PROP-BASE - Basic utilities for propx subclasses.
+#
+#
+# -------------------------------------------------------------------
+
 class propbase(object):
 	"""
 	Wraps objects with a set of methods convenitent for query, 
 	display, and manipulation.
 	
-	The trix package can be of great use and, once you learn the 
+	The propx package can be of great use and, once you learn the 
 	concepts, the propx package classes make working in code or in
 	the terminal easy and fun.
 	
@@ -21,13 +30,13 @@ class propbase(object):
 	data.
 	                                             
 	# PROPX CLASS HIERARCHY                         
-	All propx classes descend from propbase.        propbase  
-	The propiter class is the base for propdict,    |_ propiter  
-	propseq, propstr, and proplist. The propgrid      |_propdict
-	class is based on proplist.                       |_propseq
-	                                                  |_propstr
-	To illustrate how propx objects work, let's       |_proplist  
-	take a look at a very simple example. The           |_propgrid
+	All propx classes descend from propbase.         propbase  
+	The propiter class is the base for propdict,     |_ propiter  
+	propseq, propstr, and proplist. The propgrid       |_propdict
+	class is based on proplist.                        |_propseq
+	                                                   |_propstr
+	To illustrate how propx objects work, let's        |_proplist  
+	take a look at a very simple example. The            |_propgrid
 	`trix.fs.Path` and its descendants make use of
 	propx objects to (among other things) display 
 	directory listings.
@@ -73,7 +82,7 @@ class propbase(object):
 	
 	
 	# EXPLANATION:
-	So what is happening up there?
+	So what is happening up here?
 	
 	Because "trix/util/propx" is a directory, the call to `trix.path`
 	returns an `fs.Dir` object (based on `fs.Path`). Many properties of
@@ -101,7 +110,9 @@ class propbase(object):
 	directory listing.
 	
 	
+	#
 	# A PLETHORA OF FEATURES
+	#
 	The __call__ method is only one of many methods made available by 
 	`proplist.` The `proplist` class is based on propseq, which is
 	based on propiter, and propbase, so a plethora of manipulation and
@@ -119,13 +130,13 @@ class propbase(object):
 	>>> trix.npath('util/propx').ls.display()  # ex 2
 	>>> trix.npath('util/propx').list.grid()   # ex 3
 	
-	In the first call, the `trix.path` method returns the default
+	In the first call, the `trix.npath` method returns the default
 	value from the proplist's __call__ method: A simple list of the
 	names of files within the directory.
 	
 	The second example produces a proplist object, too, but instead of
 	the retrieving the result of the `__call__()` method, the returned
-	proplist object's display() method is called, printing a JSON 
+	proplist object's `display()` method is called, printing a JSON 
 	representation of the list of directory item names.
 	
 	In the third example, instead of calling `ls` for a simple list,
@@ -149,6 +160,7 @@ class propbase(object):
 	>>>
 	"""
 	
+	#
 	#
 	# INIT
 	#
@@ -189,7 +201,7 @@ class propbase(object):
 		Until the final closing parentheses are added to an	expression, 
 		dot-notation values continue producing propx objects.
 		
-		In the examples below, `trix.path()` produces an fs.Dir object 
+		In the examples below, `trix.path()` produces an `fs.Dir` object 
 		that manages, manipulates, and generally deals with directories.
 		The `fs.Dir` class features several properties that produce propx
 		object as results.
@@ -226,12 +238,20 @@ class propbase(object):
 		self.__k = k
 	
 	
-	
+	#
+	#
+	#  REPR
+	#
+	#
 	def __repr__(self):
 		return "<trix/%s %s>" % (self.T.__name__, self.To.__name__) 
 	
 	
-	
+	#
+	#
+	#  CALL
+	#
+	#
 	def __call__(self, *a, **k):
 		"""
 		On first call, sets the value for the `self.o` property. On
@@ -264,6 +284,11 @@ class propbase(object):
 			return self.__o
 	
 	
+	#
+	#
+	#  O - The contained data in its raw form.
+	#
+	#
 	@property
 	def o(self):
 		"""
@@ -275,21 +300,45 @@ class propbase(object):
 		except:
 			return self.__call__(*self.__a, **self.__k)
 	
+	
+	#
+	#
+	# A - Args given to constructor
+	#
+	#
 	@property
 	def a(self):
 		"""Returns arguments given to constructor."""
 		return self.__a
 	
+	
+	#
+	#
+	# K - Keyword-args given to constructor
+	#
+	#
 	@property
 	def k(self):
 		"""Returns keyword args given to constructor."""
 		return self.__k
 	
+	
+	#
+	#
+	# TO - Type of Propbase Object
+	#
+	#
 	@property
 	def T(self):
 		"""Return the type of this `propbase` (or descendant) object."""
 		return type(self)
 	
+	
+	#
+	#
+	# TO - Type of Object
+	#
+	#
 	@property
 	def To(self):
 		"""Return the type of `self.o`."""
@@ -298,7 +347,7 @@ class propbase(object):
 	
 	#
 	#
-	# UTILITY
+	# COMP-ENC
 	#
 	#
 	@property
@@ -316,6 +365,12 @@ class propbase(object):
 			self.__compenc = trix.nmodule("util.compenc")
 			return self.__compenc
 	
+	
+	#
+	#
+	# JPARSE
+	#
+	#
 	@property
 	def jparse(self, **k):
 		"""
@@ -328,7 +383,14 @@ class propbase(object):
 			raise type(ex)(xdata(o=self.o, k=k))
 	
 	
-	# ---- Methods that can handle pretty much any data type -----
+	
+	# -----------------------------------------------------------------
+	#
+	#
+	# Methods that can handle pretty much any data type
+	#
+	#
+	# -----------------------------------------------------------------
 	
 	#
 	#
@@ -342,7 +404,7 @@ class propbase(object):
 	
 	#
 	#
-	# FORMATTING
+	# JSON
 	#
 	#
 	def json(self, *a, **k):
@@ -354,6 +416,11 @@ class propbase(object):
 		return trix.formatter(*a, **k).format(self.o)
 	
 	
+	#
+	#
+	# JCOMPACT
+	#
+	# 
 	def jcompact(self, *a, **k):
 		"""Return self.o forced to jcompact text."""
 		k['f'] = 'JCompact'
@@ -361,25 +428,42 @@ class propbase(object):
 	
 	
 	#
+	#
 	# DATA MANIPULATION
+	#
 	# 
 	def param(self, o=None):
-		"""Returns arg `o` or `self.o` wrapped in a Param object."""
+		"""
+		Returns arg `o` or `self.o` wrapped in a Param object.
+		
+		See: The `trix.data.param.Param` for information on the Param 
+		     class, methods, properties, and usage.
+		"""
 		try:
 			return self.__Param(o or self.o)
 		except:
 			self.__Param = trix.nvalue("data.param", "Param")
 			return self.__Param(o or self.o)
 	
+	
+	#
+	#
 	# CURSOR
+	#
+	#
 	def cursor(self, **k):
 		"""
-		Return a cursor containing self.o; any given keyword arguments
+		Return a cursor containing `self.o`. Any given keyword arguments
 		are passed to the cursor's constructor.
 		"""
 		return trix.ncreate("data.cursor.Cursor", self.o, **k)
 	
+	
+	#
+	#
 	# PDQ
+	#
+	#
 	def pdq(self, **k):
 		"""
 		Return a python data Query object given self.o and any kwargs.
@@ -387,19 +471,46 @@ class propbase(object):
 		return trix.ncreate("data.pdq.Query", self.o, **k)
 	
 	
+	
+	# -----------------------------------------------------------------
+	#
 	#
 	# ENCODING , COMPRESSION
 	#
+	#
+	# -----------------------------------------------------------------
+	
+	#
+	#
+	# B64 - BASE64 CONVERSION
+	#
+	#
 	def b64(self, **k):
-		"""Return self.o as (compact) JSON bytes encoded to base64."""
+		"""
+		Return self.o as (compact) JSON bytes encoded to base64.
+		"""
 		k.setdefault('f','JCompact')
 		return self.compenc.b64.encode(self.json(**k).encode(**k))
 	
+	
+	#
+	#
+	# B64-S - BASE64 CONVERSION - COMPACTED
+	#
+	#
 	def b64s(self, **k):
-		"""Return self.o as (compact) JSON bytes encoded to base64."""
+		"""
+		Return self.o as (compact) JSON bytes encoded to base64.
+		"""
 		k.setdefault('f','JCompact')
 		return self.compenc.b64.sencode(self.json(**k).encode('utf8'))
 	
+	
+	#
+	#
+	# B64-U - BASE64 CONVERSION - URL-SAFE
+	#
+	#
 	def b64u(self, **k):
 		"""
 		Return self.o as (compact) JSON bytes encoded to url-safe base64.
@@ -407,18 +518,34 @@ class propbase(object):
 		k.setdefault('f','JCompact')
 		return self.compenc.b64.uencode(self.json(**k).encode('utf8'))
 	
+	
+	#
+	#
+	# B32 - BASE32 CONVERSION
+	#
+	#
 	def b32(self, **k):
 		"""Return self.o as (compact) JSON bytes encoded to base32."""
 		k.setdefault('f','JCompact')
 		return self.compenc.b32.encode(self.json(**k).encode(**k))
 	
+	
+	#
+	#
+	# B16 - BASE16 CONVERSION
+	#
+	#
 	def b16(self, **k):
 		"""Return self.o as (compact) JSON bytes encoded to base16."""
 		k.setdefault('f','JCompact')
 		return self.compenc.b16.encode(self.json(**k).encode(**k))
 	
 	
-	
+	#
+	#
+	# COMPACT
+	#
+	#
 	def compact(self, **k):
 		"""
 		Convert self.o to json, zlib-compress, and return base-64 bytes.
@@ -433,6 +560,11 @@ class propbase(object):
 		return self.compenc.compact(self.jcompact(**k).encode('utf8'))
 	
 	
+	#
+	#
+	# EXPAND
+	#
+	#
 	def expand(self, **k):
 		"""
 		Return propx containing data "expanded" from data that had
@@ -451,27 +583,21 @@ class propbase(object):
 	
 	#
 	#
-	#
-	#
-  # Experimental
-	#
-	#
-	#
-	#
-	
-	#
 	# CAST
+	#
 	#
 	def cast(self, T):
 		"""
 		Return a propx object given `self.o` cast as a different type.
-		This would typically be used to cast an iterator as a list.
+		This might be used to cast an iterator as a list.
 		"""
 		return propx(T(self.o))
 	
 	
 	#
+	#
 	# OUTPUT - Print Contents
+	#
 	#
 	def output(self):
 		"""
@@ -481,7 +607,9 @@ class propbase(object):
 	
 	
 	#
+	#
 	# SPLITLINES - Bytes or Strings
+	#
 	#
 	def splitlines(self, *a, **k):
 		"""
@@ -498,28 +626,16 @@ class propbase(object):
 	
 	
 	#
-	# Maybe gather all the conversions here...? No, guess not.
 	#
-	
-	# this one seems to work
+	#  PROP-STR
+	#
+	#
 	def propstr(self):
+		"""
+		Returns a propstr object, converting the packaged data to its
+		string representation.
+		"""
 		return trix.ncreate("util.propx.propstr.propstr", str(self.o))
-	
-	# The rest will probably have to be specifically defined in the
-	# appropriate classes.
-	"""
-	def propdict(self):
-		return trix.ncreate("util.propx.propdict.propdict", self.o)
-	
-	def propiter(self):
-		return trix.ncreate("util.propx.propiter.propiter", self.o)
-	
-	def proplist(self):
-		return trix.ncreate("util.propx.proplist.proplist", list(self.o))
-	
-	def propseq(self):
-		return trix.ncreate("util.propx.propseq.propseq", (self.o))
-	"""
 	
 
 
