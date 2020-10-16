@@ -1,5 +1,5 @@
 #
-# Copyright 2019 justworx
+# Copyright 2019-2020 justworx
 # This file is part of the trix project, distributed under 
 # the terms of the GNU Affero General Public License.
 #
@@ -11,7 +11,7 @@ from .propseq import *
 # -------------------------------------------------------------------
 #
 #
-# PROP-LIST
+# PROP-LIST - Wrapping lists.
 #
 #
 # -------------------------------------------------------------------
@@ -22,8 +22,13 @@ class proplist(propseq):
 	for manipulation and display.
 	"""
 	
+	#
+	#
+	#  JOIN
+	#
+	#
 	def join(self, glue=DEF_NEWL, **k):
-		"""	Use to join those lines of text."""
+		"""Use to join those lines of text."""
 		x = []
 		try:
 			for line in self.o:
@@ -35,16 +40,31 @@ class proplist(propseq):
 		return glue.join(x)
 	
 	
+	#
+	#
+	#  TEXT
+	#
+	#
 	def text(self):
 		"""Use to join those lines of text."""
 		return self.join(encoding=DEF_ENCODE)
 	
 	
+	#
+	#
+	#  UNIQUE
+	#
+	#
 	def unique(self):
 		"""Return a proplist containing the unique set of items."""
 		return proplist(list(set(self.o)))
 	
 	
+	#
+	#
+	#  EXTEND
+	#
+	#
 	def extend(self, additems):
 		"""
 		Return a proplist containing this list extended by items from the
@@ -56,6 +76,11 @@ class proplist(propseq):
 		return proplist(L)
 	
 	
+	#
+	#
+	#  COMPARE
+	#
+	#
 	def compare (self, other_list):
 		"""
 		Return a propdict object showing a comparison between the
@@ -104,8 +129,13 @@ class proplist(propseq):
 				d['-'].append(x)
 		
 		return trix.propx(d)
-				
 	
+	
+	#
+	#
+	#  MERGE
+	#
+	#
 	def merge(self, additems):
 		"""
 		Return a proplist containing a unique set of items from this list
@@ -122,34 +152,38 @@ class proplist(propseq):
 		return propx(self.extend(additems)).unique()
 	
 	
-	def each(self, x, *a, **k):
-		"""
-		Alter each item given callable `x` and arguments.
+	# def each(self, x, *a, **k):
+		# """
+		# Alter each item given callable `x` and arguments.
 		
-		Perform callable `x` on each item in the list, applying arguments
-		`*a` and keyword arugments `**k`.
+		# Perform callable `x` on each item in the list, applying arguments
+		# `*a` and keyword arugments `**k`.
 		
-		Returns a new proplist containing altered items.
+		# Returns a new proplist containing altered items.
 		
-		EXAMPLE:
-		#
-		# Decode encoded list items
-		#
-		>>>
-		>>> from trix.util.propx._propall import *
-		>>> tp = trix.popen("ps").communicate()
-		>>> propx(tp).proplist.each(bytes.decode, encoding='utf8').o
-		>>>
+		# EXAMPLE:
+		# #
+		# # Decode encoded list items
+		# #
+		# >>>
+		# >>> from trix.util.propx._propall import *
+		# >>> tp = trix.popen("ps").communicate()
+		# >>> propx(tp).proplist.each(bytes.decode, encoding='utf8').o
+		# >>>
 		
-		"""
-		L = []
-		for item in self.o:
-			L.append( x(item, *a, **k) )
+		# """
+		# L = []
+		# for item in self.o:
+			# L.append( x(item, *a, **k) )
 			
-		return proplist(L)
+		# return proplist(L)
 	
 	
-	
+	#
+	#
+	#  MERGE
+	#
+	#
 	@property
 	def propgrid(self):
 		"""
@@ -158,9 +192,22 @@ class proplist(propseq):
 		return propgrid(self.o)
 	
 	
-	@property
-	def dbgrid(self):
-		return trix.ncreate('data.dbgrid', self.o)
+	#
+	#
+	# DB-GRID
+	#
+	#
+	def dbgrid(self, tableName, **k):
+		"""
+		Returns a `propgrid.dbgrid.DBGrid` object.
+		
+		Pass a `tablename` and any desired keyword arguments.
+		
+		SEE ALSO:
+		See `trix.util.propx.propgrid.dbgrid` for more information.
+		
+		"""
+		return self.propgrid.dbgrid(tableName, **k)
 
 
 
@@ -181,12 +228,14 @@ class propgrid(proplist):
 	NOTE: data.dbgrid always prepends the header row to query results.
 	      The 'header' kwarg is accepted in case we need to pass a grid
 	      (list of lists) that's not prepended with column titles.
-	      
-	EXAMPLE
-	
 	
 	"""
 	
+	#
+	#
+	# CALL
+	#
+	#
 	def __call__(self, *a, **k):
 		"""
 		The __call__ method overridden to separate the header from the
@@ -233,9 +282,11 @@ class propgrid(proplist):
 			return self.__o
 	
 	
-	
-	
-	
+	#
+	#
+	# O PROPERTY
+	#
+	#
 	@property
 	def o(self):
 		"""
@@ -248,6 +299,12 @@ class propgrid(proplist):
 			self.__call__(*self.a, **self.k)
 			return self.__o
 	
+	
+	#
+	#
+	# H PROPERTY
+	#
+	#
 	@property
 	def h(self):
 		"""
@@ -259,11 +316,23 @@ class propgrid(proplist):
 			self.o
 			return self.__h
 	
+	
+	#
+	#
+	# HEADER PROPERTY (SAME AS H)
+	#
+	#
 	@property
 	def header(self):
 		"""Return the value of the header row."""
 		return self.h
 	
+	
+	#
+	#
+	# HH PROPERTY
+	#
+	#
 	@property
 	def hh(self):
 		"""
@@ -275,6 +344,12 @@ class propgrid(proplist):
 			self.o
 			return self.__hh
 	
+	
+	#
+	#
+	# HAS HEADER PROPERTY - SAME AS HH
+	#
+	#
 	@property
 	def has_header(self):
 		"""
@@ -283,11 +358,16 @@ class propgrid(proplist):
 		return self.hh
 	
 	
-			
+	#
+	#
+	# GEN PROPERTY
+	#
+	#
 	@property
 	def gen(self):
 		"""
-		Generates the header row (if it exists) and all data rows.
+		Generates the header row (if it exists), then appends all data 
+		rows.
 		"""
 		
 		try:
@@ -304,7 +384,11 @@ class propgrid(proplist):
 			yield(r)
 	
 	
-	
+	#
+	#
+	# GRID
+	#
+	#
 	def grid(self, *a, **k):
 		"""
 		Display this data formatted as a grid.
@@ -318,9 +402,10 @@ class propgrid(proplist):
 		trix.display(list(self.gen), *a, **k)
 	
 	
-	
+	#
 	#
 	# DB-GRID
+	#
 	#
 	def dbgrid(self, tableName, **k):
 		"""
@@ -341,12 +426,13 @@ class propgrid(proplist):
 		
 		EXAMPLE:
 		import trix
-		lgrid = trix.path("~/trix").list.propgrid.dbgrid('lgrid')
+		lgrid = trix.path("~/trix").list.dbgrid('lgrid')
 		return lgrid('select * from lgrid order by mtime desc')
 		
 		"""
+		
 		g = trix.ncreate('data.dbgrid.DBGrid', **k)
-		g.add(tableName, self.o, self.h)
+		g.add(tableName, self.o, self.h, **k)
 		return g
 
 

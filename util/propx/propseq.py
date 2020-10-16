@@ -1,16 +1,21 @@
 #
-# Copyright 2019 justworx
+# Copyright 2019-2020 justworx
 # This file is part of the trix project, distributed under 
 # the terms of the GNU Affero General Public License.
 #
 
+
 from .propiter import *
 
+
+# -------------------------------------------------------------------
 #
-# PROP-SEQ
-#  - NOTE: be sure to check whether xrange should be wrapped with
-#          propseq, propset, or propiter.
 #
+# PROP-LIST - Wrapping lists.
+#
+#
+# -------------------------------------------------------------------
+
 class propseq(propiter):
 	"""
 	Use this class to wrap objects that implement str, unicode, list, 
@@ -18,40 +23,56 @@ class propseq(propiter):
 	"""
 	
 	def __repr__(self):
-		return "<trix/%s %s len=%i>" % (
-				self.T.__name__, self.To.__name__, len(self.o)
-			) 
+		try:
+			return "<trix/%s %s len=%i>" % (
+					self.T.__name__, self.To.__name__, len(self.o)
+				) 
+		except:
+			return "<trix/%s %s>" % (
+					self.T.__name__, self.To.__name__
+				) 
+		
 	
-	
+	#
+	#
+	# GET ITEM
+	#
 	# Replace iter's weird getitem method with something appropriate
 	# to sequence objects.
+	#
+	#
 	def __getitem__(self, key):
 		return type(self)(self.o[key])
 	
 	
+	#
+	#
+	#  SET ITEM
+	#
+	#
 	def __setitem__(self, key, v):
 		self.o[key] = v
 	
 	
-	# propiter does this
-	# ~ @property
-	# ~ def sorted(self):
-		# ~ """
-		# ~ Return a proplist with sorted content.
-		# ~ """
-		# ~ return type(self)(sorted(self.o))
-	
-	# ~ @property
-	# ~ def reversed(self):
-		# ~ """Return a proplist with reversed content."""
-		# ~ return type(self)(list(reversed(self.o)))
-	
+	#
+	#
+	#  LINES
+	#
+	#
 	@property
 	def lines(self):
-		"""Generate string items (lines)."""
+		"""
+		Generate string items (lines).
+		"""
 		for line in self.o:
 			yield (str(line))
 	
+	
+	#
+	#
+	#  PROP LIST
+	#
+	#
 	@property
 	def proplist(self):
 		"""
@@ -60,8 +81,18 @@ class propseq(propiter):
 		"""
 		return trix.ncreate("util.propx.proplist.proplist", list(self.o))
 	
+	
+	#
+	#
+	#  PROP GRID
+	#
+	#
 	@property
 	def propgrid(self):
+		"""
+		Return this object's sequence, self.o, as a list of lists wrapped
+		inside a proplist object.
+		"""
 		ilen = len(self.o[0])
 		for o in self.o:
 			if len(o) != ilen:
@@ -71,4 +102,5 @@ class propseq(propiter):
 				))
 		
 		return trix.ncreate('util.propx.proplist.propgrid', list(self.o))
+
 
