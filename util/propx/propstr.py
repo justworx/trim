@@ -4,8 +4,17 @@
 # the terms of the GNU Affero General Public License.
 #
 
+
 from .propseq import *
 
+
+# -------------------------------------------------------------------
+#
+#
+# PROP-STR - Wrapping strings
+#
+#
+# -------------------------------------------------------------------
 
 class propstr(propseq):
 	"""
@@ -35,12 +44,17 @@ class propstr(propseq):
 		
 		>>> from trix.util.propx import *
 		>>> px = propx("[1,2,3] means 'one, two, three'")
-		>>> px.scan().splits()
-		['[1,2,3]', 'means', "'one, two, three'"]
+		>>> px.scan().split()
+		["'[1,2,3]', 'means', "'one, two, three'"]
 		>>>
 		
 		"""
-		return trix.ncreate('data.scan.Scanner', self.o, **k)
+		try:
+			return trix.ncreate('data.scan.Scanner', self.o, **k)
+		except BaseException as ex:
+			raise type(ex)("err-propstr-scan", xdata(
+					data=self.o, k=k, python=str(ex)
+				))
 	
 	
 	def pdq(self, *a, **k):
@@ -64,6 +78,7 @@ class propstr(propseq):
 	#
 	# needs a regex method
 	#
+	
 
 
 
