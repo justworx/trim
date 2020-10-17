@@ -350,6 +350,7 @@ class propiter(propbase):
 		Call this filter method using python3 convention even in python2.
 		
 		EXAMPLE:
+		>>> 
 		>>> from trix.util.propx.propiter import *
 		>>> pi = propiter([]) 
 		>>> list( pi.filter(lambda x: x<3, [1,2,3,4,5]) ) # FILTER
@@ -379,6 +380,7 @@ class propiter(propbase):
 		"""
 		
 		EXAMPLE:
+		>>> 
 		>>> from trix.util.propx.propiter import *
 		>>> pi = propiter([]) 
 		>>> list( pi.filterfalse(lambda x: x<3, [1,2,3,4,5]) )
@@ -420,6 +422,8 @@ class propiter(propbase):
 		raised.
 		
 		EXAMPLE:
+		>>> 
+		>>> from trix.util.propx.propiter import *
 		>>> list(pi.chain([1,2],[3,4,5]).o)
 		[1, 2, 3, 4, 5]
 		>>>
@@ -439,6 +443,8 @@ class propiter(propbase):
 		Cycle through `iterable`, if given, else `self.o`.
 		
 		EXAMPLE:
+		>>> 
+		>>> from trix.util.propx.propiter import *
 		>>> for x in range(1,15):
 		>>> 	pi.cycle([1, 9, 10])
 		>>>
@@ -518,6 +524,9 @@ class propiter(propbase):
 	#
 	#
 	def takewhile(self, fn, iterable=None):
+		"""
+		
+		"""
 		return propx(itertools.takewhile(fn, iterable or self.o))
 	
 	
