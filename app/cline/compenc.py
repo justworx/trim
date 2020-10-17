@@ -5,6 +5,7 @@
 # the terms of the GNU Affero General Public License.
 #
 
+
 from .cix import *
 
 
@@ -12,7 +13,16 @@ class compenc(cix):
 	"""
 	Compression/Encoding.
 	
-	$ python3 -m trix compenc compact Test! This is a test.
+	Call `compact` or `expand` from the command line.
+	
+	EXAMPLE:
+	$
+	$ python3 -m trix compenc compact "Test! This is a test."
+	"eJxTCkktLlFUCMnILFYAokSFEiBfTwkAV30HSQ=="
+	$
+	$ python3 -m trix compenc expand eJxTCkktLlFUCMnILFYAokSFEiBfTwkAV30HSQ==
+	"Test! This is a test."
+	$
 	
 	"""
 	
@@ -23,7 +33,7 @@ class compenc(cix):
 		JCompact = trix.nvalue('fmt', 'JCompact')
 		value = JCompact().format(self.args[1])
 		
-		# see if there's an encoding kwarg
+		# see if there's an encoding kwarg; DEFALT: DEF_ENCODE
 		kk = self.kwargs
 		self.encoding = kk.get('encoding', kk.get('e', DEF_ENCODE))
 		
@@ -85,78 +95,3 @@ class compenc(cix):
 
 
 
-
-
-
-
-"""
-	def COMING_SOON(self):
-		#~ I can't make this work right now. Can't even think of a name 
-		#~ for the method!
-		
-		#~ I'll try to get to it soon! (Sooner or later.)
-		
-		
-		# make sure arg is encoded to bytes
-		arg = self.args[0]
-		try:
-			arg = arg.encode(enc)
-		except:
-			pass
-		
-		# encode
-		if 'e' in self.flags:
-			print ('base64: %s' % b64.encode(arg).decode(enc))
-			print ('base32: %s' % b32.encode(arg).decode(enc))
-			print ('base16: %s' % b16.encode(arg).decode(enc))
-			print ('hex   : %s' % hex.encode(arg).decode(enc))
-			print ('zlib  : %s' % zlib.encode(arg))
-			print ('bz2   : %s' % bz2.encode(arg))
-		
-		# decode
-		else:
-			i=0
-			try:
-				print ('base64: %s' % b64.decode(arg).decode(enc))
-				i += 1
-			except:
-				pass
-			
-			try:
-				print ('base32: %s' % b32.decode(arg).decode(enc))
-				i += 1
-			except:
-				pass
-			
-			try:
-				print ('base16: %s' % b16.decode(arg).decode(enc))
-				i += 1
-			except:
-				pass
-			
-			try:
-				print ('hex   : %s' % hex.decode(arg).decode(enc))
-				i += 1
-			except:
-				pass
-			
-			
-			# I don't know what to do with these...
-			try:
-				print ('zlib: %s' % zlib.decode(arg))
-				i += 1
-			except:
-				pass
-			
-			try:
-				print ('bz2: %s' % bz2.decode(arg).decode(enc))
-				i += 1
-			except:
-				pass
-			
-			
-			#
-			if not i:
-				print ("No results.")
-"""
-		

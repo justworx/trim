@@ -55,7 +55,7 @@ class cix(cline):
 		# Flag -i passed, so input is compact and must be expanded.
 		if "i" in self.flags:
 			
-			# `There can be only one` argument for compact input mode.
+			# There can be only one argument for compact input mode.
 			if len(self.args) != 1:
 				raise ValueError(
 					"Flag -i requires exactly one compact JSON argument."
@@ -82,12 +82,12 @@ class cix(cline):
 			self.args = [cargs]
 	
 	
+	
 	def jparse(self, value):
 		"""
-		Here's a kind of creepy way out of the potentially multiple 
-		increases in slashes as strings go through various processes.
-		It's totally a hack, but I can't think of another way of 
-		making results come out correctly.
+		Strings tend to gather backslashes as they go through various
+		processes. This little hack sets things right.
+		
 		"""
 		try:
 			while True:
@@ -108,9 +108,8 @@ class cix(cline):
 		more compressed results (of potentially large return values) to 
 		be expanded/used programatically via `popen.communicate()`. When
 		-x is used, results must be expanded using `compenc.expand()`.
-		"""
 		
-		#print ("\n#\n# display\n#  - %s\n#\n" % value)
+		"""
 		
 		jcompact = 'c' in self.flags
 		xcompact = 'x' in self.flags

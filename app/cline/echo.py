@@ -35,7 +35,9 @@ class echo(cix):
 			except:
 				args.append(a)
 		
-		self.display(args)
+		fmt = self.kwargs.get('format')
+		
+		self.display(args, f=fmt)
 	
 	
 	"""

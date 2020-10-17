@@ -34,7 +34,9 @@ class http(cline):
 	python3 -m trix http 8080
 	
 	# To see debug messages after closing the command, pass the -d flag:
-	python3 -m trix http -d
+	$ 
+	$ python3 -m trix http -d
+	
 	"""
 	
 	DefPort = 8888
@@ -88,6 +90,7 @@ class http(cline):
 			print ("Server shutdown.")
 		
 		
+		# Why is this here? 20201016
 		"""
 		# 1 .........................
 		try:

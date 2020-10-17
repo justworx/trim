@@ -1,5 +1,5 @@
 #
-# Copyright 2018 justworx
+# Copyright 2018-2020 justworx
 # This file is part of the trix project, distributed under 
 # the terms of the GNU Affero General Public License.
 #
@@ -9,12 +9,12 @@ from ... import *
 
 
 class cline(object):
-	"""Command-line plugin."""
+	"""Command-line plugin support."""
 	
 	@classmethod
 	def handle(cls):
 		"""
-		The trix.__main__.py module calls cline handle to create the
+		The trix.__main__.py module calls cline to create and handle the
 		proper command-line handler, which will automatically perform
 		its task immediately.
 		
@@ -34,13 +34,17 @@ class cline(object):
 				cls.help()
 			else:
 				#
-				# Creating the command actually runs the command.
-				# All plugins must be named the same as their module.
+				# NOTES:
+				#  * Creating the command actually runs the command.
+				#  * All plugins must be named the same as their module.
 				#
 				trix.ncreate("app.cline.%s.%s" % (cls.cmd, cls.cmd))
 		
 		else:
-			pass # gonna put a default action here
+			# Gotta put a default action here. Maybe print "cline.md"?
+			# No, create a cline handler to print "cline.md" and read
+			# that file's text into the terminal.
+			pass
 		
 	
 	@classmethod

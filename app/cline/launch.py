@@ -1,5 +1,5 @@
 #
-# Copyright 2018 justworx
+# Copyright 2018-2020 justworx
 # This file is part of the trix project, distributed under 
 # the terms of the GNU Affero General Public License.
 #
@@ -9,12 +9,27 @@ from . import *
 
 class launch(cline):
 	"""
-	Launch a trix Runner in a new process.
+	Launch a trix `Runner` in a new `Process` object.
 	
 	This command is used exclusively by the `trix.process()` method.
 	See `trix.process()` help for information on how to run a trix
 	`Runner` object (or any compatable object) in a new process using
 	the "launch" command.
+	
+	A `trix.util.process.Process` object creates a `Runner` in its own
+	separate process. The Process methods control the Runner (in the
+	remote process) and can query any information it might produce as
+	well as its status.
+	
+	SEE ALSO:
+	>>>
+	>>> from trix.util.runner import *
+	>>> help(Runner)
+	>>>
+	>>> from trix.util.process import *
+	>>> help(Process)
+	>>>
+	
 	"""
 	def __init__(self):
 		cline.__init__(self)

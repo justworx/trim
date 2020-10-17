@@ -11,10 +11,12 @@ class loc(cix): #loc(cline):
 	"""
 	Return a locale conversion dict for the given language. (*nix only)
 	
-	```
-	python3 -m trix loc en_CA.UTF_8
+	The `loc` command line utility opens in a separate process to query
+	data for locales other than the one currently set.
 	
-	```
+	EXAMPLE:
+	$ python3 -m trix loc en_CA.UTF_8
+	
 	"""
 	
 	def __init__(self):
