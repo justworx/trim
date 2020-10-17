@@ -12,7 +12,7 @@ VALID_AFFIRM = ['touch','makedirs','makepath','checkdir','checkfile',
 								'checkpath']
 
 
-class Path(object):
+class Path(BaseClass):
 	"""
 	Objects of class `Path` represent a file system path.
 	
@@ -75,13 +75,10 @@ class Path(object):
 		>>> 
 		
 		"""
+		BaseClass.__init__(self, path, *a, **k)
+		
 		self.sep = os.sep
 		self.__p = self.expand(k.get('path', path or '.'), **k)
-		
-		#<EXPERIMENTAL>
-		#for pathelement in a:
-		#	self.__p = self.merge(pathelement)
-		#</EXPERIMENTAL>
 		
 		try:
 			self.__n = ospath.normpath(self.__p).split(self.sep)[-1]
@@ -277,6 +274,7 @@ class Path(object):
 	# PROPERTIES
 	#
 	#
+	
 	@property
 	def mime(self):
 		"""
@@ -1003,7 +1001,7 @@ class FileBase(Path, EncodingHelper):
 	"""
 	Common methods `fs.file.File` and subclasses will need.
 	
-	This object provides the most basic needs for the system of
+	This class provides the most basic needs for the system of
 	subclasses that implement the opening of various types of files.
 	
 	FileBase can create, touch, move, rename, and remove files, and 
@@ -1022,7 +1020,10 @@ class FileBase(Path, EncodingHelper):
 	# INIT
 	#
 	def __init__(self, path=None, **k):
-		"""Pass file path with optional keyword arguments."""
+		"""
+		Pass a file path with optional keyword arguments.
+		
+		"""
 		
 		#
 		# If `affirm` is "touch", prepare for its handling after Path is
