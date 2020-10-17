@@ -31,63 +31,67 @@ class File(FileBase):
     'wb'                bytes    bytes are written
     'wb'  encoding=enc  unicode  bytes are encoded before writing
 	
-		EXAMPLE:
-		>>>
-		>>> import trix
-		>>>
-		>>> #
-		>>> # Create a test file name and make a Path object
-		>>> #
-		>>> filename = "~/test-%s.txt"%trix.value('time.time')()
-		>>> p = trix.path(filename, affirm="touch")
-		>>>
-		>>> #
-		>>> # Create a file wrapper.
-		>>> #
-		>>> w = p.wrapper()
-		>>> w.write("Hello, world!\n", encoding='utf8')
-		14
-		>>>
-		>>> #
-		>>> #  Because an encoding is specified to neither the wrapper 
-		>>> #  nor the `read` method, the result is returned as bytes.
-		>>> #
-		>>> w.read()
-		b'Hello, world!\n'
-		>>>
-		>>> #
-		>>> # This time we'll specify an encoding to the wrapper.
-		>>> #
-		>>> w = p.wrapper(encoding='utf8')
-		>>> w.write("Hello, world!\n")
-		14
-		>>> #
-		>>> # Because wrapper `w` was constructed with a given encoding,
-		>>> # that encoding is used as the default in calls to w.read()
-		>>> # which lack a given encoding specification. The result will
-		>>> # be returned as unicode text.
-		>>> #
-		>>> w.read()
-		'Hello, world!\n'
-		>>>
-		>>> #
-		>>> # Finally, we should clean up the test file.
-		>>> #
-		>>> w.remove()
-		>>> 
-		
-		SEE ALSO:
+    EXAMPLE:
+    
+    import trix
+    >>>
+    >>> #
+    >>> # Create a test file name and make a Path object
+    >>> #
+    >>> filename = "~/test-%s.txt"%trix.value('time.time')()
+    >>> p = trix.path(filename, affirm="touch")
+    >>>
+    >>> #
+    >>> # Create a file wrapper.
+    >>> #
+    >>> w = p.wrapper()
+    >>> w.write("Hello, world!", encoding='utf8')
+    14
+    >>>
+    >>> #
+    >>> #  Because an encoding is specified to neither the wrapper 
+    >>> #  nor the `read` method, the result is returned as bytes.
+    >>> #
+    >>> w.read()
+    b'Hello, world!'
+    >>>
+    >>> #
+    >>> # This time we'll specify an encoding to the wrapper.
+    >>> #
+    >>> w = p.wrapper(encoding='utf8')
+    >>> w.write("Hello, world!")
+    14
+    >>> #
+    >>> # Because wrapper `w` was constructed with a given encoding,
+    >>> # that encoding is used as the default in calls to w.read()
+    >>> # which lack a given encoding specification. The result will
+    >>> # be returned as unicode text.
+    >>> #
+    >>> w.read()
+    'Hello, world!'
+    >>>
+    >>> #
+    >>> # Finally, we should clean up the test file.
+    >>> #
+    >>> w.remove()
+    >>> 
+    
+    SEE ALSO:
     >>> from trix.util.reader import *
     >>> help(Stream)
     >>> help(Reader)
     
-		SEE ALSO:
+    SEE ALSO:
     >>> from trix.util.writer import *
     >>> help(Writer)
 	
 	""" 
 	
+	#
+	#
 	# OPEN
+	#
+	#
 	def open(self, mode, **k):
 		"""
 		Return a file pointer fitting `mode`, kwargs, and default encoding
@@ -102,27 +106,47 @@ class File(FileBase):
 			return Opener.open(self.path, mode, **self.applyEncoding(k))
 	
 	
+	#
+	#
 	# READ
+	#
+	#
 	def read(self, mode=None, **k):
-		"""Read complete file contents (from start)."""
+		"""
+		Read complete file contents (from start).
+		"""
 		ek = self.applyEncoding(k) # apply default encoding
 		k['mode'] = mode or ('r' if ek else 'rb')
 		with self.reader(**k) as r:
 			return r.read()
 	
 	
+	#
+	#
 	# WRITE
+	#
+	#
 	def write(self, data, mode=None, **k):
-		"""Write complete file contents."""
+		"""
+		Write complete file contents.
+		"""
 		ek = self.applyEncoding(k)
 		k['mode'] = mode or ('w' if ek else 'wb')
+		
+		#
+		# --------------- start here -----------------------
+		#
 		with self.writer(**k) as w:
 			i = w.write(data)
 			w.flush()
 			return i
 	
 	
+	#
+	#
 	# READER
+	#
+	#
 	def reader(self, **k):
 		"""Return a Reader object."""
 
@@ -153,7 +177,11 @@ class File(FileBase):
 		return Reader(stream, **k)
 	
 	
+	#
+	#
 	# WRITER
+	#
+	#
 	def writer(self, **k):
 		"""Return a Writer object."""
 		
