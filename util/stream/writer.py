@@ -27,6 +27,15 @@ class Writer(Stream):
     
     See Also: help(Stream)
 		"""
+		
+		#
+		#
+		# WRITE - First Call
+		#
+		# On first write, the self.write method is replaced by the 
+		# best choice of writer object from [_writeb, _writeu]
+		#
+		#
 		try:
 			self.write = self.stream.write
 			return self.write(data)
@@ -46,7 +55,12 @@ class Writer(Stream):
 		"""Write unicode `data`."""
 		self.stream.write(data.decode(**self.ek))
 	
+	
+	# 
+	# 
 	# WRITE LINES
+	# 
+	# 
 	def writelines(self, datalist):
 		"""Write a list of lines, `datalist`."""
 		try:
@@ -72,7 +86,12 @@ class Writer(Stream):
 			datalist[i] = v.encode(**self.ek)
 		return self.stream.writelines(datalist)
 	
+	
+	# 
+	# 
 	# FLUSH
+	# 
+	# 
 	def flush(self):
 		"""Flush the contained stream."""
 		if self.stream:
@@ -83,7 +102,12 @@ class Writer(Stream):
 				# doesn't have a 'flush' method).
 				pass
 
+
+	# 
+	# 
 	# CLOSE
+	# 
+	# 
 	def close(self):
 		"""Close the `self.__stream` stream object."""
 		if self.stream:
