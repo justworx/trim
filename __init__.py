@@ -4,6 +4,14 @@
 # the terms of the GNU Affero General Public License.
 #
 
+#
+# COPYRIGHT
+#  - This value updates `trix.app.cline.version`.
+#
+COPYRIGHT = "Copyright (C) 2018-2020 justworx"
+
+
+
 import sys, time, traceback, locale, json
 try:
 	import thread
@@ -1911,6 +1919,71 @@ class NLoader(Loader):
 	def __init__(self, module, value=None):
 		# Init loader with the trix.nmodule loader."""
 		Loader.__init__(self, module, value, loader=trix.nmodule)
+
+
+#
+#
+#
+# EXPERIMENTAL - BASE CLASS
+#
+#
+#
+class BaseClass(object):
+	"""
+	I'll set this class as the base of certain trix classes to expose
+	certain common methods that may be relevant to all objects.
+	"""
+	
+	def __init__(self, *a, **k):
+		self.__a = a
+		self.__k = k
+	
+	@property
+	def a(self):
+		"""
+		Return any given args as a proplist.
+		
+		Call this property as a function to retrieve the actual list.
+		Use propx.proplist methods to display.
+		
+		EXAMPLE:
+		>>> import trix
+		>>> p = trix.path("test.txt", a=1, b=9)
+		>>> p.a()
+		
+		SEE ALSO:
+		>>>
+		>>> import trix
+		>>> help( trix.innerpath('util.propx.proplist'), self.a )
+		>>>
+		
+		"""
+		return trix.propx(self.__a)
+	
+	@property
+	def k(self):
+		"""
+		Return any given keyword args as a propdict.
+		
+		Call this property as a function to retrieve the actual dict.
+		Use propx.propdict methods to display.
+		
+		EXAMPLE:
+		>>> import trix
+		>>> p = trix.path("test.txt", a=1, b=9)
+		>>> p.k()
+		
+		SEE ALSO:
+		>>>
+		>>> import trix
+		>>> help( trix.innerpath('util.propx.propdict'), self.k )
+		>>>
+		
+		"""
+		return trix.propx(self.__k)
+			
+			
+
 
 
 # -------------------------------------------------------------------
