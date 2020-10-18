@@ -1,13 +1,13 @@
 #
-# Copyright 2018 justworx
+# Copyright 2018-2020 justworx
 # This file is part of the trix project, distributed under
 # the terms of the GNU Affero General Public License.
 #
 
 
-from .event import *
+from ..util.event  import *
 from ..util.runner import *
-from ..util.wrap import *
+from ..util.wrap   import *
 from ..util.xqueue import *
 
 
@@ -21,12 +21,15 @@ class Services(Runner):
 	"""
 	Container for various services.
 	
-	Services warp a single object and make use of it to perform 
+	Services wrap a single object and make use of it to perform 
 	actions and return results.
 	
 	# start services...
-	from trix.app.service import *
-	s = Services()
+	>>>
+	>>> from trix.app.service import *
+	>>> s = Services()
+	>>>
+	
 	"""
 	
 	# INIT
@@ -82,11 +85,20 @@ class Services(Runner):
 	# SERVICES - SERVICES
 	@property
 	def services(self):
+		"""
+		Returns a list of services contained by this `Services` object.
+		"""
 		return self.__services.keys()
 	
 	
 	# SERVICES - IO
 	def io(self):
+		"""
+		The `Services` class is based on `Runner`. Its `io` method is 
+		overridden to handle calls to various services when the object 
+		is running.
+		
+		"""
 		# give each service a chance to handle messages
 		for s in self.__services:
 			self.__services[s].handle_io()
@@ -98,8 +110,8 @@ class Services(Runner):
 		Pass `serviceid` string. Returns a new ServiceConnect object that 
 		gives access to the service's features.
 		
-		Pass an event object to ServiceConnect using the `request` method
-		and poll `replies` to receive events in the same order as they
+		Pass an event object to ServiceConnect using the `request` method,
+		then poll `replies` to receive events in the same order as they
 		were given. Check `Event.reply` (or Event.error) for the result.
 		"""
 		#
@@ -155,11 +167,12 @@ class Service(ServiceIO):
 	Service objects are always started by and contained by the Services
 	object. There's never a reason (or a practical use) for creating a
 	Service object by calling Service(...) directly. There's no need 
-	and no way to access Service objects directly. They work in the 
+	(and no way) to access Service objects directly. They work in the 
 	background and are always accessed to a ServiceConnect object that
 	is obtained by calling the `Services.connect()` method.
 	
 	See the ServiceConnect help for usage notes/examples.
+	
 	"""
 	def __init__(self, serviceid, sobject):
 		ServiceIO.__init__(self)
@@ -208,7 +221,7 @@ class Service(ServiceIO):
 				e = qin.get_nowait()
 				
 				# execute the command
-				e.reply = self.handle_request(e)
+				e.reply = self._handle_request(e)
 				
 				# Set the reply and return the event to the caller via the
 				# out-queue (which is the client's in-queue).
@@ -224,7 +237,7 @@ class Service(ServiceIO):
 	
 	
 	# SERVICE - HANDLE REQUEST
-	def handle_request(self, e):
+	def _handle_request(self, e):
 		"""Internal use only. Calls the wrapper, returns a value."""
 		
 		#
