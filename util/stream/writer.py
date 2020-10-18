@@ -7,11 +7,21 @@
 from . import * # Stream, enchelp, trix
 
 
+# 
+# 
+# 
 # WRITER
+# 
+# 
+# 
 class Writer(Stream):
 	"""Writer of streams."""
 	
+	# 
+	# 
 	# WRITE
+	# 
+	# 
 	def write(self, data):
 		"""
 		Write `data` to this stream.
@@ -109,7 +119,9 @@ class Writer(Stream):
 	# 
 	# 
 	def close(self):
-		"""Close the `self.__stream` stream object."""
+		"""
+		Close the `self.__stream` stream object.
+		"""
 		if self.stream:
 			self.flush()
 			self.stream.close()
