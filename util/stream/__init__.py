@@ -8,7 +8,15 @@
 from ..enchelp import * # trix
 
 
+#
+#
+#
+#
 # STREAM
+#
+#
+#
+#
 class Stream(EncodingHelper):
 	"""
 	The purpose of streams is to provide a common interface for dealing
@@ -16,13 +24,15 @@ class Stream(EncodingHelper):
 	
 	Stream-based objects hold their stream, manage their encoding-related
 	issues, provide a set of features for reading, writing, and working
-	with stream data, and clean themselves up when finished.
+	with stream data.
+	
+	They clean themselves up when finished.
 	
 	Stream use is divided into two areas: Read data with a `Reader` and
-	write data with a `Writer`. Both these classes are based on `Stream`, 
-	so properties `stream` and `mode` give access to the contained stream
-	(or other producer/consumer of data), and the mode (bytes or unicode) 
-	that the stream produces/consumes.
+	write data with a `Writer`. Both these classes are based on 
+	`Stream`, so properties `stream` and `mode` give access to the 
+	contained stream (or other producer/consumer of data), and the 
+	mode (bytes or unicode) that the stream produces/consumes.
 	
 	The Stream object is based on EncodingHelper, so the `ek` property 
 	and other methods for applying, extracting, and otherwise using any
@@ -46,8 +56,14 @@ class Stream(EncodingHelper):
     'wb'  encoding=enc  unicode  bytes are encoded before writing
 	
 	"""
-	
+
+	#
+	#
+	#
 	# init
+	#
+	#
+	#
 	def __init__(self, stream, **k):
 		"""
 		Pass argument `stream`, a stream.
@@ -55,7 +71,13 @@ class Stream(EncodingHelper):
 		Valid keyword arguments are:
 		 * Anything EncodingHelper accepts. (See: trix.util.enchelp)
 		 * A specific mode using keyword argument "mode". (See above)
-		 
+		
+		NOTE:
+		In some situations `stream` will be an object that shares its
+		source stream with a container object, which would need to be 
+		held in this object's memory for this object's lifespan. In such
+		cases, it is passed here as keyword argument "source".
+		
 		"""
 		
 		EncodingHelper.__init__(self, **k)
@@ -73,7 +95,13 @@ class Stream(EncodingHelper):
 		self.__source = k.get('source')
 
 	
+	#
+	#
+	#
 	# del
+	#
+	#
+	#
 	def __del__(self):
 		"""
 		Flush and close the contained stream (if open).
@@ -102,7 +130,13 @@ class Stream(EncodingHelper):
 		#
 	
 	
+	#
+	#
+	#
 	# ENTER/EXIT
+	#
+	#
+	#
 	def __enter__(self):
 		return self
 	
@@ -121,17 +155,37 @@ class Stream(EncodingHelper):
 		return self.__mode
 	
 	
+	#
+	#
+	#
 	# CLOSE
+	#
+	#
+	#
 	def close(self):
 		"""Closes the stream (unless keepopen is True)."""
 		self.forceclose()
 	
+	
+	#
+	#
+	#
 	# KEEP OPEN (NO CLOSE)
+	#
+	#
+	#
 	def keepopen(self, **k):
 		"""Ignore attempt to close stream."""
 		pass
 	
+	
+	#
+	#
+	#
 	# FORCE CLOSE
+	#
+	#
+	#
 	def forceclose(self):
 		"""
 		Closes the `self.__stream` stream object. Subclasses that do not
@@ -157,7 +211,13 @@ class Stream(EncodingHelper):
 			pass
 	
 	
+	#
+	#
+	#
 	# SEEK
+	#
+	#
+	#
 	def seek(self, *a, **k):
 		"""
 		Performs seek on the contained stream using any given args and
@@ -177,19 +237,39 @@ class Stream(EncodingHelper):
 			raise type(ex)('err-seek-fail', ex.args, xdata(
 					streamtype=type(self.__stream)
 				))
-
+	
+	
+	#
+	#
+	#
 	# SEEKEND
+	#
+	#
+	#
 	def seekend(self):
 		"""Move pointer to the end of the stream."""
 		return self.seek(0,2)
 	
+	
+	#
+	#
+	#
 	# TELL
+	#
+	#
+	#
 	def tell(self):
 		"""Return current pointer position in the stream."""
 		return self.__stream.tell()
 
 	
+	#
+	#
+	#
 	# DETACH
+	#
+	#
+	#
 	def detach(self):
 		"""
 		Return a good copy of this stream, nullifying the internal copy.
