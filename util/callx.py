@@ -19,6 +19,11 @@ class callx(object):
 		"""
 		Pass a cline handler name and args, plus optional kwargs. Returns
 		a callx object.
+		
+		The `cline` handler modules are defined in the `trix.app.cline`
+		subpackage. See the help for each module to learn more about its
+		use.
+
 		"""
 		try:
 			a = shlex.split(cmd)
@@ -48,6 +53,7 @@ class callx(object):
 		The following line of code creates a callx object to gather text
 		describing currently running processes.
 		
+		EXAMPLE 1:
 		>>>
 		>>> from trix.util.callx import *
 		>>>
@@ -55,29 +61,20 @@ class callx(object):
 		"  PID TTY          TIME CMD\n 3405 pts/2    00:00:00 bash\n 4094 pts/2    00:00:00 python3\n 4134 pts/2    00:00:00 ps\n"
 		>>>
 		>>> trix.callx('ps').list()
-		
-		
-		
-		
-		
 		>>>
-		>>> # Example 2 - Call a command line handler (cline).
+		
+		EXAMPLE 2:
+		>>>
+		>>> # Call a command line handler (cline).
 		>>>
 		>>> from trix.util.callx import *
-		>>> 
+		>>> trix.callx(cline='version')
 		
-		>>>
-		>>> # Example 2 - Call a command line handler (cline).
-		>>>
-		>>> from trix.util.callx import *
-		>>> 
-		
-		
+		SEE ALSO:
+		>>> from trix.app.cline.cix import *
+		>>> help(callx)
 		
 		"""
-		
-		#print ("CMD: %s" % cmd)
-		#print ("KRG: %s" % k)
 		
 		# pop kwargs meant for reader
 		self.__rk = trix.kpop(k, "encoding errors mode max_size")
