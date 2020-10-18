@@ -5,7 +5,6 @@
 #
 
 from . import *
-#from ...view import * # trix, Stream, enchelp
 
 
 class Reader(Stream):
@@ -71,7 +70,13 @@ class Reader(Stream):
 
 	@property
 	def chars(self):
-		"""Generator: Yields one unicode character at a time."""
+		"""
+		Generator: Yields one unicode character at a time.
+		
+		The `chars` generator only works with unicode text. Given bytes,
+		a TypeError occurs.
+		
+		"""
 		if 'b' in self.mode:
 			raise TypeError("err-chars-fail", xdata(mode=self.mode,
 					suggest=['remove-mode-b', 'provide-correct-encoding'],
