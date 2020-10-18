@@ -1017,7 +1017,9 @@ class FileBase(Path, EncodingHelper):
 	"""
 	
 	#
+	#
 	# INIT
+	#
 	#
 	def __init__(self, path=None, **k):
 		"""
@@ -1045,7 +1047,9 @@ class FileBase(Path, EncodingHelper):
 	
 	
 	#
+	#
 	# DIR
+	#
 	#
 	def dir(self, path=None):
 		"""
@@ -1057,7 +1061,9 @@ class FileBase(Path, EncodingHelper):
 	
 	
 	#
+	#
 	# SET PATH - prevent changing path
+	#
 	#
 	def setpath(self, path):
 		"""Prevents changing of this file wrapper's path. """
@@ -1065,7 +1071,9 @@ class FileBase(Path, EncodingHelper):
 
 	
 	#
+	#
 	# TOUCH - touch file without possibility of "merging" the path.
+	#
 	#
 	def touch(self, times=None):
 		"""
@@ -1074,17 +1082,20 @@ class FileBase(Path, EncodingHelper):
 		Unlike the `Path.touch` method, which can touch files within a 
 		directory path, the FileBase `touch` method can touch only itself.
 		
-		
 		"""
 		with open(self.path, 'a'):
 			os.utime(self.path, times)  
 	
 	
 	#
+	#
 	# COPY
 	#
+	#
 	def copy(self, dest, **k):
-		"""Copy this file to string path `dest`."""
+		"""
+		Copy this file to string path `dest`.
+		"""
 		src = self.path
 		dst = self.dir().merge(dest)
 		try:
@@ -1098,10 +1109,14 @@ class FileBase(Path, EncodingHelper):
 	
 
 	#
+	#
 	# MOVE
 	#
+	#
 	def move(self, dest):
-		"""Move this file from it's current location to path `dest`."""
+		"""
+		Move this file from it's current location to path `dest`.
+		"""
 		src = self.path
 		dst = self.expand(self.dir().merge(dest))
 		try:
@@ -1112,10 +1127,14 @@ class FileBase(Path, EncodingHelper):
 	
 
 	#
+	#
 	# RENAME
 	#
+	#
 	def rename(self, dest):
-		"""Rename this file (moving it, if appropriate)."""
+		"""
+		Rename this file (moving it, if appropriate).
+		"""
 		src = self.path
 		dst = self.dir().merge(dest)
 		try:
@@ -1126,10 +1145,14 @@ class FileBase(Path, EncodingHelper):
 	
 
 	#
+	#
 	# REMOVE
 	#
+	#
 	def remove(self):
-		"""Delete this file."""
+		"""
+		Delete this file.
+		"""
 		os.remove(self.path)
 
 
