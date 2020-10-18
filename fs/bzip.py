@@ -5,71 +5,37 @@
 #
 
 
-from .bfile import *
+from .file import *
 import bz2
 
 
-class Bzip(BFile):
+class Bzip(File):
 	"""
 	Access and manipulate bz2 files.
-	
-	Providing an "encoding" specification causes `Writer` and `Reader` 
-	stream objects to translate the encoding from and to bytes before 
-	returning or writing them to the contained stream. The following 
-	table shows the type of data strings produced or consumed with 
-	various combinations of "mode" and "encoding".
-
-    MODE  ENCODING      I/O      NOTE 
-    'r'                 unicode  decode with DEF_ENCODE
-    'r'   encoding=enc  unicode  decode with <enc>
-    'rb'                bytes    bytes are returned
-    'rb'  encoding=enc  unicode  bytes are decoded after reading
-    'w'                 unicode  encode with DEF_ENCODE
-    'w'   encoding=enc  unicode  encode with <enc>
-    'wb'                bytes    bytes are written
-    'wb'  encoding=enc  unicode  bytes are encoded before writing
-		
 		
 		EXAMPLE:
-		>>>
-		>>> import trix
-		>>>
-		>>> #
-		>>> # Create a test file name and make a Path object
-		>>> #
-		>>> filename = "~/test-%s.bz2"%trix.value('time.time')()
-		>>> p = trix.path(filename, affirm="touch")
-		>>>
-		>>> #
-		>>> # Create a file wrapper.
-		>>> #
-		>>> w = p.wrapper()
-		>>> w.write("Hello, world!\n", encoding='utf8')
-		>>> w.read()
-		>>> #
-		>>> #  Because an encoding is specified to neither the wrapper 
-		>>> #  nor the `read` method, the result is returned as bytes.
-		>>> #
-		b'Hello, world!\n'
-		>>>
-		>>> w.read()
+		>>> from trix.fs.bzip import *
+		>>> testfile = "~/test-%s.bz2"%trix.value('time.time')()
+		>>> 
+		>>> f = Bzip(testfile, affirm="touch")
+		>>> f.exists()
+		True
+		>>> 
+		>>> f.write("Hello, world!\n")
+		>>> f.read()
 		b'Hello, world!\n'
 		>>> 
-		>>> #
-		>>> # This time we'll specify an encoding to the wrapper.
-		>>> #
-		>>> w = p.wrapper(encoding='utf8')
-		>>> w.write("Hello, world!\n")
-		>>> w.read()
+		>>> f.read(encoding='utf8')
 		'Hello, world!\n'
-		>>>
-		>>> #
-		>>> # Finally, we should clean up the test file.
-		>>> #
-		>>> w.remove()
 		>>> 
-		
-		
+		>>> f.read('r')
+		'Hello, world!\n'
+		>>> 
+		>>> f.remove()
+		>>> f.exists()
+		False
+		>>> 
+	
 		SEE ALSO:
     >>> from trix.util.reader import *
     >>> help(Stream)
@@ -78,7 +44,7 @@ class Bzip(BFile):
 		SEE ALSO:
     >>> from trix.util.writer import *
     >>> help(Writer)
-	
+		
 	"""
 	
 	# OPEN

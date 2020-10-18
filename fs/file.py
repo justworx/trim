@@ -4,6 +4,7 @@
 # of the GNU Affero General Public License.
 #
 
+
 from . import * # trix, mime, enchelp
 from ..util.stream.reader import Reader
 from ..util.stream.writer import Writer
@@ -17,18 +18,27 @@ class File(FileBase):
 		
 		EXAMPLE:
 		>>> 
-    >>> testfile = "~/test-%s.txt"%trix.value('time.time')()
-		>>> 
 		>>> from trix.fs.file import *
+		>>> testfile = "~/test-%s.txt"%trix.value('time.time')()
+		>>> 
 		>>> f = File(testfile, affirm="touch")
+		>>> f.exists()
+		True
+		>>> 
 		>>> f.write("Hello, world!\n")
 		>>> f.read()
-		b'Hello, world!'
+		b'Hello, world!\n'
+		>>> 
+		>>> f.read(encoding='utf8')
+		'Hello, world!\n'
+		>>> 
+		>>> f.read('r')
+		'Hello, world!\n'
 		>>> 
 		>>> f.remove()
-		>>> f.exists
+		>>> f.exists()
 		False
-		>>>
+		>>> 
 	
 	"""
 	
