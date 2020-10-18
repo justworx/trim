@@ -26,23 +26,6 @@ class echo(cix):
 	
 	def __init__(self):
 		cix.__init__(self)
-		
-		# this should probably be how args are parsed
-		args = []
-		for a in self.args:
-			try:
-				args.append(trix.jparse(a))
-			except:
-				args.append(a)
-		
-		fmt = self.kwargs.get('format')
-		
-		self.display(args, f=fmt)
-	
-	
-	"""
-	def __init__(self):
-		cix.__init__(self)
 		args = []
 		try:
 			for a in self.args:
@@ -50,9 +33,6 @@ class echo(cix):
 		except:
 			args = self.args	
 		trix.display(args)
-	"""	
-	
-	#self.display(self.args, **self.kwargs)
 
 
 
