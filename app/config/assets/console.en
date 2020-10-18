@@ -15,7 +15,7 @@
 	"title_about" : "About the Console",
 	"about" : [
 		"The Console class is currently *UNDER CONSTRUCTION*. A lot may change before it's even remotely stable.",
-		"The console provides command-line style control over objects and access to their data.",
+		"The console provides command-line style control over objects, and access to their data.",
 		"Consolable objects (currently, only `Runner`) are automatically added/removed by their __init__ and __del__ methods. A consolable object may be passed to the init method for automatic selection via keyword argument wrap=<object>.",
 		"A custom output stream may be specified to the constructor using the 'output' keyword argument. If unspecified, default output is currently sent to the console screen.",
 		""
