@@ -81,7 +81,8 @@ class propiter(propbase):
 		>>> 
 		>>> #
 		>>> # The propiter object always works from its current position 
-		>>> # in the stream, so repeatedly calling propiter[0:4] will >>> # return the next four items until the iterator is exhausted.
+		>>> # in the stream, so repeatedly calling propiter[0:4] will 
+		>>> # return the next four items until the iterator is exhausted.
 		>>> #
 		>>> ii = propiter(iter(range(0,100)))
 		>>> ii[0:4].o
@@ -142,7 +143,9 @@ class propiter(propbase):
 	#
 	@property
 	def sorted(self):
-		"""Return a proplist with sorted content."""
+		"""
+		Return a proplist with sorted content.
+		"""
 		return self.T(sorted(self.o))
 	
 	
@@ -153,7 +156,9 @@ class propiter(propbase):
 	#
 	@property
 	def reversed(self):
-		"""Return a proplist with reversed content."""
+		"""
+		Return a proplist with reversed content.
+		"""
 		return self.T(reversed(list(self.o)))
 	
 	
@@ -162,21 +167,35 @@ class propiter(propbase):
 	#  EACH - With Param
 	#
 	#
+	"""
+	THIS METHOD IS UNDER CONSTRUCTION.
+	
 	def each (self, fn, *a, **k):
-		"""
-		Argument `fn` is a callable that operates on items from `self.o` 
-		in place, one item at a time.
 		
-		This method passes a `trix.data.param.Param` object as its first
-		argument.
+		```
+		This method uses a `trix.data.param.Param` object to manipulate 
+		each item produced by the iterator.
 		
-		Returns `self`.
+		Pass arguments and keyword arguments suitable to a `Param` object
+		constructor.
 		
-		"""
+		Returns the result.
+		
+		>>>
+		>>> from trix.util.propx.propiter import *
+		>>> pi = propiter([1,2,3])
+		>>> pi.each(
+		
+		SEE ALSO:
+		>>>
+		>>> from trix.data.param import *
+		>>> help(Param)
+		>>>
+		```
 		for v in self.o:
 			fn(self.param(v), *a, **k)
 		return self
-	
+	"""
 	
 	#
 	#
@@ -201,10 +220,7 @@ class propiter(propbase):
 		[[0, 1], [2, 3]]
 		>>>
 		
-		Note you can use functions, methods, lambdas, or any kind of
-		callable for `x`.
-		
-		NOTE ALSO:
+		NOTE:
 		This is a variant on `propiter.each`. The one in propiter is much
 		more powerful, but much more complicated. This one is simpler, and
 		faster. If you have many such conversions to make, it might go a 
@@ -314,6 +330,7 @@ class propiter(propbase):
 		
 		EXAMPLE:
 		>>> 
+		>>> from trix.util.propx.propiter import *
 		>>> i = propiter([])
 		>>> ii = i.zip('ABCD', 'xy') # ZIP
 		>>> list(ii)
@@ -378,8 +395,18 @@ class propiter(propbase):
 	#
 	def filterfalse(self, fn, iterable=None):
 		"""
+		Filter elements from iterable returning only those for which 
+		the predicate is False.
 		
-		EXAMPLE:
+		EXAMPLE 1: Result based on self.o value.
+		>>> 
+		>>> from trix.util.propx.propiter import *
+		>>> piter = propiter([1,2,3,4,5])
+		>>> list(piter.filterfalse(lambda x: x<3))
+		[3, 4, 5]
+		>>> 
+
+		EXAMPLE 2: Populate based on a given iterable.
 		>>> 
 		>>> from trix.util.propx.propiter import *
 		>>> pi = propiter([]) 
@@ -473,7 +500,7 @@ class propiter(propbase):
 		Pass an accumulation function (default: operator.add) and,
 		optionally, an iterable to replace `self.o`.
 		
-		NOTE: This method is not available in python2.
+		NOTE: This method is *not* available in python2.
 		
 		"""
 		fn = fn or trix.module('operator').add
@@ -525,7 +552,19 @@ class propiter(propbase):
 	#
 	def takewhile(self, fn, iterable=None):
 		"""
+		Returns an iterator that returns elements from the iterable as 
+		long as the predicate is True.
 		
+		EXAMPLE:
+		>>> 
+		>>> from trix.util.propx.propiter import *
+		>>> px = propx([1,2,3,4])
+		>>> 
+		>>> list(px.takewhile(lambda x: x<3))
+		[1, 2]
+		>>> list(px.takewhile(lambda x: x<=3))
+		>>>
+		 		
 		"""
 		return propx(itertools.takewhile(fn, iterable or self.o))
 	
@@ -545,6 +584,26 @@ class propiter(propbase):
 	#
 	#
 	def fnmatch(self, pattern): # , iterable=None <-- do this
+		"""
+		Select items using (case-insensitive) Unix shell-style wildcards. 
+		The special characters used in shell-style wildcards are:
+		
+			PATTERN   MEANING
+			*         matches everything
+			?         matches any single character
+			[seq]     matches any character in seq
+			[!seq]    matches any character not in seq	
+		
+		EXAMPLE:
+		>>> 
+		>>> import trix
+		>>> d = trix.path( trix.innerfpath() )
+		>>> d.ls.fmnatch("*.py")
+		>>>
+		['__init__.py', '__main__.py']
+		>>>
+			 
+		"""
 		try:
 			try:
 				m = self.T.__match
@@ -561,6 +620,27 @@ class propiter(propbase):
 	#
 	#
 	def fnmatchcase(self, pattern):
+		"""
+		Select items using (case-sensitive) Unix shell-style wildcards. 
+		The special characters used in shell-style wildcards are:
+		
+			PATTERN   MEANING
+			*         matches everything
+			?         matches any single character
+			[seq]     matches any character in seq
+			[!seq]    matches any character not in seq	
+		
+		EXAMPLE:
+		>>> 
+		>>> import trix
+		>>> d = trix.path( trix.innerfpath() )
+		>>> d.ls.fmnatchcase("*.py")
+		>>>
+		['__init__.py', '__main__.py']
+		
+		>>>
+			 
+		"""
 		try:
 			try:
 				m = self.T.__match
