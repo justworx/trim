@@ -35,7 +35,8 @@ class Writer(Stream):
     'wb'                bytes    bytes are written
     'wb'  encoding=enc  unicode  bytes are encoded before writing
     
-    See Also: help(Stream)
+    SEE ALSO: help(Stream)
+    
 		"""
 		
 		#
