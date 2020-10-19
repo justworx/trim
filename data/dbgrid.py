@@ -60,6 +60,10 @@ class DBGrid(Database):
 		 
 		"""
 		
+		#
+		# Where the temporary sqlite3 database file is kept until the
+		# object is deleted.
+		#
 		self.__cache = trix.path(DEF_CACHE).path
 		
 		#
@@ -99,7 +103,9 @@ class DBGrid(Database):
 		self.__autoopen = k.get('autoopen', True)
 		if self.__autoopen:
 			self.open()
-	
+		
+		# Python2 support
+		#self.next = self.__next__
 	
 	#
 	#
@@ -157,23 +163,28 @@ class DBGrid(Database):
 		>>> 
 				
 		"""
+		
+		#
+		# IT'S A CURSOR
+		#
 		try:
+			#
+			# CALL EXECUTE
+			#
 			c = self.cur.execute(sql, *a)
-			try:
-				ca = c.fetchall()
-				if ca:
-					#print ('debug ca', ca)
-					
-					cal = list(ca)
-					#print ('debug cal', cal)
-					
-					# prepend column names
-					cal.insert(0, self.cols)
-					#print ('debug cal.insert', cal)
-					
-					return trix.propx(cal)
-			except:
-				raise
+			
+			#
+			# GET CURSOR DESC
+			#
+			cdesc = self.cdesc(c)
+			
+			cdata = []
+			cdata.append(cdesc)
+			
+			for row in c.fetchall():
+				cdata.append(list(row))
+			
+			return propgrid(list(iter(cdata)))
 			
 		except sqlite3.OperationalError as ex:
 			#
@@ -181,7 +192,13 @@ class DBGrid(Database):
 			#
 			self.con.rollback()
 			raise type(ex)(xdata(
-					sql=sql, a=a
+					sql=sql, a=a, cdesc=cdesc, len_cdata=len(cdata)
+				)
+			)
+			
+		except BaseException as ex:
+			raise type(ex)(xdata(
+					sql=sql, a=a, cdesc=cdesc, len_cdata=len(cdata), ex=ex
 				)
 			)
 	
@@ -367,15 +384,15 @@ class DBGrid(Database):
 	#
 	def execute(self, sql, *a):
 		"""
-		Execute an sql query on the grid data. Returns an sqlite3 cursor.
+		Execute an sql query on the grid data. 
+		
 		In the event of an error, the connection is rolled back.
 		
-		Returns a cursor.
+		Returns an sqlite3 cursor.
 		
 		"""
 		try:
 			return Database.execute(self, sql, *a)
-		
 		except sqlite3.OperationalError as ex:
 			#
 			# If there was an error, rollback and rethrow the exception.
@@ -386,13 +403,6 @@ class DBGrid(Database):
 				)
 			)
 	
-	
-	
-	def x(self, *a, **k):
-		"""
-		Execute an sql statement returning any selected values.
-		"""
-		return trix.propx(self.__call__(*a, **k))
 	
 	
 	
@@ -406,6 +416,17 @@ class DBGrid(Database):
 		except BaseException as ex:
 			pass
 	
+	
+	
+	def x(self, *a, **k):
+		"""
+		This is a shortcut for `execute`. It could be handy when space in
+		the terminal is short.
+		
+		Execute an sql statement, returning any selected values.
+		"""
+		return trix.propx(self.__call__(*a, **k))
+
 	
 	
 	
