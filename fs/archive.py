@@ -222,7 +222,7 @@ class Archive(FileBase):
     'rb'                bytes    bytes are returned
     'rb'  encoding=enc  unicode  bytes are decoded after reading
     
-		See also:
+		SEE ALSO:
     >>> from trix.util.reader import *
     >>> help(Stream)
     >>> help(Reader)
@@ -338,7 +338,9 @@ class Archive(FileBase):
 	#
 	#
 	def delete(self, member):
-		"""Mark the given member for deletion on the next flush."""
+		"""
+		Mark the given member for deletion on the next flush.
+		"""
 		self.__deleted.append(member)
 		if member in self.__readers:
 			del(self.__readers[member])
@@ -353,7 +355,9 @@ class Archive(FileBase):
 	#
 	#
 	def undelete(self, member):
-		"""Remove a member from the deletion list."""
+		"""
+		Remove a member from the deletion list.
+		"""
 		if member in self.__deleted:
 			self.__deleted.remove(member)
 	
