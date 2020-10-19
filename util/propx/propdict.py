@@ -12,13 +12,29 @@ class propdict(propiter):
 	Pass a dict or dict-like object.
 	"""
 	
+	#
+	#
+	# GET-ITEM
+	#
+	#
 	def __getitem__(self, key):
 		return propx(self.o[key])
 	
+	
+	#
+	#
+	# SET-ITEM
+	#
+	#
 	def __setitem__(self, key, v):
 		self.o[key] = v
 	
 	
+	#
+	#
+	# KEYS PROPERTY
+	#
+	#
 	@property
 	def keys(self):
 		"""
@@ -34,6 +50,12 @@ class propdict(propiter):
 		"""
 		return proplist(list(self.o.keys()))
 	
+	
+	#
+	#
+	# VALUES PROPERTY
+	#
+	#
 	@property
 	def values(self):
 		"""
@@ -41,6 +63,12 @@ class propdict(propiter):
 		"""
 		return proplist(list(self.o.values()))
 	
+	
+	#
+	#
+	# PAIRS PROPERTY
+	#
+	#
 	@property
 	def pairs(self):
 		"""
@@ -59,6 +87,12 @@ class propdict(propiter):
 			r.append((k, self.o[k]))
 		return proplist(r)
 	
+	
+	#
+	#
+	# RPAIRS PROPERTY
+	#
+	#
 	@property
 	def rpairs(self):
 		"""
