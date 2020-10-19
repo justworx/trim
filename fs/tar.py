@@ -107,9 +107,7 @@ class Tar(Archive):
 		SEE ALSO:
 		>>> from trix.propx.proplist import *
 		>>> help(proplist)
-		>>>
 		
-		```
 		"""
 		with self.archopen('r|*') as f:
 			self.__names = f.getnames()
@@ -194,10 +192,9 @@ class Tar(Archive):
 		>>>
 		
 		SEE ALSO:
-		>>>
 		>>> from trix.util.propx.propdict import *
 		>>> help(propdict)
-		>>>
+		
 		"""
 		rr = {}
 		with self.archopen('r|*') as f:

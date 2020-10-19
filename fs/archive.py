@@ -195,7 +195,7 @@ class Archive(FileBase):
     'rb'                bytes    bytes are returned
     'rb'  encoding=enc  unicode  bytes are decoded after reading
     
-		See also:
+		SEE ALSO:
     >>> from trix.util.reader import *
     >>> help(Stream)
     >>> help(Reader)
@@ -264,7 +264,7 @@ class Archive(FileBase):
     'wb'                bytes    bytes are written
     'wb'  encoding=enc  unicode  bytes are encoded before writing
     
-		See also:
+		SEE ALSO:
     >>> from trix.util.reader import *
     >>> help(Stream)
     >>> help(Writer)
@@ -291,7 +291,7 @@ class Archive(FileBase):
     'wb'                bytes    bytes are written
     'wb'  encoding=enc  unicode  bytes are encoded before writing
     
-		See also:
+		SEE ALSO:
     >>> from trix.util.reader import *
     >>> help(Stream)
     >>> help(Writer)

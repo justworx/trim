@@ -108,8 +108,6 @@ class callx(BaseClass):
 		SEE ALSO:
 		>>> from trix.app.cline import *
 		>>> help(callx)
-		>>> 
-		>>> 
 		
 		"""
 		BaseClass.__init__(self, [cmd], **k)

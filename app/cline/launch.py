@@ -22,13 +22,11 @@ class launch(cline):
 	well as its status.
 	
 	SEE ALSO:
-	>>>
 	>>> from trix.util.runner import *
 	>>> help(Runner)
 	>>>
 	>>> from trix.util.process import *
 	>>> help(Process)
-	>>>
 	
 	"""
 	def __init__(self):

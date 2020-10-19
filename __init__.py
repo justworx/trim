@@ -161,7 +161,7 @@ class trix(object):
 		When an `innerPath` string value is specified, it is appended to
 		the resulting value.
 		
-		EXAMPLES:
+		EXAMPLE:
 		>>> #
 		>>> # Calling trix.innerpath with no containing pacakges and no 
 		>>> # argument:
@@ -1409,9 +1409,6 @@ class trix(object):
 		package can do.
 		
 		SEE ALSO:
-		More documentation is available in the `propx` objects. It's 
-		currently sparse, but (we should hope) will be improved overtime.
-		>>>
 		>>> from trix.util.propx._propall import *
 		>>> help(propbase)
 		>>> help(propiter)
@@ -1419,7 +1416,6 @@ class trix(object):
 		>>> help(proplist)
 		>>> help(propgrid)
 		>>> help(propdict)
-		>>>
 		
 		"""
 		return trix.ncreate("util.propx.propx", *a, **k)
