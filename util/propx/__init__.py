@@ -41,7 +41,7 @@ class propbase(object):
 	propx objects to (among other things) display 
 	directory listings.
 	
-	EXAMPLES: Directory Listing
+	EXAMPLE: Directory Listing
 	>>>
 	>>> import trix
 	>>> 
@@ -53,7 +53,7 @@ class propbase(object):
 	'proplist.py', '_propall.py', 'propseq.py']
 	>>> 
 	>>> #
-	>>> # ...but isn't this nicer?
+	>>> # ...but isn't this a nicer view?
 	>>> #
 	>>> trix.npath('util/propx').ls.display()
 	[
@@ -88,8 +88,8 @@ class propbase(object):
 	returns an `fs.Dir` object (based on `fs.Path`). Many properties of
 	`fs.Dir` (including `list` and `ls`) return a propx object.
 	
-	When we call `trix.npath('util/propx').ls`, (see `trix.npath`) a
-	proplist object encapsulating the directory listing is returned.
+	When we call `trix.npath('util/propx').ls`, a proplist object 
+	encapsulating the directory listing is returned.
 	
 	The default behavior for calling a propx object *as a function* is 
 	to return the actual value held by the object. It is an alias for
@@ -150,14 +150,15 @@ class propbase(object):
 	otherwise adjusted as necessary using sql statements.
 	
 	EXAMPLE:
-	>>>
 	>>> import trix
 	>>> 
 	>>> # get a `trix.fs.dir.Dir` object the safe way
 	>>> d = trix.npath('util/propx').list
 	>>>
-	>>> dg = d.list.dbgrid("tb")
-	>>>
+	>>> dg = d.propgrid.dbgrid("tb")
+	>>> dg("select type, size, uid from tb order by size").grid()
+
+	
 	"""
 	
 	#
@@ -212,12 +213,12 @@ class propbase(object):
 		
 		```
 		#
-		# trix.path() returns a propx object
+		# trix.path() returns an fs.Path or fs.Dir object
 		#
 		>>> import trix
 		>>> trix.path()
-		>>> <trix.fs.dir.Dir '/home/nine' (d)>
-		
+		<trix.fs.dir.Dir '/home/nine' (d)>
+		>>> 		
 		
 		
 		#
