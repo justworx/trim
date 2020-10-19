@@ -102,10 +102,8 @@ class Chain(object):
 		Return a propx object wrapping `self.v`.
 		
 		SEE ALSO:
-		>>>
 		>>> from trix.util.propx import *
 		>>> help(propbase)
-		>>>
 		"""
 		return trix.propx(self.v)
 	
