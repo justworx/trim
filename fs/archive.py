@@ -7,7 +7,7 @@
 import weakref
 from ..util.stream.buffer import *
 from ..util.propx import *
-from .bfile import * # trix, stream, enchelp
+from .file import * # trix, stream, enchelp
 
 class Archive(FileBase):
 	"""
