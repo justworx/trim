@@ -14,51 +14,38 @@ class Tar(Archive):
 	Tar file support.
 	
 	EXAMPLE:
-	>>>
-	>>> import trix
-	>>>
-	>>> #
-	>>> # Create a path object to a test file
-	>>> #
-	>>> p = trix.path("~/test.tar.gz", affirm="touch", encoding="utf-8")
-	>>>
-	>>> #
-	>>> # Get a tar file wrapper, `z`.
-	>>> #
-	>>> z = p.wrapper()
 	>>> 
-	>>> #
-	>>> # Create a member passing member name, "Test1", and some text.
-	>>> #
-	>>> z.write("Test1", "This is a test.\n")
+	>>> from trix.fs.tar import *
+	>>> testfile = "~/test-%s.tar.gz"%trix.value('time.time')()
 	>>> 
-	>>> #
-	>>> # Until the `Tar.flush` method is called, no changes take place
-	>>> # in the file, so `z.members` returns an empty dict.
-	>>> #
-	>>> z.members
-	{}
-	>>>
-	>>> #
-	>>> # After calling `flush()`, the member is in the archive.
-	>>> #
-	>>> z.flush()
-	>>> z.members
-	{'Test1': <TarInfo 'Test1' at 0x7f420065d9a8>}
-	>>>
-	>>> #
-	>>> # After calling `flush()`, the member is in the archive.
-	>>> #
-	>>> z.read("Test1", encoding='utf8')
-	'This is a test.\n'
-	>>> z.read("Test1")
-	'This is a test.\n'
+	>>> f = Tar(testfile, affirm="touch")
+	>>> f.write("Test1", "This is a test.\n")
+	>>> f.write("Test2", "This is a another.\n")
+	>>> f.flush()
 	>>> 
-	
+	>>> f.members
+	{'Test2': <TarInfo 'Test2' at 0x7f2a1ff87a70>, 'Test1': <TarInfo
+	 'Test1' at 0x7f2a1ff87cc8>}
+	>>> 
+	>>> f.read("Test1")
+	b'This is a test.\n'
+	>>> f.read("Test2", encoding="utf8")
+	'This is a another.\n'
+	>>> 
+	>>> f.remove()
+	>>> f.exists()
+	False
+	>>> 
+
 	"""
 	
 	__DEF_ENC = dict(gzip='gz', bzip2='bz2')
 	
+	#
+	#
+	# INIT
+	#
+	#
 	def __init__(self, path, **k):
 		
 		#
@@ -73,6 +60,11 @@ class Tar(Archive):
 		Archive.__init__(self, path, **k)
 	
 	
+	#
+	#
+	# OPEN-K PROPERTY
+	#
+	#
 	@property
 	def openk(self):
 		"""
@@ -81,15 +73,36 @@ class Tar(Archive):
 		return dict(compression=self.compression)
 	
 	
+	#
+	#
+	# NAMES PROPERTY
+	#
+	#
 	@property
 	def names(self):
 		"""
 		Member names in a proplist. Call this property as a function to
 		return the list of names.
 		
-		>>> arch = trix.path("my_archive.tar.gz")
-		>>> arch.names()                             # returns list
-		>>> arch.wrapper.names.sorted.table(width=2) # displays member paths
+		EXAMPLE:
+		>>>
+		>>> from trix.fs.tar import *
+		>>> testfile = "~/test-%s.tar.gz"%trix.value('time.time')()
+		>>> 
+		>>> f = Tar(testfile, affirm="touch")
+		>>> f.write("Test1", "This is a test.\n")
+		>>> f.write("Test2", "This is a another.\n")
+		>>> f.flush()
+		>>> 
+		>>> f.names()                     # returns list
+		>>> f.names.sorted.table(width=2) # displays members
+		[
+		  "Test1",
+		  "Test2"
+		]
+		>>> 
+		>>> f.remove()
+		>>>
 		
 		SEE ALSO:
 		>>> from trix.propx.proplist import *
@@ -103,6 +116,11 @@ class Tar(Archive):
 		return propx(self.__names)
 	
 	
+	#
+	#
+	# COMPRESSION PROPERTY
+	#
+	#
 	@property
 	def compression(self):
 		"""
@@ -145,10 +163,41 @@ class Tar(Archive):
 			return self.__compression
 	
 	
+	#
+	#
+	# MEMBERS PROPERTY
+	#
+	#
 	@property
 	def members(self):
 		"""
-		Returns a dict with member name : member file info.
+		Returns a propdict object containing the tar file's member info.
+		
+		If you want the basic dict, call this property as though it 
+		were a function. When called as a property, it returns the 
+		propdict object.
+		
+		EXAMPLE:
+		>>>
+		>>> from trix.fs.tar import *
+		>>> testfile = "~/test-%s.tar.gz"%trix.value('time.time')()
+		>>> 
+		>>> # For a list:
+		>>> f = Tar(testfile, affirm="touch")
+		>>> f.write("Test1", "This is a test.\n")
+		>>> f.write("Test2", "This is a another.\n")
+		>>> f.members
+		{'Test1': <TarInfo 'Test1' at 0x7fc65bc4dcc8>, 
+		 'Test2': <TarInfo 'Test2' at 0x7fc65bc4db38>}
+		>>> 
+		>>> f.remove()
+		>>>
+		
+		SEE ALSO:
+		>>>
+		>>> from trix.util.propx.propdict import *
+		>>> help(propdict)
+		>>>
 		"""
 		rr = {}
 		with self.archopen('r|*') as f:
@@ -158,6 +207,11 @@ class Tar(Archive):
 			return rr
 	
 	
+	#
+	#
+	# MEMBER-INFO PROPERTY
+	#
+	#
 	@property
 	def memberinfo(self):
 		"""
@@ -203,8 +257,15 @@ class Tar(Archive):
 		return trix.propx(rr)
 	
 	
+	@property
+	def mi(self):
+		return self.memberinfo
+	
+	
+	#
 	#
 	# TOUCH
+	#
 	#
 	def touch(self, times=None):
 		"""
@@ -227,7 +288,9 @@ class Tar(Archive):
 	
 	
 	#
+	#
 	# ARCH STORE (internal use)
+	#
 	#
 	def archstore(self, memgen, **k):
 		"""Write member data from the `memgen` iterable."""
@@ -251,14 +314,18 @@ class Tar(Archive):
 	
 	
 	#
+	#
 	# ARCH READ (internal use)
+	#
 	#
 	def archread(self, member, **k):
 		return self.archopen("r:*").extractfile(member).read()
 	
 	
 	#
+	#
 	# ARCH OPEN (internal use)
+	#
 	#
 	def archopen(self, mode, **k):
 		"""Open the tarfile; return the TarFile object."""
@@ -268,6 +335,4 @@ class Tar(Archive):
 			raise type(ex)('tar-open-fail', xdata(path=self.path, k=k, 
 					mode=mode, exists=self.exists(), mime=self.mime.guess
 				))
-
-
 
