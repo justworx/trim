@@ -181,20 +181,17 @@ class propiter(propbase):
 		
 		Returns the result.
 		
-		>>>
+		EXAMPLE
 		>>> from trix.util.propx.propiter import *
 		>>> pi = propiter([1,2,3])
-		>>> pi.each(
+		>>> list(pi)
+		[1, 2, 3]
+		>>> 
 		
 		SEE ALSO:
-		>>>
 		>>> from trix.data.param import *
 		>>> help(Param)
-		>>>
-		```
-		for v in self.o:
-			fn(self.param(v), *a, **k)
-		return self
+		
 	"""
 	
 	#
