@@ -4,91 +4,257 @@
 # of the GNU Affero General Public License.
 #
 
+
 from ..util.output import *
 from ..util.enchelp import *
 
 
+# -------------------------------------------------------------------
+#
+#
+#
+# CHAIN
+#
+#
+#
+# -------------------------------------------------------------------
+
 class Chain(object):
-	"""Holds a value; provides methods to manipulate that value."""
+	"""
+	Chain holds a value and provides methods to manipulate that value.
 	
+	>>>
+	>>> from trix.data.param import *
+	>>> p = Param(1)
+	>>>
+	>>> p.v == 1
+	True
+	>>>
+	
+	
+	IMPORTANT:
+	Chain is the base class for Param. The Chain class methods support
+	the manipulation of data, `self.v`, but always return `self` 
+	unless appended by the `null` property.
+	
+	Objects defined in subclass `Param` usually return a value other 
+	than `self`. Calls to chain, however, always return self (unless 
+	appended by the `null` property, which returns None).
+	
+	See the `set` method example, below.
+	
+	"""
+	
+	#
+	#
+	# INIT
+	#
+	#
 	def __init__(self, v=None):
+		"""Initialize `self.v`."""
 		self.v = v
 	
+	
+	#
+	#
+	# __CALL__
+	#
+	#
 	def __call__(self, *a):
-		"""Return a new Chain (or subclass) with given arguments."""
+		"""
+		Return a new Chain (or subclass) with given arguments.
+		
+		Calling Chein as a function causes a new copy of this object to 
+		be created and returned.
+		
+		"""
 		return type(self)(*a)
 	
+	
+	#
+	#
+	# __GETITEM__
+	#
+	#
 	def __getitem__(self, key):
 		"""Return item `key` from `self.v`."""
 		return self.v[key]
 	
+	
+	#
+	#
+	# __SETITEM__
+	#
+	#
 	def __setitem__(self, key, v):
 		"""Set item `key` in `self.v`."""
 		self.v[key] = v
 	
 	
-	
+	#
+	#
+	# PROPX
+	#
+	#
 	@property
 	def propx(self):
-		"""Return a propx object wrapping `self.v`."""
+		"""
+		Return a propx object wrapping `self.v`.
+		
+		SEE ALSO:
+		>>>
+		>>> from trix.util.propx import *
+		>>> help(propbase)
+		>>>
+		"""
 		return trix.propx(self.v)
 	
 	
 	
 	#
+	#
+	#
 	# SETTING VALUES
 	#
+	#
+	#
 	
+	#
+	#
+	# SET
+	#
+	#
 	def set(self, v):
-		"""Set `self.v` directly."""
+		"""
+		Set `self.v` directly.
+		
+		>>> from trix.data.param import *
+		>>> p = Param(1)
+		>>> p.v
+		1
+		>>>
+		>>> # Set `p.v` to a different value.
+		>>> p.set(2)
+		<trix.data.param.Param object at 0x7f5181044d68>
+		>>> p.v
+		2
+		>>>
+		>>> # This time, get rid of that icky repr.
+		>>> p.set(3).null
+		>>> p.v
+		3
+		>>>
+		
+		"""
 		self.v = v
 		return self
 	
-	def setx(self, x, v):
-		"""Set index (or key) `x` with value `v`."""
+	
+	#
+	#
+	# SETX
+	#
+	#
+	def setx(self, key, value):
+		"""
+		Set list index (or dict key) `key` with value `value`.
+		
+		>>>
+		>>> from trix.data.param import *
+		>>> p = Param([0, 10, 20])
+		>>> p.setx(1, "TEST").v
+		>>>
+		
+		"""
 		try:
-			self.v[x] = v
+			self.v[key] = value
 			return self
 		except BaseException as ex:
-			raise type(ex)(xdata(po=self.v, x=x, v=v))
-		return self
+			raise type(ex)(xdata(po=self.v, key=key, value=value))
 	
-	def setxx(self, xx, fn, *a, **k):
+	
+	#
+	#
+	# SETXX
+	#
+	#
+	def setxx(self, items, fn, *a, **k):
 		"""
-		Pass a list of item keys (p.i) as `xx`; each item's value is then
-		passed to callable `fn`, the result replacing the corresponding
-		item's current value.
+		Alters a given set of `items` in a list or dict.
 		
-		```
-		# Change a directory listing's floats to ints (for brevity).
-		dlist = ['trix', 'd', '1551543158.9558208', '1551543136.5832613']
-		p = Param(dlist)
-		p.setxx([2,3], lambda p,x: int(float(p.v[x])))
+		Pass a list of item keys as `items`. The `items` arguments must 
+		be a list of integers for setting list values. Each integer 
+		must be the offset of an item in the list to alter.
 		
-		```  
+		When operating on a dict, pass a list of key names.
+		
+		Each selected item's value is passed to callable `fn`, the 
+		result replacing the corresponding item's current value.
+		
+		EXAMPLE:
+		>>>
+		>>> from trix.data.param import *
+		>>> p = Param([0, 10, 20])
+		>>> p.setxx([0,1,2], lambda item: item*100).v
+		>>> p.setxx([0.1, 1.1, 2.3], lambda item: int(item)).v
+				
 		"""
-		for x in xx:
-			self.setx(x, fn(self, x, *a, **k))
+		for item in items:
+			val = fn(item)
+			self.setx(item, val)
 		return self	
 	
 	
 	#
-	# TYPE-CASTING VALUES
 	#
-	
+	# CAST
+	#
+	#
 	def cast(self, T):
 		"""Type-cast self.v."""
 		self.v = T(self.v)
 		return self
 	
+	
+	#
+	#
+	# CASTX
+	#
+	#
 	def castx(self, x, T):
 		"""Type-cast item `x` in `self.v` to type `T`."""
 		self.v[x] = T(self.v[x])
 		return self
 	
 	
+	#
+	#
+	# JCAST
+	#
+	#
 	def jcast(self):
-		"""Alter string `self.v` to it's json-parsed value."""
+		"""
+		Alter string `self.v` to it's json-parsed value.
+		
+		EXAMPLE:
+		>>> 
+		>>> from trix.data.param import *
+		>>> p = Param("[1,2,3]")
+		>>> p.v
+		'[1,2,3]'
+		>>>
+		>>> p.jcast().v
+		[1, 2, 3]
+		>>>
+		>>> #
+		>>> # NOTE ALSO: Calls return a param object, not the value!
+		>>> #            Append .v (as above) to get the value.
+		>>> #
+		>>> p.jcast()
+		<trix.data.param.Param object at 0x7f5178b830f0>
+		>>> 
+		
+		"""
 		v = self.v
 		try:
 			self.set(trix.jparse(self.v))
@@ -96,13 +262,46 @@ class Chain(object):
 			self.set(self.v)
 		return self
 	
+	
+	#
+	#
+	# JCAST-X
+	#
+	#
 	def jcastx(self, x):
-		"""Typecast item `x` in `self.v` to its json-parsed value."""
+		"""
+		Typecast item `x` in `self.v` to its json-parsed value.
+		
+		EXAMPLE:
+		>>> 
+		>>> from trix.data.param import *
+		>>> p = Param([1,"2",3]) # Notice item 1, the "2" in quotes.
+		>>> p.jcastx(1).v
+		[1, 2, 3]
+		>>>
+		
+		"""
 		self.setx(x, trix.jparse(self.v[x]))
 		return self
 	
+	
+	#
+	#
+	# JCAST-EACH
+	#
+	#
 	def jcasteach(self):
-		"""Alter each item in list `self.v` to its j-parsed value."""
+		"""
+		Alter each item in list `self.v` to its j-parsed value.
+		
+		EXAMPLE:
+		>>> 
+		>>> from trix.data.param import *
+		>>> Param(['{"foo":"bar"}', "[1,2,3]"]).jcasteach().v
+		[{'foo': 'bar'}, [1, 2, 3]]
+		>>> 
+		
+		"""
 		for x in range(len(self.v)):
 			try:
 				self.setx(x, trix.jparse(self.v[x]))
@@ -113,26 +312,65 @@ class Chain(object):
 	
 	
 	#
-	# CALLING RANDOM FUNCTIONS / PROCEDURES*
-	#  *(Proceedures in the sense of Pascal)
+	#
+	#
+	# CALLING RANDOM FUNCTIONS / CALLABLES
+	#
+	#
 	#
 	
+	#
+	#
+	# PROC
+	#
+	#
 	def proc(self, fn, *a, **k):
 		"""
 		Set this object's self.v to the result of the callable argument
 		`fn`. All args and kwargs are passed on to the callable. Use this 
 		when you want to set self.v to the callable's result.
+		
+		EXAMPLE:
+		>>> 
+		>>> from trix.data.param import *
+		>>> p = Param(10)
+		>>> p.proc(lambda x: x*2).v
+		20
+		>>> 
+		
 		"""
-		self.v = fn(*a, **k)
+		self.v = fn(self.v, *a, **k)
 		return self
 	
-	def procx(self, x, fn, *a, **k):
+	
+	#
+	#
+	# PROCX
+	#
+	#
+	def procx(self, item, fn, *a, **k):
 		"""
-		Set item `x` in `self.v` to the result of `fn`.
+		Set `item` in `self.v` to the result of `fn`.
+		
+		EXAMPLE:
+		>>> 
+		>>> from trix.data.param import *
+		>>> p = Param([0, 10, 20])
+		>>> p.procx(1, lambda x: x*2).v
+		20
+		>>> 
+		
 		"""
-		self.setx(x, fn(self, *a, **k))
+		newvalue = fn(self.v[item], *a, **k)
+		self.setx(item, newvalue)
 		return self
 	
+	
+	#
+	#
+	# CALL
+	#
+	#
 	def call(self, fn, *a, **k):
 		"""
 		This method allows the random calling of an executable object 
@@ -160,9 +398,18 @@ class Chain(object):
 	
 	
 	#
+	#
+	#
 	# STRING OPS
 	#
+	#
+	#
 	
+	#
+	#
+	# SPLIT
+	#
+	#
 	def split(self, *a, **k):
 		"""
 		Split `self.v` by the string given as the first argument, or by
@@ -172,6 +419,12 @@ class Chain(object):
 		self.v = self.v.split(*a, **k)
 		return self
 	
+	
+	#
+	#
+	# JOIN
+	#
+	#
 	def join(self, c=' ', *a):
 		"""
 		Join list items by character `c`. If no additional arguments are
@@ -187,6 +440,12 @@ class Chain(object):
 		self.v = u(c).join(vv)
 		return self
 	
+	
+	#
+	#
+	# PAD
+	#
+	#
 	def pad(self, mlen, val=''):
 		"""
 		Pad a sequence with `val` items to a minimum length of `mlen`.
@@ -202,7 +461,13 @@ class Chain(object):
 				self.v += val
 			
 		return self
-
+	
+	
+	#
+	#
+	# STRIP
+	#
+	#
 	def strip(self, c=None, alignment=0):
 		"""
 		Strip characters matching `c`, or whitespace, if c==None.
@@ -218,10 +483,20 @@ class Chain(object):
 		return self
 	
 	
+	
+	#
+	#
 	#
 	# OTHER/UTIL
 	#
+	#
+	#
 	
+	#
+	#
+	# EACH
+	#
+	#
 	def each(self, fn, *a, **k):
 		"""
 		Pass a callable `fn` that accepts Param object `p`, index (or 
@@ -238,6 +513,11 @@ class Chain(object):
 		return self
 	
 	
+	#
+	#
+	# OUTPUT
+	#
+	#
 	def output(self, v=None, *a):
 		"""Print `self.v`; for testing."""
 		v = v or self.v
@@ -245,12 +525,22 @@ class Chain(object):
 		return self
 	
 	
+	#
+	#
+	# WRITE
+	#
+	#
 	def write(self, v=None, *a):
 		"""Print `self.v`; for testing."""
 		BaseOutput().output(str(v or self.v))
 		return self
 	
 	
+	#
+	#
+	# NULL
+	#
+	#
 	@property
 	def null(self):
 		"""
@@ -261,13 +551,20 @@ class Chain(object):
 
 
 
+# -------------------------------------------------------------------
+#
+#
 #
 # PARAM
 #
+#
+#
+# -------------------------------------------------------------------
+
 class Param(Chain):
 	"""
 	Param methods manipulate or evaluate data; usually the self.v value
-	is involved. All methods work with either self.v, or in some cases,
+	is involved. All methods work with either self.v or, in some cases,
 	an optional second argument to use instead of self.v.
 	
 	Comparison methods eq, neq, gt, ge, lt, and le all require one
@@ -276,11 +573,20 @@ class Param(Chain):
 	
 	Methods inherrited from Chain always return `self`, so that calls 
 	can be chained through a lambda, whereas Param methods typically, 
-	if not always, return value resulting from the method. It may take
-	a while to what you're getting back as you chain calls together, 
-	but once you get it, it's a powerful tool for use in lambdas.
+	if not always, return value resulting from the method. 
+	
+	Param doesn't come easy. There's a lot to learn but, once you get 
+	it, it's a powerful tool for use in lambdas.
+	
 	"""
 	def __init__(self, v=None, i=None):
+		"""
+		The constructor sets `self.v` and `self.i` to the given values. 
+		Default for `i` is None.
+		
+		>>>
+		>>>
+		"""
 		self.v = v
 		self.i = i
 	
@@ -396,5 +702,4 @@ class Param(Chain):
 	def lt(self, v):
 		"""Comparison: less than;"""
 		return self.v < v
-		#return b if v in self.v else not b
 	
