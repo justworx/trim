@@ -1932,7 +1932,7 @@ class NLoader(Loader):
 class BaseClass(object):
 	"""
 	I'll set this class as the base of certain trix classes to expose
-	certain common methods that may be relevant to all objects.
+	common methods that may be relevant to all objects.
 	"""
 	
 	def __init__(self, *a, **k):
@@ -1941,47 +1941,13 @@ class BaseClass(object):
 	
 	@property
 	def a(self):
-		"""
-		Return any given args as a proplist.
-		
-		Call this property as a function to retrieve the actual list.
-		Use propx.proplist methods to display.
-		
-		EXAMPLE:
-		>>> import trix
-		>>> p = trix.path("test.txt", a=1, b=9)
-		>>> p.a()
-		
-		SEE ALSO:
-		>>>
-		>>> import trix
-		>>> help( trix.innerpath('util.propx.proplist'), self.a )
-		>>>
-		
-		"""
-		return trix.propx(self.__a)
+		"""For reference: Return any given args."""
+		return self.__a
 	
 	@property
 	def k(self):
-		"""
-		Return any given keyword args as a propdict.
-		
-		Call this property as a function to retrieve the actual dict.
-		Use propx.propdict methods to display.
-		
-		EXAMPLE:
-		>>> import trix
-		>>> p = trix.path("test.txt", a=1, b=9)
-		>>> p.k()
-		
-		SEE ALSO:
-		>>>
-		>>> import trix
-		>>> help( trix.innerpath('util.propx.propdict'), self.k )
-		>>>
-		
-		"""
-		return trix.propx(self.__k)
+		"""For reference: Return any given keyword args."""
+		return self.__k
 			
 			
 
