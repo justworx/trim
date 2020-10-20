@@ -17,6 +17,7 @@ def termsize(height=24, width=80):
 		return list(fn(*a))
 	except:
 		pass
+
 	
 	try:
 		fn = trix.value("subprocess.check_output")
@@ -24,9 +25,3 @@ def termsize(height=24, width=80):
 		return [int(hw[0]), int(hw[1])]
 	except:
 		pass
-	
-	if a and (len(a)==2):
-		return a
-	
-
-
