@@ -1072,8 +1072,8 @@ class trix(object):
 		Read and return a config file from within the trix package.
 		
 		The `trix.nconfig` classmethod works the same as `trix.config`,
-		but file paths must be given as partial paths starting within the
-		trix package directory.
+		but file paths must be given as partial paths starting within 
+		the trix package directory.
 		
 		>>> # 
 		>>> # See trix.config, above, for more usage examples.
