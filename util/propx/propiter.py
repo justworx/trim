@@ -203,8 +203,7 @@ class propiter(propbase):
 		"""
 		Run callable `x` on each item in this object.
 		
-		EXAMPLE:
-		>>>
+		EXAMPLE
 		>>> #
 		>>> # Here is a list of tuples.
 		>>> #
@@ -325,8 +324,7 @@ class propiter(propbase):
 		"""
 		The "zip" filter - call using python3 conventions (even from py2).
 		
-		EXAMPLE:
-		>>> 
+		EXAMPLE
 		>>> from trix.util.propx.propiter import *
 		>>> i = propiter([])
 		>>> ii = i.zip('ABCD', 'xy') # ZIP
@@ -363,8 +361,7 @@ class propiter(propbase):
 		"""
 		Call this filter method using python3 convention even in python2.
 		
-		EXAMPLE:
-		>>> 
+		EXAMPLE
 		>>> from trix.util.propx.propiter import *
 		>>> pi = propiter([]) 
 		>>> list( pi.filter(lambda x: x<3, [1,2,3,4,5]) ) # FILTER
@@ -445,8 +442,7 @@ class propiter(propbase):
 		are given, `self.o` must provide only iterables or an error is
 		raised.
 		
-		EXAMPLE:
-		>>> 
+		EXAMPLE
 		>>> from trix.util.propx.propiter import *
 		>>> list(pi.chain([1,2],[3,4,5]).o)
 		[1, 2, 3, 4, 5]
@@ -466,8 +462,7 @@ class propiter(propbase):
 		"""
 		Cycle through `iterable`, if given, else `self.o`.
 		
-		EXAMPLE:
-		>>> 
+		EXAMPLE
 		>>> from trix.util.propx.propiter import *
 		>>> for x in range(1,15):
 		>>> 	pi.cycle([1, 9, 10])
@@ -552,8 +547,7 @@ class propiter(propbase):
 		Returns an iterator that returns elements from the iterable as 
 		long as the predicate is True.
 		
-		EXAMPLE:
-		>>> 
+		EXAMPLE
 		>>> from trix.util.propx.propiter import *
 		>>> px = propx([1,2,3,4])
 		>>> 
@@ -591,8 +585,7 @@ class propiter(propbase):
 			[seq]     matches any character in seq
 			[!seq]    matches any character not in seq	
 		
-		EXAMPLE:
-		>>> 
+		EXAMPLE
 		>>> import trix
 		>>> d = trix.path( trix.innerfpath() )
 		>>> d.ls.fmnatch("*.py")
@@ -627,14 +620,12 @@ class propiter(propbase):
 			[seq]     matches any character in seq
 			[!seq]    matches any character not in seq	
 		
-		EXAMPLE:
-		>>> 
+		EXAMPLE
 		>>> import trix
 		>>> d = trix.path( trix.innerfpath() )
 		>>> d.ls.fmnatchcase("*.py")
 		>>>
 		['__init__.py', '__main__.py']
-		
 		>>>
 			 
 		"""

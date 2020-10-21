@@ -60,7 +60,7 @@ class Stream(EncodingHelper):
 	#
 	#
 	#
-	# init
+	# INIT
 	#
 	#
 	#
@@ -98,7 +98,7 @@ class Stream(EncodingHelper):
 	#
 	#
 	#
-	# del
+	# DEL
 	#
 	#
 	#

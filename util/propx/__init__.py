@@ -148,8 +148,8 @@ class propbase(object):
 	returning a `trix.data.dbgrid.DBGrid` object wrapping the directory
 	results in a temporary sqlite3 table, so results may be sorted or
 	otherwise adjusted as necessary using sql statements.
-	
-	EXAMPLE:
+		
+	EXAMPLE
 	>>> import trix
 	>>> 
 	>>> # get a `trix.fs.dir.Dir` object the safe way
@@ -157,7 +157,14 @@ class propbase(object):
 	>>>
 	>>> dg = d.propgrid.dbgrid("tb")
 	>>> dg("select type, size, uid from tb order by size").grid()
-
+		
+	SEE ALSO:
+	>>> from trix.data.dbgrid import *
+	>>> help(DBGrid)
+	>>>
+	>>> from trix.util._propall import *
+	>>> help(propgrid)
+	>>>
 	
 	"""
 	
@@ -399,7 +406,9 @@ class propbase(object):
 	#
 	#
 	def display(self, *a, **k):
-		"""Display using trix.fmt. Default params: f='JDisplay'"""
+		"""
+		Display using trix.fmt. Default params: f='JDisplay'
+		"""
 		trix.display(self.o, *a, **k)
 	
 	
@@ -423,7 +432,9 @@ class propbase(object):
 	#
 	# 
 	def jcompact(self, *a, **k):
-		"""Return self.o forced to jcompact text."""
+		"""
+		Return self.o forced to jcompact text.
+		"""
 		k['f'] = 'JCompact'
 		return trix.formatter(*a, **k).format(self.o)
 	
@@ -437,8 +448,10 @@ class propbase(object):
 		"""
 		Returns arg `o` or `self.o` wrapped in a Param object.
 		
-		See: The `trix.data.param.Param` for information on the Param 
-		     class, methods, properties, and usage.
+		SEE ALSO:
+		>>> from trix.data.param import *
+		>>> help(Param)
+		
 		"""
 		try:
 			return self.__Param(o or self.o)

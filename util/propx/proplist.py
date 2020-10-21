@@ -91,7 +91,7 @@ class proplist(propseq):
 		 * '=' : objects contained by self.o and other
 		 * '-' : objects contained by other, but not self.o 
 		
-		EXAMPLE:
+		EXAMPLE
 		#
 		# Compare list [1,2,3] against list [2,3,4]
 		#
@@ -204,8 +204,12 @@ class proplist(propseq):
 		Pass a `tablename` and any desired keyword arguments.
 		
 		SEE ALSO:
-		See `trix.util.propx.propgrid.dbgrid` for more information.
-		
+		>>> from trix.data.dbgrid import *
+		>>> help(DBGrid)
+		>>>
+		>>> from trix.util._propall import *
+		>>> help(propgrid)
+		>>>
 		"""
 		return self.propgrid.dbgrid(tableName, **k)
 
@@ -424,10 +428,10 @@ class propgrid(proplist):
 		defined by the passage of keyword arguments) is not a list
 		of lists each containing an equal number of items.
 		
-		EXAMPLE:
-		import trix
-		lgrid = trix.path("~/trix").list.dbgrid('lgrid')
-		return lgrid('select * from lgrid order by mtime desc')
+		EXAMPLE
+		>>> import trix
+		>>> lgrid = trix.path("~/trix").list.dbgrid('lgrid')
+		>>> return lgrid('select * from lgrid order by mtime desc')
 		
 		"""
 		

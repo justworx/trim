@@ -87,9 +87,10 @@ class urlinfo(object):
 		"""
 		Use kwargs to narrow search to given family, type, protocol.
 		
-		EXAMPLE:
-		ui = urlinfo("http://laptop.local")
-		addr = ui.addrinfo(family="SOCK_STREAM")
+		EXAMPLE
+		>>> ui = urlinfo("http://laptop.local")
+		>>> addr = ui.addrinfo(family="SOCK_STREAM")
+		
 		"""
 		info=self.__dict
 		host=port=family=stype=proto=flags=None

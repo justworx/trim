@@ -27,9 +27,9 @@ class propstr(propseq):
 		Return a proplist object containing a list of the lines
 		of text contained by this propstr object.
 		
-		EXAMPLE:
+		EXAMPLE
 		>>> from trix.util.propx import *
-		>>> px = propx("Hello, World!\nHow are you?\n")
+		>>> px = propx("Hello, World! How are you?")
 		>>> px.lines.output()
 		
 		"""
@@ -68,7 +68,9 @@ class propstr(propseq):
 		like csv or tab-separated values. It could be helpful in
 		designing `trix.data.cursor.Cursor` callbacks.
 		
-		See: help(trix.data.pdq.Query)
+		SEE ALSO:
+		>>> from trix.data.pdq import *
+		>>> help(Query)
 		
 		"""
 		return trix.ncreate('data.pdq.Query', self.o, **k)

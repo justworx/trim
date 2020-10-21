@@ -39,7 +39,9 @@ class sockprop(object):
 	
 	
 	#
+	#
 	# DEL
+	#
 	#
 	def __del__(self):
 		try:
@@ -88,7 +90,9 @@ class sockprop(object):
 	
 	
 	#
+	#
 	# SHUTDOWN
+	#
 	#
 	def shutdown(self):
 		"""Shutdown the socket."""

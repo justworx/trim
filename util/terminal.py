@@ -78,7 +78,7 @@ class Terminal(BaseClass):
 		>>> t.size()
 		>>> t.debug.display()
 		
-		NOTES:
+		NOTES
 		It's sometimes nice to have a bit of information on what's 
 		happening inside. Pass the keyword argument `debugging=True` to 
 		access debugging information.

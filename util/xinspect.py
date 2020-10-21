@@ -27,16 +27,33 @@ class Inspect(object):
 	>>> ii.properties.keys()
 	"""
 	
+	#
+	#
+	# INIT	
+	#
+	#
 	def __init__(self, o):
 		"""Pass an object, module, class, etc..."""
 		self.__o = o
 		self.__d = {}
 	
+	
+	#
+	#
+	# OBJECT	
+	#
+	#
 	@property
 	def object(self):
 		"""Return the object passed to the constructor."""
 		return self.__o
 	
+	
+	#
+	#
+	# CLASSES	
+	#
+	#	
 	@property
 	def classes(self):
 		"""Return a dict containing class information."""
@@ -59,7 +76,13 @@ class Inspect(object):
 						classobject = classObj
 					)
 			return self.__classes
-		
+	
+	
+	#
+	#
+	# METHODS	
+	#
+	#		
 	@property
 	def methods(self):
 		"""Return a dict containing method information."""
@@ -73,6 +96,12 @@ class Inspect(object):
 				r[methodName] = methodType
 			return self.__methods
 	
+	
+	#
+	#
+	# PROPERTIES	
+	#
+	#	
 	@property
 	def properties(self):
 		"""Return a dict containing properties."""
@@ -87,6 +116,12 @@ class Inspect(object):
 					r[item[0]] = item[1]
 			return self.__properties
 	
+	
+	#
+	#
+	# FUNCTIONS	
+	#
+	#	
 	@property
 	def functions(self):
 		"""Returns a dict containing the functions of self.object."""
@@ -98,7 +133,12 @@ class Inspect(object):
 				r[f[0]] = f[1]
 			return self.__functions
 	
-	# GET
+	
+	#
+	#
+	# GET	
+	#
+	#
 	def get(self, predicate=None):
 		"""
 		Utility. Calls inspect.getmembers, passing self.object as the
@@ -106,3 +146,5 @@ class Inspect(object):
 		method directly.
 		"""
 		return inspect.getmembers(self.__o, predicate)
+
+
