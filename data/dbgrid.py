@@ -15,6 +15,25 @@ class DBGrid(Database):
 	"""
 	Query a set of named, in-memory sqlite3 tables.
 	
+	If you like working with sql queries, here's a way to query and/or
+	manipulate grid data (that is, lists of lists of equal length), you
+	will love `DBGrid`.
+	
+	GRIDS:
+	A grid is a list containing a set of lists of equal length.
+	Below, are some examples of "grids".
+	
+	# a 2x2 grid    # a 3x2 grid        # a 3x3 grid
+	[               [                   [
+	  [1, 2],         ['a', 'b', 99],     [1,2,3] 
+	  [3, 4]          ['C', 'D', 99],     [4,5,6]
+	]               ]                     [7,8,9]
+	                                    ]
+	
+	Create a DBGrid, add a table, and operate on the grid as though
+	it were an sqlite3.db table.
+	
+	
 	EXAMPLE:
 	>>>
 	>>> from trix.data.dbgrid import *
@@ -24,10 +43,24 @@ class DBGrid(Database):
 	>>>
 	
 	EXAMPLE 2:
-	>>>
-	>>> import trix
-	>>> g = trix.path("~/trix").list.propgrid.dbgrid('lg')
-	>>>
+	>>> 
+	>>> sql = "select name, size from LS where type='f' order by size"
+	>>> 
+	>>> from trix.data.dbgrid import *
+	>>> d = trix.path( trix.innerfpath() )  # get the `trix` directory
+	>>> dg = d.list.dbgrid("LS")            # create dbgrid table "LS"
+	>>> dq(sql).grid()                      # run query; view results
+	name          size 
+	__main__.py  215  
+	.gitignore   1626 
+	README.md    2174 
+	LICENSE      34523
+	__init__.py  53164
+	>>> 
+	
+	SEE ALSO:
+	>>> from trix.data.dbgrid import *
+	>>> help(DBGrid)
 	
 	"""
 	
@@ -404,8 +437,6 @@ class DBGrid(Database):
 			)
 	
 	
-	
-	
 	def close(self):
 		try:
 			Database.close(self)
@@ -416,6 +447,18 @@ class DBGrid(Database):
 		except BaseException as ex:
 			pass
 	
+	
+	
+	def q(self, *a, **k):
+		"""
+		Run an sql query on the grid data.
+		
+		The `q` method is a convenience for inline use. It calls
+		`self.__call__` passing any arguments and keyword args, and
+		returning the query result.
+		
+		"""
+		return self.__call__(*a, **k)
 	
 	
 	def x(self, *a, **k):
