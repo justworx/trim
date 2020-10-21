@@ -42,6 +42,7 @@ class Bag(object):
 		Get value of key. Default may not be specified - it's always the
 		empty value of the object's type.
 		
+		EXAMPLE
 		>>> b = Bag(int)
 		>>> b.put("one", 1)
 		>>> b.get("one") # 1
@@ -53,6 +54,7 @@ class Bag(object):
 		"""
 		Add `x` to key value. If unset, set key's value to `x`.
 		
+		EXAMPLE
 		>>> b = Bag(int)
 		>>> b.add("one", 1)
 		>>> b.add("one", 1)
@@ -67,6 +69,7 @@ class Bag(object):
 		"""
 		Append item `x` to bags of list-like types.
 		
+		EXAMPLE
 		>>> b = Bag(list)
 		>>> b.append('foo', 1)
 		>>> b.append('foo', 2)
