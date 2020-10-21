@@ -1811,9 +1811,6 @@ class trix(object):
 #  Importing by the second method, `from trix import *`, allows access
 #  to the variables below by name.
 #
-#  >>> from trix import *
-#  >>> loc('fr')
-#
 # -------------------------------------------------------------------
 
 callx      = trix.callx
