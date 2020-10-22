@@ -42,7 +42,6 @@ class Console(BaseOutput):
 		
 		# init superclass
 		BaseOutput.__init__(self, config)
-		BaseOutput.__init__(self, config)
 		
 		# set debugging
 		self.__debug = config.get('debug', self.Debug)
