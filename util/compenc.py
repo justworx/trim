@@ -101,34 +101,4 @@ def expand(data, encoding=DEF_ENCODE):
 		# other errors...
 		errors.append("%s: %s" % (type(err2).__name__, str(err2)))
 		raise Exception("errors", xdata(errors=errors, debug=debug))
-		
-
-
-
-
-
-
-
-
-"""
-#
-# Experimental section.
-#
-class compenc(EncodingHelper):
-	def __init__(self, value, **k):
-		#
-		# Pass a value on which to operate. Encoding-related params 
-		# must be passed as kwargs.
-		#
-		k.setdefault('encoding', DEF_ENCODE)
-		k.setdefault('errors', 'strict')
-		EncodingHelper.__init__(self, **k)
-		self.v = self.encode(value)
-	
-	def b64(self, *a, **k):
-		return b64.encode(self.v, *a, **k)
-	
-	def d64(self, *a, **k):
-		return b64.decode(self.v, *a, **k)
-"""
 
