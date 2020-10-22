@@ -1786,6 +1786,7 @@ class trix(object):
 		
 		# If a `locale` argument is specified, that locale will be used.
 		return trix.ncreate("util.loc.Locale", locale)
+	
 
 
 
