@@ -1,5 +1,5 @@
 #
-# Copyright 2018 justworx
+# Copyright 2018-2020 justworx
 # This file is part of the trix project, distributed under the terms 
 # of the GNU Affero General Public License.
 #
@@ -14,8 +14,8 @@ DEF_SLEEP = 0.1
 class Runner(Output):
 	"""
 	Start, manage, and stop a (possibly threaded) event loop. Override
-	the `io` method to define actions that must be taken each pass 
-	through the loop.
+	the `io` method in subclasses to define actions that must be taken 
+	each pass through the loop.
 	
 	NOTE:
 	 - Always use base-class `Output.output()` method to write data 
@@ -126,17 +126,23 @@ class Runner(Output):
 		"""Stop. Subclasses override to implement stopping actions."""
 		try:
 			try:
-				self.stop()
+				self.shutdown()
 			except Exception as ex:
 				trix.log(
 						"err-runner-delete", "stop-fail", ex=str(ex), 
 						args=ex.args, xdata=xdata()
 					)
 			
+			#
 			# EXPERIMENTAL 20190522
-			if self.__xthread:
-				del(self.__xthread)
-				self.__xthread = None
+			# WTF. 20201023 - This self.__xthread: thing will cause an 
+			#                 exception. There is no self.__xthread!
+			#                 self.__xthread! What was I thinking?
+			#
+			#if self.__xthread:
+			#	del(self.__xthread)
+			#	self.__xthread = None
+			#
 			
 			if self.__csock:
 				try:
@@ -217,7 +223,10 @@ class Runner(Output):
 	
 	@sleep.setter
 	def sleep(self, f):
-		"""Set time to sleep after each pass through the run loop."""
+		"""
+		Set the amount of time this Runner should sleep after each pass 
+		through the run loop.
+		"""
 		self.__sleep = f
 	
 	@property
@@ -265,14 +274,14 @@ class Runner(Output):
 	# ----------------------------------------------------------------
 	def open(self):
 		"""
-		Called by run() if self.active is False.
+		The `open` method is called by run() if self.active is False.
 		
-		Override this method adding any code that needs to execute in
+		Override this method, adding any code that needs to execute in
 		order for the subclass to work. 
 		
-		Call `open` From Subclasses! If you override the `open` method,
+		Call `open` from Subclasses! If you override the `open` method,
 		be sure to call `Runner.open()` exactly after all opening actions
-		are complete so that the `Runner.active` flag will be set True.
+		are complete, so that the `Runner.active` flag will be set True.
 		"""
 		self.__active = True
 	
@@ -340,9 +349,11 @@ class Runner(Output):
 		
 		self.__threadid = thread.get_ident()
 		
+		
 		#
 		# --------- MAIN LOOP ---------
 		#
+		
 		while self.__running:
 			#
 			# Call the `io()` method, and `self.cio()` if applicable.
@@ -369,12 +380,35 @@ class Runner(Output):
 			# sleep a little, now that we're out of the lock
 			#
 			time.sleep(self.sleep)
-			
+		
+		
+		
+		#
+		# I THINK THIS (BELOW) WAS A MISTAKE.
+		# Like this, we can't stop a server briefly then start it 
+		# running again. It's dead after it is stopped because of the
+		# call to `self.shutdown` and setting csock to none.
+		#
+		# MAKE A BACKUP OF THIS AND...
+		# Try using it a while without shutting down on `stop`. I think
+		# shutting down on `stop` is against the rules. Use `shutdown` 
+		# to permanently close out the whole runner-based object.
+		#
+		# NOTE: This may require some attention in `Process`, I'm really
+		#       not sure. This should be looked into!
+		#
 		
 		# Once processing is finished, `close()` and `stop()`.
-		if self.active:
-			self.shutdown()
-			self.__csock = None
+		
+		# BUT PROCESSING ISN'T NECESSARILY FINISHED HERE.
+		# START CAN BE CALLED AFTER STOP. THAT SOCKET SHOULD
+		# SIT THERE UNTIL I'M READY FOR IT AGAIN.
+		#
+		# COMMENTING: 20201023
+		#
+		# if self.active:
+		# 	self.shutdown()
+		# 	self.__csock = None
 		 
 	
 	# ----------------------------------------------------------------
@@ -419,11 +453,14 @@ class Runner(Output):
 		"""
 		This placeholder is called on object deletion. It may be called
 		anytime manually, but you should probably call .stop() first if
-		the object is running. Subclasses may call `close()` inside the
-		`stop()`. 
+		the object is running. 
+		
+		Subclasses may call `close()` from an overridden `stop()` method,  
+		but `Runner` itself shouldn't. 
 		
 		In any case, it's very important to call Runner.close() from
 		subclasses so that the active flag will be set to false.
+		
 		"""
 		self.__active = False
 	
@@ -482,8 +519,8 @@ class Runner(Output):
 			elif q == 'status':
 				return dict(query=q, reply=self.status())
 			elif q == 'shutdown':
-				# stop, returning the new status
-				self.stop()
+				# shutdown, returning the new status
+				self.shutdown()
 				r = dict(query=q, reply=self.status())
 				return r
 	
