@@ -5,11 +5,11 @@
 #
 
 
-from .. import *
+from .tbase import * # trix, EncodingHelper, TBase
 import shlex
 
 
-class callx(object):
+class callx(TBase):
 	"""
 	Creates and handles Popen calls.
 	
@@ -50,7 +50,11 @@ class callx(object):
 		return cls(args, **k)
 	
 	
-	
+	#
+	#
+	# INIT
+	#
+	#
 	def __init__(self, cmd=None, **k):
 		"""
 		Makes a system call and returns the response.
@@ -87,6 +91,7 @@ class callx(object):
 		Pass a keyword argument specifying a cline command. See below.
 		
 		"""
+		TBase.__init__(self, cmd=None, **k)
 		
 		# pop kwargs meant for reader
 		self.__rk = trix.kpop(k, "encoding errors mode max_size")
@@ -124,14 +129,15 @@ class callx(object):
 		except Exception as ex:
 			raise type(ex)(xdata(
 					error="cline-args-required",
-					en="Command line argument or a cline keyword argument required."
+					en="Command line argument or a cline keyword argument " + 
+						"required."
 				)
 			)
 	
 	
 	#
 	#
-	#
+	# REPR
 	#
 	#
 	def __repr__(self):
@@ -142,7 +148,7 @@ class callx(object):
 	
 	#
 	#
-	#
+	# CALL
 	#
 	#
 	def __call__(self):
@@ -171,7 +177,7 @@ class callx(object):
 	
 	#
 	#
-	#
+	# READER
 	#
 	#
 	def reader(self):
@@ -187,28 +193,6 @@ class callx(object):
 			)
 			self.__reader = self.__buffer.reader()
 			return self.__reader
-	
-	
-	#
-	#
-	#
-	#
-	#
-	@property
-	def a(self):
-		"""Returns args, as given to constructor."""
-		return self.__a
-	
-	
-	#
-	#
-	#
-	#
-	#
-	@property
-	def k(self):
-		"""Returns kwargs, as given to constructor."""
-		return self.__k
 	
 	
 	#
