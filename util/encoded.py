@@ -4,23 +4,48 @@
 # of the GNU Affero General Public License.
 #
 
+
 from .stream.buffer import *
 from . import bom, enchelp
 
 
 class Encoded(object):
-	"""Represents raw byte strings."""
+	"""
+	Represents a byte strings.
+	
+	The `Encoded` class holds bytes. It's primary purpose is to attempt
+	the decoding of bytes to unicode.
+	
+	"""
+	
 	
 	EncodingKeywords = [b'charset',b'encoding',b'coding']
 	
+	
+	#
+	#
+	# INIT
+	#
+	#
 	def __init__(self, bbytes):
-		"""Pass encoded byte strings."""
+		"""
+		Pass encoded byte strings.
+		
+		"""
 		self.__buffer = Buffer(bbytes)
 		self.__ekw = self.EncodingKeywords
 	
-	# 
+	
+	#
+	#
+	# READER
+	#
+	#
 	def reader(self):
-		"""Returns a reader starting at seek(0)."""
+		"""
+		Returns a reader starting at seek(0).
+		
+		"""
 		try:
 			return self.__reader
 		except:
@@ -30,44 +55,61 @@ class Encoded(object):
 			self.__reader.seek(0)
 			return self.__reader
 	
-	
-	# NEW
-	def decode(self, encoding, **k):
-		"""Encoding argument required. Errors kwarg optional."""
-		k['encoding'] = encoding
-		k['mode'] = 'r'
-		return self.__buffer.reader(**k).read()
-
-	
-	
-	
+	#
+	#
+	# BYTES
+	#
+	#
 	@property
 	def bytes(self):
 		return self.__buffer.read()
 	
 	
-	@classmethod
-	def pythonize(cls, enc):
+	#
+	#
+	# DECODE
+	#
+	#
+	def decode(self, encoding, **k):
 		"""
-		Use EncodingHelper validation to find a matching encoding name.
-		If that fails, return the 
+		Encoding argument required. Errors kwarg optional.
 		"""
-		try:
-			enc = enc.decode('utf_8')
-		except:
-			print ('\n#\n# enc: %s\n#\n' % (enc))
-			raise
+		k['encoding'] = encoding
+		k['mode'] = 'r'
+		return self.__buffer.reader(**k).read()
+
+	
+	#
+	#
+	# This method doesn't seem to be in use anymore. No place in the
+	# trix package calls on it.
+	#
+	#
+	# @classmethod
+	# def pythonize(cls, enc):
+		# """
+		# Use EncodingHelper validation to find a matching encoding name.
+		# If that fails, return the 
+		# """
+		# try:
+			# enc = enc.decode('utf_8')
+		# except:
+			# print ('\n#\n# enc: %s\n#\n' % (enc))
+			# raise
 			
-		return enchelp.EncodingHelper(encoding=enc).encoding
+		# return enchelp.EncodingHelper(encoding=enc).encoding
 	
 	
+	#	
+	#	
 	# DETECT
+	#	
+	#	
 	def detect(self):
 		"""
 		Attempts to detect a valid encoding for bytes based either on BOM, 
 		or the 'charset' or 'encoding' specification in the text,
-		"""
-		"""
+		
 		Attempts to detect encoding of raw bytes strings. This is not a
 		comprehensive detection system - it provides an accurate encoding
 		only for byte strings with a recognizable byte-order mark, or a
@@ -91,6 +133,17 @@ class Encoded(object):
 			 sometimes fail to get it right. I've seen plenty of charset
 			 attributes that are misspelled or don't match any real encoding 
 			 name.
+		
+		#
+		#
+		# TO DO:
+		#  - Use trix.callx to check file encoding with iconv.
+		#  - If necessary, write a temporary file for text and let
+		#    iconv parse it, then return the results (and delete the
+		#    temporary file).
+		#
+		#
+		
 		"""
 		
 		e = None
@@ -109,18 +162,27 @@ class Encoded(object):
 			return e2.decode('utf_8')
 		
 	
-	
-	
-	
-	#
-	# Encoding Detection (weak).
-	#
-	
+	#	
+	#	
 	# TEST BOM
+	#	
+	#	
 	def testbom(self):
+		"""
+		Return encoding for UTF-32, UTF-16, UTF-8-SIG, which store their
+		encoding in their content.
+		
+		Other encodings will return None.
+		
+		"""
 		return bom.testbom(self.bytes)
 	
+	
+	#	
+	#	
 	# TEST SPEC
+	#	
+	#	
 	def testspec(self):
 		"""
 		Test for the specification of an encoding in the form of:
@@ -130,7 +192,9 @@ class Encoded(object):
 		
 		Whitespace, assignment operators, and literal delimiters
 		are optional.
+		
 		"""
+		
 		zero    = b"\0"
 		blank   = b''
 		ignore  = b'\t :=\'"'
@@ -158,7 +222,11 @@ class Encoded(object):
 					return bytes(r) # python3
 	
 	
+	#	
+	#	
 	# TEST LIST
+	#	
+	#	
 	def testlist (self, encodings=None):
 		"""
 		Attempts to decode then reencode byte string argument for each
