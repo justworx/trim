@@ -35,7 +35,9 @@ def testbom(bytestring):
 	
 	#
 	# I don't know how to make these work. They're from wikipedia.
-	#  - https://en.wikipedia.org/wiki/Byte_order_mark#Byte_order_marks_by_encoding
+	#  - 
+	# https://en.wikipedia.org/wiki/Byte_order_mark
+	#Byte_order_marks_by_encoding
 	#
 	# More:
 	#  - https://en.wikipedia.org/wiki/Talk%3AByte_order_mark
