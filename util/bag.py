@@ -113,6 +113,10 @@ class Bag(object):
 		>>> b.get('numbers')
 		[1, 3]
 		>>> b.get.display()
+		[
+			1, 
+			3
+		]
 		>>>
 		
 		"""
@@ -126,11 +130,7 @@ class Bag(object):
 	#
 	def get(self, key):
 		"""
-		Get value of key. 
-		
-		Default may not be specified - it's always the empty value of the 
-		object's type.
-		
+		Get value of key. 		
 		"""
 		return self.__d[key]
 	
@@ -141,7 +141,9 @@ class Bag(object):
 	#
 	#
 	def put(self, key, value):
-		"""Set or change a key/value pair."""
+		"""
+		Set or change a key/value pair.
+		"""
 		self.__d[key] = value
 	
 	
