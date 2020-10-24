@@ -20,14 +20,14 @@ def xinput(prompt=XINPUT_PROMPT):
 	
 	e = None
 	try:
+		r = input(prompt) # python3
+	except NameError:
 		import sys, locale # python2
 		e = sys.stdin.encoding or locale.getpreferredencoding(True)
 		r = raw_input(prompt).decode(e)
-	except NameError:
-		r = input(prompt) # python3
 	
 	# return normalized string input
 	try:
 		return ud.normalize('NFC', r)
 	except Exception as ex:
-		raise type(ex)("err-normalize-fail", xdata(e=e, r=r))
+		raise type(ex)("err-normalize-fail", xdata(e=e, text=r))
