@@ -4,7 +4,7 @@
 # the terms of the GNU Affero General Public License.
 #
 
-from .. import *
+from .tbase import *
 import os
 
 
@@ -19,7 +19,7 @@ DEFAULT_HW = [24,80]
 DEFAULT_DBG = False    
 
 
-class Terminal(BaseClass):
+class Terminal(TBase):
 	"""
 	The `Terminal` class provides methods for determinining the terminal
 	size and for clearing the screen.
@@ -47,7 +47,7 @@ class Terminal(BaseClass):
 		>>>
 		
 		"""
-		BaseClass.__init__(self, **k)
+		TBase.__init__(self, **k)
 		
 		#
 		# This is set on the first call to `Terminal.size`.
@@ -291,11 +291,35 @@ class Terminal(BaseClass):
 	#
 	#
 	def clear(self):
-		"""Clear the terminal."""
+		"""
+		Clear the terminal. Alias for `clear()`.
+		
+		EXAMPLE
+		>>> from trix.util.terminal import *
+		>>> t = Terminal()
+		>>> t.clear()
+		>>>
+		
+		"""
 		os.system('cls' if os.name=='nt' else 'clear')
 	
-	
+	#
+	#
+	# CLS
+	#
+	#
+	@property
 	def cls(self):
-		"""Clear the terminal. Alias for `clear()`."""
+		"""
+		Clear the terminal. Alias for `clear()`.
+		
+		EXAMPLE
+		>>> from trix.util.terminal import *
+		>>> t = Terminal()
+		>>> t.cls
+		>>>
+		
+		"""
 		self.clear()
+		return None
 	    
