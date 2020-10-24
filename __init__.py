@@ -1916,35 +1916,6 @@ class NLoader(Loader):
 	def __init__(self, module, value=None):
 		# Init loader with the trix.nmodule loader."""
 		Loader.__init__(self, module, value, loader=trix.nmodule)
-
-
-
-#
-#
-#
-# EXPERIMENTAL - BASE CLASS
-#
-#
-#
-class BaseClass(object):
-	"""
-	I'll set this class as the base of certain trix classes to expose
-	common methods that may be relevant to all objects.
-	"""
-	
-	def __init__(self, *a, **k):
-		self.__a = a
-		self.__k = k
-	
-	@property
-	def a(self):
-		"""For reference: Return any given args."""
-		return self.__a
-	
-	@property
-	def k(self):
-		"""For reference: Return any given keyword args."""
-		return self.__k
 			
 			
 
