@@ -51,11 +51,7 @@ class sockserv(sockurl, sockprop):
 		#
 		sockprop.__init__(self, self.listen())
 	
-	#
-	#
-	# DEL
-	#
-	#
+	
 	def __del__(self):
 		try:
 			self.__sock.shutdown(SHUT_RDWR)
@@ -63,21 +59,11 @@ class sockserv(sockurl, sockprop):
 			pass
 	
 	
-	#
-	#
-	# ACCEPT
-	#
-	#
 	def accept(self):
 		"""Return self.socket.accept()"""
 		return self.socket.accept()
 	
 	
-	#
-	#
-	# ACCEPTIF
-	#
-	#
 	def acceptif(self):
 		"""Accept and return the next waiting connection, or None."""
 		try:
@@ -86,11 +72,6 @@ class sockserv(sockurl, sockprop):
 			return None
 	
 	
-	#
-	#
-	# LISTEN
-	#
-	#
 	def listen(self):
 		"""Create a server socket as configured, bind, and listen."""
 		
