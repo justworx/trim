@@ -12,13 +12,32 @@ import shlex
 class callx(object):
 	"""
 	Creates and handles Popen calls.
+	
+	The `callx` class may be called like a function, passing a command
+	and any additional flags and arguments.
+	
+	Pass keyword cline="<cline-script> to trigger cline scripts.
+	
 	"""
 	
 	@classmethod
 	def cline(cls, cmd, **k):
 		"""
-		Pass a cline handler name and args, plus optional kwargs. Returns
-		a callx object.
+		Pass a cline handler name and any required arguments. 
+		Returns a callx object.
+		
+		EXAMPLE
+		>>> from trix.util.callx import *
+		>>> callx.cline("version").text.output()
+		{
+			"version": 0.0,
+		  "copyright": "Copyright (C) 2018-2020 justworx",
+		  "license": "agpl-3.0"
+		}
+		>>>
+		
+		SEE ALSO:
+		
 		"""
 		try:
 			a = shlex.split(cmd)
@@ -40,36 +59,34 @@ class callx(object):
 		 * a string containing a command line, to be split with shlex
 		 * a list containing the exact arguments to pass to popen
 		
-		ALTERNATELY:
-		Pass a keyword argument specifying a cline command.
-		
-		
-		# Example 1 - Call a system command.
-		The following line of code creates a callx object to gather text
-		describing currently running processes.
-		
-		>>>
+		EXAMPLE
 		>>> from trix.util.callx import *
 		>>>
-		>>> callx('ps').text.display()
+		>>> # create a callx object calling the unix "ps" program.
+		>>> cx = callx('ps')
+		>>>
+		>>> cx.text()
 		"  PID TTY          TIME CMD\n 3405 pts/2    00:00:00 bash\n 
 		4094 pts/2    00:00:00 python3\n 4134 pts/2    00:00:00 ps\n"
 		>>>
-		>>> trix.callx('ps').list()
+		>>> # view the results
+		>>> cx.text.output()
+		  PID TTY          TIME CMD
+		 5242 pts/0    00:00:00 bash
+		 5381 pts/0    00:00:00 python3
+		 6241 pts/0    00:00:00 ps
 		
-		
-		>>>
-		>>> # Example 2 - Call a command line handler (cline).
-		>>>
-		>>> from trix.util.callx import *
+		>>> cx.data()
+		'  PID TTY          TIME CMD\n 5242 pts/0    00:00:00 bash\n 5381 
+		pts/0    00:00:00 python3\n 6241 pts/0    00:00:00 ps <defunct>\n 
+		6267 pts/0    00:00:00 ps\n'
 		>>> 
 		
 		
+		ALTERNATELY:
+		Pass a keyword argument specifying a cline command. See below.
 		
 		"""
-		
-		#print ("CMD: %s" % cmd)
-		#print ("KRG: %s" % k)
 		
 		# pop kwargs meant for reader
 		self.__rk = trix.kpop(k, "encoding errors mode max_size")
@@ -110,17 +127,24 @@ class callx(object):
 					en="Command line argument or a cline keyword argument required."
 				)
 			)
-				
-			
-			
 	
 	
+	#
+	#
+	#
+	#
+	#
 	def __repr__(self):
 		C = " ".join(self.a)
 		E = "..." if len(C)>45 else ""
 		return "<trix/%s \"%s%s\">" % (type(self).__name__, C[:45], E) 
 	
 	
+	#
+	#
+	#
+	#
+	#
 	def __call__(self):
 		try:
 			self.__x
@@ -145,9 +169,15 @@ class callx(object):
 		return self
 	
 	
-	
-	
+	#
+	#
+	#
+	#
+	#
 	def reader(self):
+		"""
+		Returns a buffer reader 
+		"""
 		try:
 			return self.__reader
 		except:
@@ -159,18 +189,33 @@ class callx(object):
 			return self.__reader
 	
 	
-	
-	
+	#
+	#
+	#
+	#
+	#
 	@property
 	def a(self):
 		"""Returns args, as given to constructor."""
 		return self.__a
 	
+	
+	#
+	#
+	#
+	#
+	#
 	@property
 	def k(self):
 		"""Returns kwargs, as given to constructor."""
 		return self.__k
 	
+	
+	#
+	#
+	#
+	#
+	#
 	@property
 	def x(self):
 		"""Returns the executable object."""
@@ -180,11 +225,21 @@ class callx(object):
 			self.__call__() # self.__call__() sets `self.__x`
 			return self.__x
 	
+	
+	#
+	#
+	#
+	#
+	#
 	@property
 	def text(self):
 		"""
-		Returns a propx object covering the text. Call this property like
-		a function to return the text received from the called process.
+		Returns a propx object covering the text.
+		
+		Call this property like a function to return the text received 
+		from the called process.
+		
+		Call it as a property to receive a proptext object.
 		"""
 		try:
 			return trix.propx(self.__text)
@@ -196,7 +251,8 @@ class callx(object):
 			
 	@property
 	def lines(self):
-		return self.data.lines
+		"""Returns text lines as proptext."""
+		return trix.propx(self.data.lines)
 			
 	@property
 	def data(self):
