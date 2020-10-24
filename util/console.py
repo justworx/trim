@@ -37,7 +37,7 @@ class Console(BaseOutput):
 	
 	def __init__(self, config=None, **k):
 		
-		print (type(config))
+		#print (type(config))
 		
 		self.__olist = []
 		
