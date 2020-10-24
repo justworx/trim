@@ -107,7 +107,7 @@ result to base64.
 
 When a cix-based cline handler receives the -i flag, it will use the
 reversal method (util.compenc.expand) to reverse the process and send
-back the original object - in this case the dict {'a':"Hello, World!"}
+back the original object, in this case the dict {'a':"Hello, World!"}
 
 If you'd like to receive the returned data in compact format, add the
 -x flag to your command line. In cases where large amounts of data
