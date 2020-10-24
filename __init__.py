@@ -1355,7 +1355,7 @@ class trix(object):
 		
 		 * propbase - generic encoding, compression, and display methods. 
 		 * propiter - adds methods suitable to iterable objects
-		 * propseq  - methods suitable to any sequence items 
+		 * propseq  - methods suitable to sequence items 
 		 * proplist - methods for list manipulation/display
 		   propgrid - proplist subclass for list of lists of equal length 
 		 * propdict - covers dict-like objects
@@ -1406,7 +1406,8 @@ class trix(object):
 		>>>
 		
 		The examples here barely scratch the surface of all the propx
-		package can do.
+		package can do. Additional documentation may be found in the
+		individual propx-based object help.
 		
 		SEE ALSO:
 		>>> from trix.util.propx._propall import *
@@ -1416,6 +1417,8 @@ class trix(object):
 		>>> help(proplist)
 		>>> help(propgrid)
 		>>> help(propdict)
+		>>> help(trix.display)
+		
 		
 		"""
 		return trix.ncreate("util.propx.propx", *a, **k)
