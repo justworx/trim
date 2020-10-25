@@ -1812,8 +1812,8 @@ class trix(object):
 #  Importing by the first method, `import trix` is tighter, and gives
 #  access to all of trix features. 
 #
-#  Importing by the second method, `from trix import *`, allows access
-#  to the variables below by name.
+#  Importing by the second method, `from trix import *`, allows 
+#  access to the variables below by name.
 #
 # -------------------------------------------------------------------
 
