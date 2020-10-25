@@ -5,14 +5,14 @@
 #
 
 from ..util import mime
-from ..util.enchelp import *
+from ..util.tbase import *  # <----- imports trix and enchelp, too
 import shutil, os, os.path as ospath
 
 VALID_AFFIRM = ['touch','makedirs','makepath','checkdir','checkfile',
 								'checkpath']
 
 
-class Path(BaseClass):
+class Path(TBase):
 	"""
 	Objects of class `Path` represent a file system path.
 	
@@ -65,17 +65,17 @@ class Path(BaseClass):
 		>>> p = Path("~/tests/myTest.txt", affirm="touch")
 		>>> 
 		>>> #
-		>>> # Note that the `p` object created above points to a file, so 
-		>>> # the `p.dir()` call must be directed outward to the enclosing 
-		>>> # directory so that we can call the `ls()` method to list the 
-		>>> # file.
+		>>> # Note that the `p` object created above points to a file, 
+		>>> # so the `p.dir()` call must be directed outward to the 
+		>>> # enclosing directory so that we can call the `ls()` 
+		>>> # method to list the file.
 		>>> # 
 		>>> p.dir("..").ls()
 		['myTest.txt']
 		>>> 
 		
 		"""
-		BaseClass.__init__(self, path, *a, **k)
+		TBase.__init__(self, path, *a, **k)
 		
 		self.sep = os.sep
 		self.__p = self.expand(k.get('path', path or '.'), **k)
@@ -280,8 +280,9 @@ class Path(BaseClass):
 		"""
 		Return a Mime object for this object's path.
 		
-		The `Path.mime` method is a utility that supports several features
-		in the `trix.fs` package. However, it can certainly be used when
+		The `Path.mime` method is a utility that supports several 
+		features in the `trix.fs` package. However, it can certainly 
+		be used when
 		needed for other purposes.
 		
 		#
@@ -309,23 +310,6 @@ class Path(BaseClass):
 		return trix.ncreate('util.mime.Mime', self.path)
 	
 	@property
-	def parent(self):
-		"""
-		Return the path to this path's parent directory.
-		
-		#
-		# EXAMPLE:
-		#
-		>>> import trix
-		>>> p = trix.path(trix.innerfpath("__init__.py"))
-		>>> p.parent
-		'/home/<USER>/trix'
-		>>>
-		
-		"""
-		return ospath.dirname(self.path)
-	
-	@property
 	def name(self):
 		"""
 		Return current path's last element.
@@ -342,13 +326,21 @@ class Path(BaseClass):
 		return self.__n
 	
 	@property
-	def path(self):
-		"""Return or set this path."""
-		return self.getpath()
-	
-	@path.setter
-	def path(self, path):
-		self.setpath(path)
+	def parent(self):
+		"""
+		Return the path to this path's parent directory.
+		
+		#
+		# EXAMPLE:
+		#
+		>>> import trix
+		>>> p = trix.path(trix.innerfpath("__init__.py"))
+		>>> p.parent
+		'/home/<USER>/trix'
+		>>>
+		
+		"""
+		return ospath.dirname(self.path)
 	
 	@property
 	def pathtype(self):
@@ -371,6 +363,19 @@ class Path(BaseClass):
 			return 'm' #mount'
 		else:
 			return '?'
+	
+	@property
+	def path(self):
+		"""Return or set this path."""
+		return self.getpath()
+	
+	@path.setter
+	def path(self, path):
+		self.setpath(path)
+	
+	@property
+	def p(self):
+		return self.getpath()
 	
 	
 	#
@@ -721,7 +726,7 @@ class Path(BaseClass):
 		if self.pathtype == 'l':
 			x = trix.propx.proplist(os.lstat(self.p))
 		else:
-			x = os.stat()
+			x = os.stat(self.p)
 		
 		return trix.ncreate("util.propx.propdict.propdict", dict(
 				st_mode  = x.st_mode,
@@ -829,7 +834,10 @@ class Path(BaseClass):
 			elif mm.subtype == 'zip':
 				return trix.ncreate('fs.zip.Zip', self.path, **k)
 			
-			# xlsx - for now, use zip, but there may be room for improvement
+			#
+			# xlsx - For now, use zip, but there may be room for 
+			#        improvement.
+			#
 			elif mm.subtype == 'vnd.openxmlformats-officedocument.spreadsheetml.sheet':
 				return trix.ncreate('fs.zip.Zip', self.path, **k)
 	
@@ -1080,7 +1088,8 @@ class FileBase(Path, EncodingHelper):
 		Touch the file at this path.
 		
 		Unlike the `Path.touch` method, which can touch files within a 
-		directory path, the FileBase `touch` method can touch only itself.
+		directory path, the FileBase `touch` method can touch only 
+		itself.
 		
 		"""
 		with open(self.path, 'a'):
@@ -1105,7 +1114,8 @@ class FileBase(Path, EncodingHelper):
 			if k.get('mode'):
 				shutil.copymode(src, dst)
 		except Exception as ex:
-			raise type(ex)(ex.args, xdata(src=src, dst=dst, dest=dest, k=k))
+			raise type(ex)(ex.args, xdata(
+				src=src, dst=dst, dest=dest, k=k))
 	
 
 	#
