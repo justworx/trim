@@ -106,7 +106,6 @@ DEF_INDENT = 2
 
 
 
-
 #
 #
 #
@@ -127,8 +126,7 @@ class trix(object):
 	__od = {}
 	#__tid = threading.current_thread().ident
 	#__tname = threading.current_thread().name
-
-
+	
 	
 	# -----------------------------------------------------------------
 	#
@@ -631,8 +629,8 @@ class trix(object):
 		>>> # Create a reader and read a line.
 		>>> #
 		>>> r = trix.npath("LICENSE").reader(encoding='utf8')
-		>>> r.readline()
-		'                    GNU AFFERO GENERAL PUBLIC LICENSE\n'
+		>>> r.readline().strip()
+		'GNU AFFERO GENERAL PUBLIC LICENSE\n'
 		>>> 
 		
 		"""
@@ -1790,9 +1788,18 @@ class trix(object):
 		# If a `locale` argument is specified, that locale will be used.
 		return trix.ncreate("util.loc.Locale", locale)
 	
-
-
-
+	
+	@classmethod
+	def term(self):
+		"""
+		Return a `util.terminal.Terminal` object representing the current
+		terminal.
+		"""
+		try:
+			return self.__term
+		except:
+			self.__term = trix.ncreate("util.terminal.Terminal")
+			return self.__term
 
 
 
@@ -1847,10 +1854,10 @@ proxify    = trix.proxify
 scan       = trix.scan
 signals    = trix.signals
 start      = trix.start
+term       = trix.term
 tracebk    = trix.tracebk
 trixc      = trix.trixc
 value      = trix.value
-
 
 
 # -------------------------------------------------------------------
@@ -1918,6 +1925,12 @@ class NLoader(Loader):
 		Loader.__init__(self, module, value, loader=trix.nmodule)
 			
 			
+
+
+
+
+
+
 
 
 
