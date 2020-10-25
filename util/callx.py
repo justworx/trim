@@ -16,10 +16,30 @@ class callx(TBase):
 	The `callx` class may be called like a function, passing a command
 	and any additional flags and arguments.
 	
-	Pass keyword cline="<cline-script> to trigger cline scripts.
+	ALTERNATELY:
+	Pass keyword cline="<cline-script>" to trigger cline scripts.
 	
+	Currently available cline scripts include:
+	 * compenc
+	 * echo
+	 * http
+	 * launch
+	 * loc
+	 * portscan
+	 * test
+	 * version
+	 
+	
+	SEE ALSO:
+	 * the `cline` classmethod, below.
+	 
 	"""
 	
+	#
+	#
+	# CLINE
+	#
+	#
 	@classmethod
 	def cline(cls, cmd, **k):
 		"""
@@ -37,8 +57,10 @@ class callx(TBase):
 		>>>
 		
 		SEE ALSO:
-		
+		 * Help for `trix.app.cline.cline`
+		 
 		"""
+		
 		try:
 			a = shlex.split(cmd)
 		except:
@@ -197,7 +219,7 @@ class callx(TBase):
 	
 	#
 	#
-	#
+	# X - The Executable Object
 	#
 	#
 	@property
@@ -212,7 +234,7 @@ class callx(TBase):
 	
 	#
 	#
-	#
+	# TEXT
 	#
 	#
 	@property
@@ -232,12 +254,28 @@ class callx(TBase):
 			r.seek(0)
 			self.__text = r.read()
 			return trix.propx(self.__text)
-			
+	
+	
+	#
+	#
+	# LINES
+	#
+	#
 	@property
 	def lines(self):
-		"""Returns text lines as proptext."""
+		"""
+		Returns text lines as a proptext object.
+		Call this as a function to receive the default data.
+		
+		"""
 		return trix.propx(self.data.lines)
-			
+	
+	
+	#
+	#
+	# DATA
+	#
+	#
 	@property
 	def data(self):
 		"""
@@ -251,12 +289,17 @@ class callx(TBase):
 		>>>
 		
 		EXAMPLE 2
-		>>> callx('ps').data.output()
+		>>> callx(['ps', '-u']).data.output()
 		  PID TTY          TIME CMD
 		 8212 pts/0    00:00:00 bash
 		 8392 pts/0    00:00:00 python3
 		 8403 pts/0    00:00:00 ps
 		>>>
+		
+		SAMPLE:
+		>>> import trix
+		>>> trix.callx(['ps', '-u']).lines.display()
+		
 		"""
 		try:
 			return self.__data
