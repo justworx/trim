@@ -83,6 +83,7 @@ locale.setlocale(locale.LC_ALL, DEF_LOCALE)
 #
 
 DEF_ENCODE = locale.getpreferredencoding() or 'utf_8'
+DEF_ERRORS = 'replace'
 
 try:
 	DEF_LANG = locale.getlocale()[0].split('_')[0]
