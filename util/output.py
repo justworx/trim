@@ -1,5 +1,5 @@
 #
-# Copyright 2018 justworx
+# Copyright 2018-2020 justworx
 # This file is part of the trix project, distributed under the terms 
 # of the GNU Affero General Public License.
 #
@@ -16,18 +16,24 @@ from .stream.buffer import *
 # ------------------------------------------------------------------
 class BaseOutput(EncodingHelper):
 	"""
-	Provides the basic output mechanism required by Output and by the
-	util/Console class.
+	Basic output.
 	
-	BaseOutput has no awareness of the pause status - it always write
-	when write is called, regardless of the value of Output.pause().
+	This class provides the basic output mechanism required by Output 
+	and by the util/Console class.
+	
+	BaseOutput has no awareness of the pause status. It will always 
+	write when the `write` method is called, regardless of the value of
+	Output.pause() status. (See below.)
+	
 	This class is used only by Console, which must display text during
-	any pause state.
+	a pause state.
+	
 	"""
 	
 	def __init__(self, config=None, **k):
 		"""
-		Pass optional config dict. Optional kwargs update config values. 
+		Pass optional config dict. Optional keyword arguments, as always,
+		update the `config` dict values, if present. 
 		
 		Config keys include:
 		 * output: Any output stream object with a write method. Default
@@ -44,7 +50,7 @@ class BaseOutput(EncodingHelper):
 			
 		# defaults for EncodingHelper
 		config.setdefault("encoding", DEF_ENCODE)
-		config.setdefault("errors", "replace")
+		config.setdefault("errors", DEF_ERRORS)
 		
 		EncodingHelper.__init__(self, config)
 		
@@ -153,6 +159,13 @@ class Output(BaseOutput):
 		           buffer storage will resort to writing to disk.
 		"""
 		
+		k.setdefault('encoding', DEF_ENCODE)
+		k.setdefault('errors', DEF_ERRORS)
+		
+		#
+		# PASS CONFIG UP TO BASE-OUTPUT
+		#  - The BaseOutput class
+		#
 		BaseOutput.__init__(self, config, **k) # <-- sets self.config
 		
 		# defaults for Buffer
@@ -181,13 +194,15 @@ class Output(BaseOutput):
 	#
 	# WRITE
 	#
-	def output(self, text, newl=None):
+	def output(self, text, newl=''):
 		"""
-		Pause-aware aoutput buffers text while paused; when not paused,
-		writes any buffered text, followed by the given `text`, to the
-		`self.target` stream (which defualts to sys.stdout, but can be
-		customized by passing a different stream - or any object with a
-		write method - using the __init__ method's "output" kwarg).
+		Pause-aware output buffers text while paused.
+		
+		When not paused, calling `output` writes any buffered text, 
+		followed by the given `text`, to the `self.target` stream (which 
+		defualts to sys.stdout, but can be customized by passing a 
+		different stream - or any object with a write method - using the 
+		__init__ method's "output" kwarg).
 		
 		New-line `newl` defaults to `self.newl` (which defaults to CRLF).
 		To write output without a newline sequence, pass newl='' (or any
