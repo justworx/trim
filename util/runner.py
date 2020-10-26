@@ -8,25 +8,43 @@ from .output import * # trix, enchelp, sys
 from .console import *
 from .stream.buffer import *
 
+
 DEF_SLEEP = 0.1
 
-
+	
 class Runner(Output):
 	"""
-	Start, manage, and stop a (possibly threaded) event loop. Override
-	the `io` method in subclasses to define actions that must be taken 
-	each pass through the loop.
+	Start, manage, and stop a (possibly threaded) event loop.
+	
+	Override the `io` method in subclasses to define actions that must 
+	be taken each pass through the loop.
+	
+	EXAMPLE:
+	>>> from trix.util.runner import *
+	>>> class MyRunner(Runner):
+	>>>   def io(self):
+	>>>     self.output("Hello, World!")
+	>>>     self.stop()
+	>>>
 	
 	NOTE:
 	 - Always use base-class `Output.output()` method to write data 
 	   from within the `io()` method. This allows output written when 
 	   in a pause state to be buffered and then printed later (when 
 	   the pause state ends).
+	
 	"""
 	
+	#
+	#
 	# INIT
+	#
+	#
 	def __init__(self, config=None, **k):
-		"""Pass config and/or kwargs."""
+		"""
+		Pass config and/or kwargs.
+		
+		"""
 		
 		# add self to the console class-variable `OList`
 		Console.oappend(self)
@@ -37,32 +55,58 @@ class Runner(Output):
 		self.__threaded = False
 		self.__threadid = None
 		
-		# remote socket control
+		#
+		#
+		# REMOTE SOCKET CONTROL
+		#  - If a `csock` parameter is present, it yields a certain 
+		#    measure of control to the holder of the socket.
+		#
+		#  - TO DO: THIS NEEDS DOC!
+		#
+		#
 		self.__csock = None
 		self.__cport = None
 		self.__lineq = None
 		self.__jformat = trix.ncreate('fmt.JCompact')
 		
-		# each subclass of Output must track its own pause status
+		# Each subclass of Output must track its own pause status.
 		self.__pausestate = self.paused()
 		
 		try:
 			#
 			# CONFIG
 			#  - If this object is a Runner subclass that's already set a 
-			#    self.config value, then kwargs have already been merged
+			#    `self.config` value, then kwargs have already been merged
 			#    into `config`.
 			#
 			config = self.config
 		except:
+			#
 			#
 			#  - If not, we'll need to create the config from args/kwargs.
 			#    Creating a config dict, then - regardless of whether 
 			#    `config` is from an existing self.config property - update
 			#    it with `k` (directly below).
 			#
+			#
 			config = config or {}
 		
+		
+		#
+		#
+		# MAKE SURE THERE'S ALWAYS A DEFAULT ENCODING
+		#  - The `trix` module gets its locale's favored encoding when
+		#    it's loaded. The encoding can certainly be overridden by
+		#    the developer, but for most cases by far, the default will
+		#    be what's wanted. (At least, I think so.)
+		#    Anyway, this goes farthest to make things "just work."
+		#
+		#
+		k.setdefault('encoding', DEF_ENCODE)
+		k.setdefault('errors', DEF_ERRORS)
+		
+		
+		#
 		#
 		# UPDATE CONFIG WITH `k`
 		#  - Runner can't take a URL parameter unless it's part of a class
@@ -73,35 +117,50 @@ class Runner(Output):
 		#  - BTW: What the developer needs to do is make sure the config
 		#         passed here from a base class is given as a dict.
 		#
+		#
 		config.update(k)
 		
 		# 
+		#
 		# CONFIG - COPY
 		#  - Runner should work as a stand-alone class, so....
 		#  - Keep a copy in case this Runner object is created as itself
 		#    (rather than as a super of some other class).
 		#
+		#
 		self.__config = config
 		
+		#
 		# 
 		# ENCODING HELPER
 		#  - Encoding for decoding bytes received over socket connections.
+		#
 		# 
 		Output.__init__(self, config)
 		
 		
 		#
-		# running and communication
+		#
+		# RUNNING AND COMMUNICATION
+		#
 		#
 		self.__sleep = self.config.get('sleep', DEF_SLEEP)
 		
+		
+		#
+		#
 		# Let kwargs set the "name" property; otherwise name is generated
 		# on request of property `self.name`.
+		#
+		#
 		if 'name' in self.config:
 			self.__name = str(self.config['name'])
 		
+		
+		#
 		#
 		# If CPORT is defined in config, connect to calling process.
+		#
 		#
 		if "CPORT" in self.config:
 			#
@@ -119,9 +178,9 @@ class Runner(Output):
 	
 	
 	
-	# ----------------------------------------------------------------
+	#
 	# DEL
-	# ----------------------------------------------------------------
+	#
 	def __del__(self):
 		"""Stop. Subclasses override to implement stopping actions."""
 		try:
@@ -133,16 +192,6 @@ class Runner(Output):
 						args=ex.args, xdata=xdata()
 					)
 			
-			#
-			# EXPERIMENTAL 20190522
-			# WTF. 20201023 - This self.__xthread: thing will cause an 
-			#                 exception. There is no self.__xthread!
-			#                 self.__xthread! What was I thinking?
-			#
-			#if self.__xthread:
-			#	del(self.__xthread)
-			#	self.__xthread = None
-			#
 			
 			if self.__csock:
 				try:
@@ -153,6 +202,10 @@ class Runner(Output):
 							args=ex.args, xdata=xdata()
 						)
 			
+			#
+			# If the Runner has been "opened" using `self.open()`, it 
+			# should always be closed.
+			#
 			if self.active:
 				self.close()
 		
@@ -208,7 +261,8 @@ class Runner(Output):
 	def threadid(self):
 		"""
 		Returns thread id when running, else None. If not threaded, the
-		main thread id is returned (but again, only when running).
+		main thread id is returned.
+		
 		"""
 		return self.__threadid
 	
@@ -265,13 +319,38 @@ class Runner(Output):
 	
 	
 	
-	# ---- orisc -----
-	
 	# ----------------------------------------------------------------
+	#
+	# ORISC
+	#  * ORISC is an acronym for open, run, io, stop, close.
+	#  * These are the basic operations of the Runner class, and it
+	#    is important to remember them, and to remember exactly what
+	#    they do.
+	#     - Open:  Opens any files or connections the Runner object 
+	#              will need so as to perform its task.
+	#     - Run:   Start the event loop. Calling `start` is the same
+	#              as calling run, but it starts the run loop in a new
+	#              thread instead of in the main thread.
+	#     - IO:    This stands for input/output. It's the method you 
+	#              must override to create your own Runner subclass.
+	#     - Stop:  Stops the loop that calls `io()`. This does not
+	#              close any connections, and `run` or `start` may be
+	#              called again to restart operation (though it's up 
+	#              to you to make sure the "stop" doesn't break any
+	#              connections (eg. a connection timeout).
+	#     - Close: Close all connections. Do this when all processing
+	#              has been concluded.
+	#
+	#  * NOTE: Methods like `Runner.shutdown` will call stop and close
+	#          (in that order).
+	#
+	# ----------------------------------------------------------------
+	
+	#
 	#
 	# OPEN
 	#
-	# ----------------------------------------------------------------
+	#
 	def open(self):
 		"""
 		The `open` method is called by run() if self.active is False.
@@ -286,10 +365,11 @@ class Runner(Output):
 		self.__active = True
 	
 	
-	
-	
-	
-	
+	#
+	#
+	# WAIT
+	#
+	#
 	def wait(self, timeout=1, **k):
 		"""
 		Wait for `self.active` to become True (only when threaded).
@@ -297,34 +377,63 @@ class Runner(Output):
 		This method protects the main from trying to access member
 		variables before threaded `open()` code can create them. 
 		
-		Calls to open() may take some time to complete. Always use 
-		`wait(timeout)` to specify a maximum period to wait on `open`
+		Calls to open() may take some time to complete.
+		
+		To specify a maximum amount of time to wait, use the 
+		`wait(timeout)` as shown here:
+		
+		EXAMPLE
+		>>> python3
+		>>>
+		>>> client = RunnerSubclass() # (for example)
+		>>> client.starts().wait()    # default timeout: 1 second.
+		>>> 
+		>>> # Or...
+		>>> client.starts().wait(3)   # allow up to 3 seconds timeout.
+		>>>
+		
+		This allows you to to specify a maximum period to wait on `open`
 		before timing out. Waiting ends when `self.active` becomes True
 		and the method returns `self`.
 		
 		When `timeout` is exceeded, an exception is raised. Otherwise,
 		`wait()` returns self.
 		
-		```python3
-		client.starts().wait()  # default timeout: maximum 1 second.
-		client.starts().wait(3) # allow up to 3 seconds timeout.
-		```
+		NOTE:
+		A wait timeout is not part of the config. It may be specified
+		only via the `timeout` argument in the `Runner.wait` method.
 		
 		"""
 		if self.threaded:
-			trix.wait(timeout, lambda: self.active, runner=self.name, **k)
+			self.__wait(timeout)
 		return self
 	
 	
+	#
+	#
+	# WAIT IMPLEMENTATION
+	#
+	#
+	def __wait(self, timeout=1):
+		tstart = time.time()
+		tthrow = tstart + timeout
+		while True:
+			if self.active:
+				return self
+			if tthrow < time.time():
+				raise Exception("runner-timeout-error", xdata(
+						timeout_value=timeout, reason="wait-timeout",
+						suggest="Set a higher timeout value.",
+						en="Runner failed to open before timeout expired."
+					)
+				)
+			
 	
-	
-	
-	
-	# ----------------------------------------------------------------
+	#
 	#
 	# RUN
 	#
-	# ----------------------------------------------------------------
+	#
 	def run(self):
 		"""
 		Loop while self.running is True, calling 	`urgent()` and `io()`,
@@ -397,28 +506,31 @@ class Runner(Output):
 		# NOTE: This may require some attention in `Process`, I'm really
 		#       not sure. This should be looked into!
 		#
-		
 		# Once processing is finished, `close()` and `stop()`.
 		
-		# BUT PROCESSING ISN'T NECESSARILY FINISHED HERE.
-		# START CAN BE CALLED AFTER STOP. THAT SOCKET SHOULD
-		# SIT THERE UNTIL I'M READY FOR IT AGAIN.
+		#
+		# AN ERROR CORRECTION - FOR REFERENCE.
+		#
+		# But processing isn't necessarily finished here.
+		# Start can be called after stop. That socket should
+		# sit there until i'm ready for it again (or until it
+		# times out).
 		#
 		# COMMENTING: 20201023
 		#
 		# if self.active:
 		# 	self.shutdown()
 		# 	self.__csock = None
+		#
 		 
 	
-	# ----------------------------------------------------------------
+	#
 	#
 	# IO 
 	#  - This io() method must be overridden to perform the 
 	#    functionality for which the subclass is intended.
 	#
-	# ----------------------------------------------------------------
-		
+	#
 	def io(self):
 		"""
 		For a Runner object, this method does absolutely nothing. All
@@ -427,28 +539,38 @@ class Runner(Output):
 		
 		IMPORTANT: Never use `print()` to print output from the `io` 
 		           method. Always use the `output` method. Output appends
-		           self.newl by default - pass '' if you want to aviod
-		           auto-appended CR and/or LF.
+		           self.newl by default. Pass argument newl='' if to 
+		           aviod auto-appended CR and/or LF.
+		           
+		           Printing directly could cause problems when your runner
+		           "prints" while the trix console is open. Using output,
+		           any generated content will be held until the console is
+		           closed.
+		           
+		SEE ALSO:
+		See the `trix.util.output` doc for more information on using its
+		`output` method to generate text content.
+		
 		"""
 		pass
 	
 	
-	# ----------------------------------------------------------------
+	#
 	#
 	# STOP
 	#
-	# ----------------------------------------------------------------
+	#
 	def stop(self):
 		"""Stop the run loop."""
 		self.__running = False
 		self.__threaded = False
 	
 	
-	# ----------------------------------------------------------------
+	#
 	#
 	# CLOSE
 	#
-	# ----------------------------------------------------------------
+	#
 	def close(self):
 		"""
 		This placeholder is called on object deletion. It may be called
@@ -468,9 +590,11 @@ class Runner(Output):
 	
 	# ---- handle CPORT socket queries -----
 	
-	# ----------------------------------------------------------------
+	#
+	#
 	# CPORT-IO
-	# ----------------------------------------------------------------
+	#
+	#
 	def cio(self):
 		"""
 		Control IO method. This is called each pass through the run loop,
@@ -503,7 +627,11 @@ class Runner(Output):
 			q = self.__lineq.readline()
 		
 	
+	#
+	#
 	# QUERY
+	#
+	#
 	def query(self, q):
 		"""
 		Answer a query from a controlling process. Responses are always
@@ -536,7 +664,11 @@ class Runner(Output):
 	
 	# ---- utility -----
 	
+	#
+	#
 	# START
+	#
+	#
 	def start(self):
 		"""Start running in a new thread."""
 		try:
@@ -549,14 +681,23 @@ class Runner(Output):
 			self.stop()
 			raise
 	
+	
+	#
+	#
 	# STARTS - Start and return self
+	#
+	#
 	def starts(self):
 		"""Start running in a new thread; returns self."""
 		self.start()
 		return self
 	
 	
+	#
+	#
 	# SHUTDOWN
+	#
+	#
 	def shutdown(self):
 		"""Stop and close."""
 		with thread.allocate_lock():
@@ -569,7 +710,11 @@ class Runner(Output):
 				raise
 	
 	
+	#
+	#
 	# STATUS
+	#
+	#
 	def status(self):
 		"""Return a status dict."""
 		#
@@ -597,16 +742,28 @@ class Runner(Output):
 		)
 	
 	
+	#
+	#
 	# DISPLAY
+	#
+	#
 	def display(self):
-		"""Print status in json display format."""
+		"""
+		Print status in json display format.
+		
+		This is intended as a debugging tool. It can really help with
+		understanding what's happening inside the Runner.
+		
+		"""
 		trix.display(self.status())
 	
 	
 	
 	#
+	#
 	# EXPERIMENTAL
 	#  - Try a console
+	#
 	#
 	def console(self):
 		"""
