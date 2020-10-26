@@ -1,5 +1,5 @@
 #
-# Copyright 2018 justworx
+# Copyright 2018-2020 justworx
 # This file is part of the trix project, distributed under 
 # the terms of the GNU Affero General Public License.
 #
@@ -82,7 +82,7 @@ class http(cline):
 		try:
 			print ("Starting HTTP Server on port: %i" % s.port) 
 			print ("Open: %s" % s.url)
-			print ("Use Ctrl-c to (hopefully) stop.")
+			print ("Use Ctrl-c to stop server.")
 			s.run()
 		except BaseException as ex:
 			s.shutdown()
