@@ -345,9 +345,11 @@ class Console(BaseOutput):
 			r = []
 			for o in self.__olist:
 				r.append(o.name)
+			
+			return trix.propx(r)
 		except:
 			pass
-		return trix.propx(r)
+		
 	
 	
 	#
