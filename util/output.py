@@ -9,11 +9,13 @@ from .enchelp import * # trix, sys
 from .stream.buffer import *
 
 
-# ------------------------------------------------------------------
+#
+#
 #
 # BASE OUTPUT - Non-pauseable output handler.
 #
-# ------------------------------------------------------------------
+#
+#
 class BaseOutput(EncodingHelper):
 	"""
 	Basic output.
@@ -30,6 +32,11 @@ class BaseOutput(EncodingHelper):
 	
 	"""
 	
+	#
+	#
+	# INIT
+	#
+	#
 	def __init__(self, config=None, **k):
 		"""
 		Pass optional config dict. Optional keyword arguments, as always,
@@ -67,38 +74,65 @@ class BaseOutput(EncodingHelper):
 		self.__writer = self.__target.write
 	
 	
-	
+	#
+	#
+	# INIT
+	#
+	#
 	def __del__(self):
 		self.__writer = None
 		self.__target = None
 		self.__config = None
 	
 	
-	
+	#
+	#
+	# CONFIG
+	#
+	#
 	@property
 	def config(self):
 		"""BaseOutput and subclasses share this config dict."""
 		return self.__config
 	
+	
+	#
+	#
+	# TARGET
+	#
+	#
 	@property
 	def target(self):
 		"""The target stream that receives `output()` text."""
 		return self.__target
 	
+	
+	#
+	#
+	# WRITER
+	#
+	#
 	@property
 	def writer(self):
 		"""For BaseOutput, writer is the `self.target.write()`."""
 		return self.__writer
 	
+	
+	#
+	#
+	# NEWL
+	#
+	#
 	@property
 	def newl(self):
 		"""Newline character(s). Given in config."""
 		return self.__newl
-	
-	
+
 	
 	#
+	#
 	# OUTPUT
+	#
 	#
 	def output(self, text, newl=None):
 		"""
@@ -138,7 +172,13 @@ class Output(BaseOutput):
 	#    pause state ends.
 	#
 	PauseBufferSz = 2**14
+
 	
+	#
+	#
+	# INSTALL PAUSE SIGNAL
+	#
+	#
 	@classmethod
 	def InstallPauseSignal(cls, signum=2):
 		"""
@@ -146,8 +186,13 @@ class Output(BaseOutput):
 		`pause()` and `resume()` methods to pause and resume output.
 		"""
 		trix.signals().add(signum, cls.pausetoggle)
-		
+
 	
+	#
+	#
+	# __INIT__
+	#
+	#
 	def __init__(self, config=None, **k):
 		"""
 		Pass optional config dict with parameters for EncodingHelper and
@@ -174,25 +219,43 @@ class Output(BaseOutput):
 		# create buffer for paused buffering
 		self.__buffer = Buffer(**self.config)
 		self.__writer = self.buffer.writer().write
+
 	
-	
-	
+	#
+	#
+	# __DEL__
+	#
+	#
 	def __del__(self):
 		self.__buffer = None
+
 	
-	
+	#
+	#
+	# BUFFER
+	#
+	#
 	@property
 	def buffer(self):
 		"""Buffered content, displayed only when pause-state is False."""
 		return self.__buffer
+
 	
+	#
+	#
+	# WRITER
+	#
+	#
 	@property
 	def writer(self):
 		"""For Output, writer is the buffer's writer."""
 		return self.__writer
+
 	
 	#
-	# WRITE
+	#
+	# OUTPUT
+	#
 	#
 	def output(self, text, newl=''):
 		"""
@@ -220,10 +283,12 @@ class Output(BaseOutput):
 		BaseOutput.output(self, text, newl)
 		if not self.paused():
 			self.flushbuffer()
-	
+
 	
 	#
+	#
 	# FLUSH
+	#
 	#
 	def flush(self):
 		"""
@@ -247,14 +312,22 @@ class Output(BaseOutput):
 				self.target.flush()
 				self.buffer.seek(0)
 				self.buffer.truncate()
+
 	
+	#
+	#
+	# FLUSHBUFFER
+	#
+	#
 	def flushbuffer(self):
 		"""Alias for `flush`."""
 		return self.flush()
-	
+
 	
 	#
+	#
 	# DRAIN
+	#
 	#
 	def drain(self):
 		if self.buffer.tell():
@@ -273,22 +346,50 @@ class Output(BaseOutput):
 	#
 	
 	__interrupted = False
+
 	
+	#
+	#
+	# PAUSED
+	#
+	#
 	@classmethod
 	def paused(cls):
 		"""Return True if paused, else False."""
 		return cls.__interrupted
+
 	
+	#
+	#
+	# PAUSE
+	#
+	#
 	@classmethod
 	def pause(cls):
-		"""Pause output. (Buffer until resume.)"""
-		cls.__interrupted = True
+		"""
+		Pause output.
 		
+		Output will be buffered until `resume` is called. (See below.)
+		"""
+		cls.__interrupted = True
+
+	
+	#
+	#
+	# RESUME
+	#
+	#
 	@classmethod
 	def resume(cls):
 		"""Resume. Display buffered output.""" 
 		cls.__interrupted = False
+
 	
+	#
+	#
+	# PAUSETOGGLE
+	#
+	#
 	@classmethod
 	def pausetoggle(cls, *a):
 		"""Toggle pause status to it's opposite boolean value."""
