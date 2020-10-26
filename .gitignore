@@ -10,6 +10,12 @@ roadmap.md
 #test/
 
 
+#
+# I'm not sure about this one yet.
+#
+clean.sh
+
+
 # these shouldn't be posted with the project
 doc
 doc/
