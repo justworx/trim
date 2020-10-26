@@ -42,7 +42,7 @@ class Wrap(object):
 	>>> w[0]              # 9
 	"""
 	
-	def __init__(self, o):
+	def __init__(self, o, **k):
 		"""Pass an object or module as the `o` argument."""
 		
 		# store object and inspector
@@ -52,10 +52,16 @@ class Wrap(object):
 		# store keys and attributes
 		self.__keys = []
 		self.__attrs = dir(self.o)
-		#self.__loadattrs()
-		self.__loadattrs()
-	
-	
+		
+		#
+		# This "safe" thing is probably temporary.
+		# I'm trying to bust a bug.
+		#
+		if k.get('safe'):
+			self.__loadattrs_safe()
+		else:
+			self.__loadattrs()
+		
 	def __loadattrs(self):
 		for a in self.__attrs:
 			if not ("__" in a):
