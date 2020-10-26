@@ -766,7 +766,7 @@ class trix(object):
 	
 	#
 	#
-	# PROCESS
+	# PROCESS (Dependend)
 	#
 	#
 	@classmethod
@@ -863,7 +863,7 @@ class trix(object):
 	
 	#
 	#
-	# N-PROCESS
+	# N-PROCESS (Dependend)
 	#
 	#
 	@classmethod
@@ -924,7 +924,7 @@ class trix(object):
 	
 	#
 	#
-	# CALL-X
+	# CALL-X (Dependend)
 	#
 	#
 	@classmethod
@@ -980,7 +980,7 @@ class trix(object):
 	
 	#
 	#
-	# CONFIG
+	# CONFIG (Dependend)
 	#
 	#
 	@classmethod
@@ -1102,7 +1102,7 @@ class trix(object):
 	
 	#
 	#
-	# J-CONFIG
+	# J-CONFIG (Dependend)
 	#
 	#
 	@classmethod
@@ -1176,7 +1176,7 @@ class trix(object):
 	
 	#
 	#
-	# J-PARSE
+	# J-PARSE (Independent)
 	#
 	#
 	@classmethod
@@ -1821,7 +1821,7 @@ class trix(object):
 #  access to all of trix features. 
 #
 #  Importing by the second method, `from trix import *`, allows 
-#  access to the variables below by name.
+#  access to the variables, below, by name.
 #
 # -------------------------------------------------------------------
 
@@ -2015,7 +2015,7 @@ except:
 # exception to use instead.
 #
 try:
-	wt = WaitTimeout
+	WaitTimeout
 except:
 	class WaitTimeout(Exception):
 		"""Raise this when an operation times out."""
