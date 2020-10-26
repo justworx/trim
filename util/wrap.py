@@ -52,10 +52,26 @@ class Wrap(object):
 		# store keys and attributes
 		self.__keys = []
 		self.__attrs = dir(self.o)
+		#self.__loadattrs()
+		self.__loadattrs()
+	
+	
+	def __loadattrs(self):
 		for a in self.__attrs:
 			if not ("__" in a):
 				attr = getattr(self.o, a)
 				self.__keys.append(a)
+	
+	def __loadattrs_safe(self):
+		for a in self.__attrs:
+			if not ("__" in a):
+				try:
+					attr = getattr(self.o, a)
+					self.__keys.append(a)
+				except:
+					pass
+	
+	
 	
 	def __repr__(self):
 		"""Pass an object or module as the `o` argument."""
