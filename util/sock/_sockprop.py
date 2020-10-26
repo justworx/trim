@@ -4,17 +4,25 @@
 # of the GNU Affero General Public License.
 #
 
+
 from ... import * # trix
 import socket
 
+
 class sockprop(object):
-	"""Stores the real socket; exposes socket proxy and properties."""
+	"""
+	Stores the real socket; exposes socket proxy and properties.
+	"""
 	
+	#
 	#
 	# INIT
 	#
+	#
 	def __init__(self, socket):
-		"""Pass the true socket object, not a proxy."""
+		"""
+		Pass the true socket object, not a proxy.
+		"""
 		
 		#
 		# STORING THE SOCKST
@@ -39,9 +47,15 @@ class sockprop(object):
 	
 	
 	#
+	#
 	# DEL
 	#
+	#
 	def __del__(self):
+		"""
+		Shutdown the socket; Set member variables to None
+		"""
+		
 		try:
 			self.shutdown()
 		except:
@@ -56,42 +70,93 @@ class sockprop(object):
 		self.__socket = None   # Destroy the proxy, too.
 	
 	
+	#
+	#
+	# SOCKET
+	#
+	#
 	@property
 	def socket(self):
-		"""Return this object's socket."""
+		"""
+		Return this object's socket as a proxy.
+		"""
 		return self.__socket
 	
+	
+	#
+	#
+	# TIMEOUT
+	#
+	#
 	@property
 	def timeout(self):
 		"""Returns timeout value."""
 		return self.socket.gettimeout()
 	
+	
+	
+	#
+	#
+	# TIMEOUT (SET)
+	#
+	#
 	@timeout.setter
 	def timeout(self, f):
 		"""Set timeout value."""
 		self.socket.settimeout(f)
 		
+	
+	
+	#
+	#
+	# ADDR
+	#
+	#
 	@property
 	def addr(self):
-		"""Returns local address as tupel (addr,port)."""
+		"""
+		Returns local address as tupel (addr,port).
+		"""
 		return self.socket.getsockname()
 		
+	
+	
+	#
+	#
+	# PEER
+	#
+	#
 	@property
 	def peer(self):
-		"""Returns remote address as tupel (addr,port)."""
+		"""
+		Returns remote address as tupel (addr,port).
+		"""
 		return self.socket.getpeername()
 	
+	
+	
+	#
+	#
+	# PORT
+	#
+	#
 	@property
 	def port(self):
-		"""Return this socket's port."""
+		"""
+		Return this socket's port.
+		"""
 		return self.addr[1]
 	
 	
 	#
+	#
 	# SHUTDOWN
 	#
+	#
 	def shutdown(self):
-		"""Shutdown the socket."""
+		"""
+		Shutdown the socket.
+		"""
 		try:
 			self.socket.shutdown(socket.SHUT_RDWR)
 		except:
