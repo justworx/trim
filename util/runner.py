@@ -35,6 +35,8 @@ class Runner(Output):
 	
 	"""
 	
+	__idnum = 0
+	
 	#
 	#
 	# INIT
@@ -267,6 +269,11 @@ class Runner(Output):
 		return self.__threadid
 	
 	@property
+	def tid(self):
+		"""Alias for threadid."""
+		return self.__threadid
+	
+	@property
 	def sleep(self):
 		"""Sleep time per loop."""
 		try:
@@ -288,12 +295,14 @@ class Runner(Output):
 		"""
 		Return the runner name, if one was provided to the constructor
 		via kwarg "name". (Otherwise, a name will be generated using the
-		pattern "<class_name>-<thread_ident>".)
+		pattern "<class_name>.<time.time>".)
 		"""
 		try:
 			return self.__name
 		except:
-			self.__name = "Runner-%s" % str(self.__threadid)
+			self.__idnum += 1
+			self.__name = "%s%s" % (type(self).__name__, str(self.__idnum))
+			self.__name = self.__name.lower()
 			return self.__name
 	
 	@property
@@ -758,6 +767,18 @@ class Runner(Output):
 		trix.display(self.status())
 	
 	
+	#
+	#
+	# STATX
+	#
+	#
+	def statx(self):
+		"""
+		Return a status dict wrapped in a propx.
+		"""
+		return trix.propx(self.status)
+	
+	
 	
 	#
 	#
@@ -767,9 +788,14 @@ class Runner(Output):
 	#
 	def console(self):
 		"""
-		Pause all output from the `Output` class and run a console session 
-		that wraps this object by default.
+		Console has changed. Now all runners, or runner-based objects 
+		should appear in the console automatically.
+		
 		"""
-		# REM: pause and resume are classmethods
-		Console(wrap=self).console()
+		try:
+			self.__console()
+		except:
+			self.__console = Console()
+			self.__console.console()
+		
 

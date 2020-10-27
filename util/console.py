@@ -33,13 +33,25 @@ class Console(BaseOutput):
 		"replace_whitespace", "drop_whitespace", "initial_indent", 
 		"subsequent_indent", "fix_sentence_endings", "break_long_words",
 		"break_on_hyphens", "max_lines", "placeholder"]
+	
+	
+	#
+	# Store all consolable objects here	
+	#
+	__olist = []
 
 	
+	#
+	#
+	# INIT
+	#
+	#
 	def __init__(self, config=None, **k):
 		
 		#print (type(config))
 		
-		self.__olist = []
+		# OOPS... why?              <-- probably don't need this
+		#type(self).__olist = []
 		
 		config = config or {}
 		config.update(k)
@@ -50,7 +62,18 @@ class Console(BaseOutput):
 		# set debugging
 		self.__debug = config.get('debug', self.Debug)
 		
+		#
+		#
 		# wrapper
+		#
+		#  - what's going on here?
+		#  - it's failing in wrap
+		#  - transport endpoint is not connected
+		#  - but the endpoint i want isn't the server socket
+		#  - i want it going to output
+		#  - should output be using classmethods?
+		#
+		#
 		wrap = trix.kpop(config, 'wrap').get('wrap')
 		self.__wrap = Wrap(wrap) if wrap else None
 		
@@ -328,7 +351,7 @@ class Console(BaseOutput):
 		"""Select an object from the object list to wrap."""
 		try:
 			self.__wrap = None
-			for o in self.__olist:
+			for o in type(self).__olist:
 				if o.name == name:
 					self.__wrap = Wrap(o)
 			if not self.__wrap:
@@ -336,6 +359,7 @@ class Console(BaseOutput):
 						reason="no-such-name", name=name
 					))
 		except Exception as ex:
+			raise
 			print (type(ex), ex.args)
 	
 	
@@ -343,12 +367,13 @@ class Console(BaseOutput):
 	def olist(self):
 		try:
 			r = []
-			for o in self.__olist:
+			for o in type(self).__olist:
 				r.append(o.name)
 			
 			return trix.propx(r)
 		except:
-			pass
+			print (type(ex), ex.args)
+			raise
 		
 	
 	
@@ -360,6 +385,7 @@ class Console(BaseOutput):
 		try:
 			cls.__olist.append(o)
 		except:
+			raise
 			cls.__olist = []
 			cls.__olist.append(o)
 	
@@ -368,6 +394,7 @@ class Console(BaseOutput):
 		try:
 			cls.__olist.remove(o)
 		except:
+			raise
 			cls.__olist = []
 	
 	
