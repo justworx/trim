@@ -855,6 +855,11 @@ class Path(TBase):
 		return trix.ncreate('fs.file.File', self.path, **k)
 	
 	
+	# WRAPPER SHORTCUT
+	def w(self, **k):
+		return self.wrapper(**k)
+	
+	
 	#
 	#
 	# READER
