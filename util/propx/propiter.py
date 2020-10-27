@@ -161,45 +161,13 @@ class propiter(propbase):
 		"""
 		return self.T(reversed(list(self.o)))
 	
-	
-	#
-	#
-	#  EACH - With Param
-	#
-	#
-	"""
-	THIS METHOD IS UNDER CONSTRUCTION.
-	
-	def each (self, fn, *a, **k):
 		
-		```
-		This method uses a `trix.data.param.Param` object to manipulate 
-		each item produced by the iterator.
-		
-		Pass arguments and keyword arguments suitable to a `Param` object
-		constructor.
-		
-		Returns the result.
-		
-		EXAMPLE
-		>>> from trix.util.propx.propiter import *
-		>>> pi = propiter([1,2,3])
-		>>> list(pi)
-		[1, 2, 3]
-		>>> 
-		
-		SEE ALSO:
-		>>> from trix.data.param import *
-		>>> help(Param)
-		
-	"""
-	
 	#
 	#
 	#  EACH-X
 	#
 	#
-	def eachx(self, x):
+	def eachx(self, x, *a, **k):
 		"""
 		Run callable `x` on each item in this object.
 		
