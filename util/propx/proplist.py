@@ -28,7 +28,7 @@ class proplist(propseq):
 	#
 	#
 	def join(self, glue=DEF_NEWL, **k):
-		"""Use to join those lines of text."""
+		"""Join lines of text."""
 		x = []
 		try:
 			for line in self.o:
