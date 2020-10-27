@@ -1425,7 +1425,7 @@ class trix(object):
 	
 	#
 	#
-	# SCAN - Returns a scanner.
+	# SCAN - (Dependent)
 	#
 	#
 	@classmethod
