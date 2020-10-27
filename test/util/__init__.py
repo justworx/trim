@@ -15,7 +15,7 @@ from .. import *
 #
 # load the test.enchelp module, which tests trix.util.enchelp
 #
-from . import bag
+#from . import bag     # removed. buggy.
 from . import bom
 from . import compenc
 from . import convert
