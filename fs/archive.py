@@ -35,7 +35,7 @@ class Archive(FileBase):
 	# 
 	# Create a member passing member name, "Test1", and some text.
 	# 
-	z.write("Test1", "This is a test.\n")
+	z.write("Test1", "This is a test.")
 	
 	# 
 	# Until you call the `Tar.flush` method, no changes take place
@@ -178,6 +178,31 @@ class Archive(FileBase):
 	#
 	#
 	
+	#
+	#
+	# SEARCH - UNDER CONSTRUCTION
+	#
+	#
+	def search(self, fnmatch_pattern, **k):
+		"""
+		Search member names in this path using fnmatch.
+		
+		Pass keyword argument `remove=True` to delete matching members.
+		 
+		NOTE: You must flush the archive before removed members are
+		      actually deleted. Until flushed, removed members will 
+		      still appear in listings.
+		
+		"""
+		
+		nn = self.names.fnmatch(fnmatch_pattern)
+		if k.get('remove'):
+			for n in nn:
+				self.delete(n)
+		
+		return trix.propx(nn)		
+	
+	
 	
 	#
 	#
@@ -228,6 +253,9 @@ class Archive(FileBase):
     >>> help(Reader)
 		
 		"""
+		if 'encoding' in k:
+			k.setdefault('mode', "r")
+		
 		if member in self.__writers:
 			b = self.__writers[member]
 		elif member in self.__readers:
@@ -258,12 +286,24 @@ class Archive(FileBase):
 		Keyword arguments will be passed to a `trix.util.stream.writer`
 		object's constructor. The mode and encoding arguments default to:
 		 
-    MODE  ENCODING      I/O      NOTE 
-    'w'                 unicode  encode with DEF_ENCODE
-    'w'   encoding=enc  unicode  encode with <enc>
-    'wb'                bytes    bytes are written
-    'wb'  encoding=enc  unicode  bytes are encoded before writing
-    
+		MODE  ENCODING      I/O      NOTE 
+		'w'                 unicode  encode with DEF_ENCODE
+		'w'   encoding=enc  unicode  encode with <enc>
+		'wb'                bytes    bytes are written
+		'wb'  encoding=enc  unicode  bytes are encoded before writing
+		
+		EXAMPLE:
+		>>> from trix.fs.tar import *
+		>>> testfile = "~/test-%s.tar.gz"%trix.value('time.time')()
+		>>> f = Tar(testfile, affirm="touch")
+		>>> f.write("Test1", "This is a test.")
+		>>> f.write("Test2", "This is a another.")
+		>>> f.members()
+		{}
+		>>> f.flush()
+		>>> f.members.display()
+		
+		
 		SEE ALSO:
     >>> from trix.util.reader import *
     >>> help(Stream)
@@ -297,6 +337,9 @@ class Archive(FileBase):
     >>> help(Writer)
 		
 		"""
+		
+		if 'encoding' in k:
+			k.setdefault('mode', "w")
 		
 		# a buffer already writable
 		if member in self.__writers:
@@ -504,7 +547,7 @@ class Archive(FileBase):
 				if x.exists():
 					x.remove()
 				
-			except Exception as ex:
+			except BaseException as ex:
 				#
 				# I'm not too sure what needs to be done in the case of an
 				# exception. I guess... 
@@ -518,4 +561,4 @@ class Archive(FileBase):
 				# pretty simple - maybe this catch isn't really needed. I do
 				# need to think some more about this. TODO: Think some more!
 				#
-				raise
+				raise type(ex)("err-archive-flush", xdata(path=self.path))

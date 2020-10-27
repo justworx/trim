@@ -33,8 +33,12 @@ class Zip(Archive):
 		>>> from trix.fs.zip import *
 		>>> p = trix.path("~/test.zip", affirm="touch", encoding="utf8")
 		>>> w = p.wrapper()
-		>>> w.write("Test1", "This is a zip file test.\n")
-		>>>
+		>>> w.write("Test1", "This is a zip file test.")
+		>>> w.write("Test2", "This is a zip another.")
+		>>> w.flush()
+		>>> w.members()
+		>>> w.members.display()
+		
 		"""
 		Archive.__init__(self, path, **k)
 		
@@ -83,7 +87,7 @@ class Zip(Archive):
 		"""
 		with self.archopen() as z:
 			try:
-				return z.infolist()
+				return trix.propx(z.infolist())
 			finally:
 				z.close()
 	
@@ -97,7 +101,7 @@ class Zip(Archive):
 		
 		memdict = {}
 		
-		for item in self.members:
+		for item in self.members():
 			itemdict = dict(
 				is_dir         = item.is_dir(),
 				filename       = item.filename,

@@ -19,18 +19,18 @@ class Tar(Archive):
 	>>> testfile = "~/test-%s.tar.gz"%trix.value('time.time')()
 	>>> 
 	>>> f = Tar(testfile, affirm="touch")
-	>>> f.write("Test1", "This is a test.\n")
-	>>> f.write("Test2", "This is a another.\n")
+	>>> f.write("Test1", "This is a test.")
+	>>> f.write("Test2", "This is a another.")
 	>>> f.flush()
 	>>> 
-	>>> f.members
+	>>> f.members()
 	{'Test2': <TarInfo 'Test2' at 0x7f2a1ff87a70>, 'Test1': <TarInfo
 	 'Test1' at 0x7f2a1ff87cc8>}
 	>>> 
 	>>> f.read("Test1")
-	b'This is a test.\n'
+	b'This is a test.'
 	>>> f.read("Test2", encoding="utf8")
-	'This is a another.\n'
+	'This is a another.'
 	>>> 
 	>>> f.remove()
 	>>> f.exists()
@@ -81,26 +81,26 @@ class Tar(Archive):
 	@property
 	def names(self):
 		"""
-		Member names in a proplist. Call this property as a function to
+		Member names in a proplist. Call this property as a function
 		return the list of names.
 		
 		EXAMPLE:
 		>>>
 		>>> from trix.fs.tar import *
 		>>> testfile = "~/test-%s.tar.gz"%trix.value('time.time')()
-		>>> 
+		>>>
 		>>> f = Tar(testfile, affirm="touch")
-		>>> f.write("Test1", "This is a test.\n")
-		>>> f.write("Test2", "This is a another.\n")
+		>>> f.write("Test1", "This is a test.")
+		>>> f.write("Test2", "This is a another.")
 		>>> f.flush()
-		>>> 
+		>>>
 		>>> f.names()                     # returns list
 		>>> f.names.sorted.table(width=2) # displays members
 		[
 		  "Test1",
 		  "Test2"
 		]
-		>>> 
+		>>>
 		>>> f.remove()
 		>>>
 		
@@ -182,12 +182,14 @@ class Tar(Archive):
 		>>> 
 		>>> # For a list:
 		>>> f = Tar(testfile, affirm="touch")
-		>>> f.write("Test1", "This is a test.\n")
-		>>> f.write("Test2", "This is a another.\n")
-		>>> f.members
+		>>> f.write("Test1", "This is a test.")
+		>>> f.write("Test2", "This is a another.")
+		>>> f.flush()
+		>>> f.members()
 		{'Test1': <TarInfo 'Test1' at 0x7fc65bc4dcc8>, 
 		 'Test2': <TarInfo 'Test2' at 0x7fc65bc4db38>}
 		>>> 
+		>>> f.search("*1").display()
 		>>> f.remove()
 		>>>
 		
@@ -201,7 +203,7 @@ class Tar(Archive):
 			mm = f.getmembers()
 			for m in mm:
 				rr[m.name] = m
-			return rr
+			return trix.propx(rr)
 	
 	
 	#
@@ -225,8 +227,8 @@ class Tar(Archive):
 		>>> myTarFile.memberinfo.display()
 		>>> 
 		
-		Returns a propx object containing a dict with member names as 
-		keys; each value is a dict containing information on the 
+		Returns a propx object containing a dict with member names as
+		keys; each value is a dict containing information on the
 		corresponding member.
     
 		SEE ALSO:
@@ -256,6 +258,7 @@ class Tar(Archive):
 	
 	@property
 	def mi(self):
+		"""Alias for self.memberinfo."""
 		return self.memberinfo
 	
 	
