@@ -80,7 +80,10 @@ class sockprop(object):
 		"""
 		Return this object's socket as a proxy.
 		"""
-		return self.__socket
+		try:
+			return self.__socket
+		except BaseException as ex:
+			return None
 	
 	
 	#
@@ -91,7 +94,10 @@ class sockprop(object):
 	@property
 	def timeout(self):
 		"""Returns timeout value."""
-		return self.socket.gettimeout()
+		try:
+			return self.socket.gettimeout()
+		except BaseException as ex:
+			return None
 	
 	
 	
@@ -103,7 +109,10 @@ class sockprop(object):
 	@timeout.setter
 	def timeout(self, f):
 		"""Set timeout value."""
-		self.socket.settimeout(f)
+		try:
+			self.socket.settimeout(f)
+		except BaseException as ex:
+			return None
 		
 	
 	
@@ -117,7 +126,10 @@ class sockprop(object):
 		"""
 		Returns local address as tupel (addr,port).
 		"""
-		return self.socket.getsockname()
+		try:
+			return self.socket.getsockname()
+		except BaseException as ex:
+			return None
 		
 	
 	
@@ -131,7 +143,10 @@ class sockprop(object):
 		"""
 		Returns remote address as tupel (addr,port).
 		"""
-		return self.socket.getpeername()
+		try:
+			return self.socket.getpeername()
+		except BaseException as ex:
+			return None
 	
 	
 	
@@ -145,7 +160,10 @@ class sockprop(object):
 		"""
 		Return this socket's port.
 		"""
-		return self.addr[1]
+		try:
+			return self.addr[1]
+		except BaseException as ex:
+			return None
 	
 	
 	#
