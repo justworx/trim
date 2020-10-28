@@ -4,6 +4,7 @@
 # the terms of the GNU Affero General Public License.
 #
 
+from .. import *
 import inspect
 
 
@@ -90,11 +91,27 @@ class Inspect(object):
 			return self.__methods
 		except:
 			r = self.__methods = {}
-			for m in self.get(inspect.ismethod):
-				methodName = m[0]
-				methodType = m[1]
-				r[methodName] = methodType
-			return self.__methods
+			try:
+				methodName = None
+				methodType = None
+				m = None
+				
+				is_method = self.get(inspect.ismethod)
+				
+				
+				for m in is_method:
+					methodName = m[0]
+					methodType = m[1]
+					r[methodName] = methodType
+				
+				return self.__methods
+			
+			except BaseException as ex:
+				raise type(ex)("err-xinspect-methods", xdata(ex=str(ex),
+							m=m, methodName=methodName, methodType=methodType,
+							methods_processed=r
+					)
+				)
 	
 	
 	#
