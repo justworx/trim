@@ -29,8 +29,14 @@ class udata(object):
 		Tuple with open/close indicator and the bracket matching `c`.
 		
 		# EXAMPLE:
+		>>> from trix.data.udata import *
 		>>> udata.bracket('(')
 		('o', ')')
+		>>>
+		
+		>>> 		
+		>>> from trix.data.udata import *
+
 		"""
 		i = ord(c)
 		x = bisect.bisect_left(BRACKETPAIRS, [i])
@@ -48,11 +54,14 @@ class udata(object):
 	@classmethod
 	def block(cls, c):
 		"""
-		Name of the block containing char `c`.
+		Returns the name of the block containing char `c`.
 		
-		# EXAMPLE:
+		EXAMPLE
+		>>> from trix.data.udata import *
 		>>> udata.block('c')
 		'Basic Latin'
+		>>>
+		
 		"""
 		i = ord(c)+1
 		x = bisect.bisect_left(BLOCKS, [[i]])
@@ -61,7 +70,15 @@ class udata(object):
 	
 	@classmethod
 	def blocks(cls):
-		"""Dict with block-name keys and range list values."""
+		"""
+		Returns a dict with block-name keys and range list values.
+		
+		EXAMPLE
+		>>> from trix.data.udata import *
+		>>> bb = trix.propx(udata.blocks())
+		>>> bp = bb.pairs.sorted
+		>>> bp.eachx(lambda x: [x[0], x[1][0], x[1][1]]).table(w=2)
+		"""
 		try:
 			return cls.__blocks
 		except AttributeError:
