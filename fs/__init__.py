@@ -5,14 +5,14 @@
 #
 
 from ..util import mime
-from ..util.tbase import *  # <----- imports trix and enchelp, too
+from ..util.enchelp import *
 import shutil, os, os.path as ospath
 
 VALID_AFFIRM = ['touch','makedirs','makepath','checkdir','checkfile',
 								'checkpath']
 
 
-class Path(TBase):
+class Path(EncodingHelper):
 	"""
 	Objects of class `Path` represent a file system path.
 	
@@ -75,7 +75,7 @@ class Path(TBase):
 		>>> 
 		
 		"""
-		TBase.__init__(self, path, *a, **k)
+		EncodingHelper.__init__(self, *a, **k)
 		
 		self.sep = os.sep
 		self.__p = self.expand(k.get('path', path or '.'), **k)
