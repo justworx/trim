@@ -99,12 +99,13 @@ class propdict(propiter):
 		Returns a proplist with key/value pairs reversed, making them
 		value/key pairs.
 		
-		EXAMPLE
-		>>>
+		EXAMPLE 1
+		>>> from trix.util.propx.propdict import *
 		>>> pd = propdict({'a':1, 'p':'q'})
 		>>> pd.pairs()
 		[(1, 'a'), ('q', 'p')]
 		>>> 
+		
 		"""
 		r = []
 		for k in self.o.keys():
