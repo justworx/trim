@@ -183,11 +183,6 @@ class DBGrid(Database):
 				
 		"""
 		
-		#
-		# These defaults (None) prevent the exception handler from
-		# providing misleading data.
-		#
-		
 		try:
 			#
 			# CALL EXECUTE
@@ -227,14 +222,22 @@ class DBGrid(Database):
 			)
 	
 	
-	
+	#
+	#
+	# FPATH
+	#
+	#
 	@property
 	def fpath(self):
 		"""Return the file path to this sqlite3 file."""
 		return self.__fpath
 	
 	
-	
+	#
+	#
+	# TABLES
+	#
+	#
 	@property
 	def tables(self):
 		"""
@@ -400,7 +403,6 @@ class DBGrid(Database):
 		return self
 	
 	
-	
 	#
 	#
 	# EXECUTE - returns a cursor
@@ -428,6 +430,11 @@ class DBGrid(Database):
 			)
 	
 	
+	#
+	#
+	# CLOSE
+	#
+	#
 	def close(self):
 		try:
 			Database.close(self)
@@ -439,7 +446,11 @@ class DBGrid(Database):
 			pass
 	
 	
-	
+	#
+	#
+	# Q 
+	#
+	#
 	def q(self, *a, **k):
 		"""
 		Run an sql query on the grid data.
@@ -452,6 +463,11 @@ class DBGrid(Database):
 		return self.__call__(*a, **k)
 	
 	
+	#
+	#
+	# X - Execute alias returning a propx (propgrid) with the results.
+	#
+	#
 	def x(self, *a, **k):
 		"""
 		This is a shortcut for `execute`. It could be handy when space in
@@ -462,9 +478,12 @@ class DBGrid(Database):
 		return trix.propx(self.__call__(*a, **k))
 
 	
-	
-	
+	#
+	#
 	# AT EXIT
+	#  - Make sure those temp databases get removed
+	#
+	#
 	@classmethod
 	def _at_exit(cls):
 		for path in cls.PATHLIST:
