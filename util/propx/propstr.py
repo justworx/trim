@@ -22,6 +22,12 @@ class propstr(propseq):
 	"""
 	
 	@property
+	def reader(self):
+		a = self.a
+		k = self.k
+		return trix.ncreate("util.stream.reader.Reader", self.o, *a, **k)
+	
+	@property
 	def lines(self):
 		"""
 		Return a proplist object containing a list of the lines
@@ -57,9 +63,15 @@ class propstr(propseq):
 				))
 	
 	
+	#
+	#
+	# EXPERIMENTAL
+	#  - Not sure how helpful this could be. Might remvoe it.
+	#
+	#
 	def pdq(self, *a, **k):
 		"""
-		Wrap a python data Query around this object's string.
+		Wrap a python `data.Query` around this object's string.
 		
 		Returns the Query object.
 		
