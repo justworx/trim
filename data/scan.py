@@ -13,29 +13,30 @@ class Scanner(object):
 	"""
 	Scan unicode text one character at a time.
 	
-	The Scanner class is a utility to help with the parsing of unicode
-	text. Pass any iterable that produces unicode characters, then use
+	The Scanner class may help with the parsing of unicode text.
+	Pass any iterable that produces unicode characters, then use
 	the Scanner methods to parse the text.
 	
 	The high-level "split" method separates items based on their 
 	enclosure of the typical set of brackets, parentheses, etc...
 	
-	EXAMPLE:
+	EXAMPLE
 	>>>
 	>>> trix.scan('[1,2,3] frog {"x":"stream"}').split()
 	['[1,2,3]', 'frog', '{"x":"stream"}']
 	>>>
 	
-	The Scanner class works not with characters, but with charinfo 
+	HOW IT WORKS:
+	The Scanner class works not with characters wrapped in charinfo 
 	objects, defined in the `trix.data.udata.charinfo` module. To make
 	fullest use of the Scanner class, read and understand the charinfo
-	documentation.
+	documentation first.
+	
+	Refer to charinfo help to check the properties of the characters
+	contained in charinfo objects.
 	
 	>>> from trix.data.udata.charinfo import *
 	>>> help(charinfo)
-	
-	
-	
 	
 	"""
 	
@@ -43,6 +44,13 @@ class Scanner(object):
 	Escape = "\\"
 	BufSize = 2048
 	
+	
+	
+	#
+	#
+	# INIT
+	#
+	#
 	def __init__(self, iterable_text, **k):
 		"""
 		Pass anything iterable that produces unicode characters.
@@ -65,24 +73,51 @@ class Scanner(object):
 	
 	
 	#
-	# FEATURES
+	#
+	# R - A reverse scanner.
+	#
 	#
 	@property
 	def r(self):
 		"""
 		Returns a Scanner object that parses any text from the stream
 		backward.
+		
+		EXAMPLE
+		>>> r = Scanner("ABC").r
+		>>> r.cc
+		<trix/charinfo 'C'>
+		>>> r.cc
+		<trix/charinfo 'B'>
+		>>> r.cc
+		<trix/charinfo 'A'>
+		>>>
+		
 		"""
 		return RScan(self.collect(lambda c: True), **self.__k)
 	
 	
 	#
-	# CHARACTERS
+	#
+	# C - The current character.
+	#
 	#
 	@property
 	def c(self):
 		"""
 		Return current character info object.
+		
+		Calling `Scanner.c` does not advance the pointer.
+		
+		EXAMPLE
+		>>> from trix.data.scan import *
+		>>> s = Scanner("ABC")
+		>>> s.c
+		<trix/charinfo 'A'>
+		>>> s.c
+		<trix/charinfo 'A'>
+		>>>
+			
 		"""
 		if self.eof:
 			raise StopIteration()
@@ -91,9 +126,26 @@ class Scanner(object):
 		except AttributeError:
 			return self.cc
 	
+	
+	#
+	#
+	# CC
+	#
+	#
 	@property
 	def cc(self):
-		"""Move forward one and return the character info object."""
+		"""
+		Move forward past the current character and return the next 
+		character in a charinfo object.
+		
+		EXAMPLE
+		>>> from trix.data.scan import *
+		>>> s = Scanner("ABC")
+		>>> s.cc
+		<trix/charinfo 'A'>
+		>>>		
+		
+		"""
 		try:
 			return self.__cinfo.next()
 		except AttributeError:
@@ -102,62 +154,133 @@ class Scanner(object):
 		except StopIteration:
 			self.__eof = True
 	
+	
+	#
+	#
+	# CHAR
+	#
+	#
 	@property
 	def char(self):
-		"""Return the current character."""
+		"""
+		Return the current character.
+		
+		Calling `Scanner.char` does not advance the pointer.
+		
+		EXAMPLE
+		>>> from trix.data.scan import *
+		>>> s = Scanner("ABC")
+		>>> s.char
+		'A'
+		>>> s.char
+		'A'
+		>>>		
+		"""
 		return self.c.c
 	
+	
+	#
+	#
+	# EOF
+	#
+	#
 	@property
 	def eof(self):
-		"""False until end of text is reached."""
+		"""
+		False until end of text is reached.
+		
+		The `self.__eof` property is available for information purposes.
+		
+		EXAMPLE
+		>>> from trix.data.scan import *
+		>>> s = Scanner("A")
+		>>> s.cc
+		<trix/charinfo 'A'>
+		>>> s.eof
+		False
+		>>> s.cc
+		>>> s.eof
+		True
+		>>>
+		
+		"""
 		return self.__eof
 	
 	
 	#
-	# CONFIG PROPERTIES
+	#
+	# BUFSZ - The Buffer Size
+	#
 	#
 	@property
 	def bufsz(self):
 		"""
-		The size of a buffer used to scan text. The default is 2048, but
-		scans will not fail if that is exceeded (though they may be a 
-		bit slower). If you expect larger scan chunks, it may improve
-		performance if you specify a larger buffer size integer via the
-		bufsz keyword argument. (I haven't tested this - it may be just
-		the same or worse.)
+		Returns the size of a buffer used to scan text.
+		
+		The default is 2048, but scans will not fail if that is exceeded 
+		(though they may be a bit slower). If you expect larger scan 
+		chunks, it may improve performance if you specify a larger buffer
+		size integer via the bufsz keyword argument.
+		
+		NOTE:
+		I haven't tested this. I do not know whether increasing the
+		buffer size might improve performance. It may be just the same.
+		It may be worse.
+		
 		"""
 		return self.__bufsz
 	
+	
+	#
+	#
+	# ESC
+	#
+	#
 	@property
 	def esc(self):
-		"""The escape character. Default: '\' (backslash)."""
+		"""
+		Returns the escape character. The default is '\' (backslash).
+		"""
 		return self.__escape
 	
 	
 	
 	
+	# -----------------------------------------------------------------
 	#
 	# BASE SCAN METHODS
 	#  - These always start from self.c (the current character) and
 	#    end one character AFTER the last-scanned character.
 	#
+	# -----------------------------------------------------------------
 	
+	
+	#
+	#
 	# COLLECT
+	#
+	#
 	def collect(self, fn):
 		"""
 		Collect each character that matches the criteria of `fn`. The 
 		pointer is left directly after the last matching character.
 		
-		EXAMPLE:
-		>>>
+		EXAMPLE
 		>>> from trix.data.scan import *
-		>>>
 		>>> s = Scanner("Abc 123")
-		>>> s.char                          # 'A'
-		>>> s.collect(lambda ci: ci.alpha)  # 'Abc'
-		>>> s.char                          # ' '
-		>>> s.cc                            # '1'
-		>>> s.collect(lambda ci: ci.numeric)# '123'
+		>>>
+		>>> REM: Calling `s.char` does not advance the pointer.
+		>>> s.char
+		'A'
+		>>> s.collect(lambda ci: ci.alpha)
+		'Abc'
+		>>> s.char
+		' '
+		>>> s.cc
+		<trix/charinfo '1'>
+		>>> s.collect(lambda ci: ci.numeric)
+		'123'
+		>>> 
 		
 		"""
 		if self.eof:
@@ -179,11 +302,24 @@ class Scanner(object):
 		return b.read()
 	
 	
+	#
+	#
 	# IGNORE
+	#
+	#
 	def ignore(self, fn):
 		"""
-		Pass all characters for which executable `fn` returns True. The
-		iterator stops on the first character following ignored text.
+		Ignore all characters for which executable `fn` returns True. The
+		iterator stops on the character following ignored text.
+		
+		EXAMPLE
+		>>> s = Scanner("Abc 123")
+		>>> s.collect(lambda ci: ci.alpha)
+		'Abc'
+		>>> s.ignore(lambda ci: ci.white)
+		>>> s.collect(lambda ci: ci.numeric)
+		'123'
+		>>> 
 		
 		NOTE: If the current character doesn't match what `fn` is looking
 		      for, the pointer is not moved.
@@ -199,35 +335,81 @@ class Scanner(object):
 	
 	
 	
-	
-	
+	# -----------------------------------------------------------------
 	#
 	# CONVENIENCE METHODS
 	#  - These all rely on the Base Methods above.
 	#
+	# -----------------------------------------------------------------
 	
-	# --- ignoring characters ---
 	
+	#
+	#
 	# PASS LINE-ENDING
+	#
+	#
 	def passend(self):
-		"""Pass existing white space, then any endlines."""
+		"""
+		Pass existing white space, then any endlines.
+		
+		EXAMPLE
+		>>> from trix.data.scan import *
+		>>>
+		>>> lines = "Line-1\nLine2 \nLINE-3\n"
+		>>> s = Scanner(lines)
+		>>>
+		>>> s.collect(lambda ci: ci.alphanum or (ci.c=='-'))
+		'Line-1'
+		>>> s.passend()
+		>>> s.collect(lambda ci: ci.alphanum or (ci.c=='-'))
+		'Line2'
+		>>> s.passend()
+		>>> s.collect(lambda ci: ci.alphanum or (ci.c=='-'))
+		'LINE-3'
+		>>> s.passend()
+		>>> s.collect(lambda ci: ci.alphanum or (ci.c=='-'))
+		''
+		
+		"""
 		self.passwhite()
 		self.ignore(lambda c: c.lineend)
 	
+	
+	#
+	#
 	# PASS WHITE
+	#
+	#
 	def passwhite(self):
 		"""Pass any white space."""
 		self.ignore(lambda ci: ci.space)
 	
 	
-	# --- collecting characters ---
 	
+	
+	# -------------------------------------------------------------------
+	#
+	# COLLECTING CHARACTERS
+	#  - These all rely on the Base Methods above.
+	#
+	# -------------------------------------------------------------------
+	
+	
+	#
+	#
 	# SCAN DIGITS
+	#
+	#
 	def scandigits(self):
 		"""Scan numeric digits."""
 		return self.collect(lambda ci: ci.dig)
 	
+	
+	#
+	#
 	# SCAN IDENTIFIER
+	#
+	#
 	def scanid(self):
 		"""
 		Collect the next sequence of characters that match the rules for 
@@ -238,12 +420,21 @@ class Scanner(object):
 		if not self.c.digit:
 			return self.collect(lambda ci: ci.alphanum or ci.connector)
 	
+	
+	#
+	#
 	# SCAN TO
+	#
+	#
 	def scanto(self, char):
 		"""Collect all text to the given character `c`."""
 		return self.collect(lambda ci: ci.c != char)
 	
+	#
+	#
 	# SCAN TO C
+	#
+	#
 	def scantoc(self):
 		"""
 		Store the current character, then collect all characters up to
@@ -257,12 +448,19 @@ class Scanner(object):
 	
 	
 	
+	# -------------------------------------------------------------------
 	#
 	# COMPLEX METHODS
 	#  - These all rely on the Base Methods above.
 	#
+	# -------------------------------------------------------------------
 	
+	
+	#
+	#
 	# SCAN
+	#
+	#
 	def scan(self):
 		"""
 		Pass white space then scan one item - either bidi/quote or a 
@@ -285,11 +483,13 @@ class Scanner(object):
 		# This should capture individual space-separated elements.
 		else:
 			return self.collect(lambda ci: ci.cat != "Zs")
-		
-		
 	
 	
+	#
+	#
 	# SPLIT
+	#
+	#
 	def split(self):
 		"""
 		Split text on white characters, excpet those included in a bidi
@@ -308,7 +508,11 @@ class Scanner(object):
 		return r
 	
 	
+	#
+	#
 	# SCAN BIDI
+	#
+	#
 	def scanbidi(self):
 		"""
 		Scan recursively through bidi open/close characters, until the
@@ -381,7 +585,11 @@ class Scanner(object):
 			return b.read()
 	
 	
+	#
+	#
 	# SCAN QUOTE
+	#
+	#
 	def scanquote(self):
 		"""
 		Scan recursively through bidi open/close characters, until the
@@ -413,8 +621,13 @@ class Scanner(object):
 			self.__eof = True
 			return b.read()
 	
-	
+	# -------------------------------------------------------------------
+	#
+	#
 	# SPLITS - Split text on multiple characters
+	#
+	#
+	# -------------------------------------------------------------------
 	def splits(self, chars, remainder=False):
 		"""
 		Pass a string containing characters to split on, in the order
@@ -447,7 +660,11 @@ class Scanner(object):
 			return r
 	
 	
+	#
+	#
 	# REMAINDER
+	#
+	#
 	def remainder(self):
 		"""Return whatever's left of the scan text."""
 		try:
@@ -456,12 +673,11 @@ class Scanner(object):
 			self.__eof = True
 
 	
-	
 	#
-	# TESTING --------------------
 	#
-	
 	# SPLIT
+	#
+	#
 	def split_space(self):
 		"""
 		Split text, but also add consecutive white space into the result
@@ -480,6 +696,11 @@ class Scanner(object):
 		return r
 	
 	
+	#
+	#
+	# SPLIT ESCAPE
+	#
+	#
 	def split_escape(self, char="%"):
 		"""
 		Return a list of escape characters + the following char, with
@@ -526,7 +747,9 @@ class Scanner(object):
 		except StopIteration:
 			self.__eof = True
 		return r
-		
+
+
+
 
 
 # -------------------------------------------------------------------
@@ -536,6 +759,7 @@ class Scanner(object):
 #
 #
 # -------------------------------------------------------------------
+
 class RScan(Scanner):
 	"""Reverse scanner. Scans text backward."""
 	
@@ -546,7 +770,11 @@ class RScan(Scanner):
 		Scanner.__init__(self, reversed(forward_iterable))
 	
 	
+	#
+	#
 	# REVERSE SPLIT
+	#
+	#
 	def rsplits(self, chars, remainder=False):
 		"""
 		Pass characters to split on, in the intuitive direction with the
@@ -578,7 +806,11 @@ class RScan(Scanner):
 		return list(reversed(rr))
 	
 	
+	#
+	#
 	# REMAINDER
+	#
+	#
 	def remainder(self):
 		"""Return whatever's left of the scan text."""
 		try:
@@ -586,7 +818,3 @@ class RScan(Scanner):
 		except StopIteration:
 			self.__eof = True
 	
-
-
-
-
