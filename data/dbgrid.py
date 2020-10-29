@@ -13,11 +13,7 @@ import atexit
 
 class DBGrid(Database):
 	"""
-	Query a set of named, in-memory sqlite3 tables.
-	
-	If you like working with sql queries, here's a way to query and/or
-	manipulate grid data (that is, lists of lists of equal length), you
-	will love `DBGrid`.
+	Query given grid data in an sqlite3 table.
 	
 	GRIDS:
 	A grid is a list containing a set of lists of equal length.
@@ -33,7 +29,6 @@ class DBGrid(Database):
 	Create a DBGrid, add a table, and operate on the grid as though
 	it were an sqlite3.db table.
 	
-	
 	EXAMPLE:
 	>>>
 	>>> from trix.data.dbgrid import *
@@ -44,12 +39,12 @@ class DBGrid(Database):
 	
 	EXAMPLE 2:
 	>>> 
-	>>> sql = "select name, size from LS where type='f' order by size"
+	>>> SQL = "select name, size from LS where type='f' order by size"
 	>>> 
 	>>> from trix.data.dbgrid import *
 	>>> d = trix.path( trix.innerfpath() )  # get the `trix` directory
 	>>> dg = d.list.dbgrid("LS")            # create dbgrid table "LS"
-	>>> dq(sql).grid()                      # run query; view results
+	>>> dq(SQL).grid()                      # run query; view results
 	name          size 
 	__main__.py  215  
 	.gitignore   1626 
@@ -57,10 +52,6 @@ class DBGrid(Database):
 	LICENSE      34523
 	__init__.py  53164
 	>>> 
-	
-	SEE ALSO:
-	>>> from trix.data.dbgrid import *
-	>>> help(DBGrid)
 	
 	"""
 	
@@ -73,7 +64,10 @@ class DBGrid(Database):
 	#
 	def __init__(self, **k):
 		"""
-		Create a database for manipulation of grids
+		Create a database for manipulation of grids.
+		
+		DBGrid is based on the `data.database.Database` class. All its 
+		methods should be available.
 		
 		A `grid` is a list containing a set of lists of equal length.
 		
@@ -81,16 +75,12 @@ class DBGrid(Database):
 		 * DBGrid database files are always sqlite3.
 		 * DBGrid database files are always temporary. Their names are
 		   always auto-generated.
-		 * The temporary database files are stored in DEF_CACHE, 
-		   and are deleted by the class destructor.
+		 * The temporary database files are stored in `trix.DEF_CACHE`, 
+		   and are deleted by the class destructor or at exit.
 		 
 		USAGE NOTES:
 		 * See the `add()` method for details on how to create tables.
-		 * It seems that once you've closed a DBGrid, you can't open it 
-		   again. I'm not sure if that's a bug or a feature. It doesn't
-		   seem to conflict with the purpose of this class.
 		
-		 
 		"""
 		
 		#
@@ -129,16 +119,12 @@ class DBGrid(Database):
 	
 		
 		#
-		# Open the database immediately (unless autoopen=False).
-		# I can't imagine that ever being the case, but what do
-		# I know?
+		# Open the database immediately (unless kwarg autoopen=False).
 		#
 		self.__autoopen = k.get('autoopen', True)
 		if self.__autoopen:
 			self.open()
-		
-		# Python2 support
-		#self.next = self.__next__
+	
 	
 	#
 	#
@@ -198,8 +184,10 @@ class DBGrid(Database):
 		"""
 		
 		#
-		# IT'S A CURSOR
+		# These defaults (None) prevent the exception handler from
+		# providing misleading data.
 		#
+		
 		try:
 			#
 			# CALL EXECUTE
@@ -211,6 +199,9 @@ class DBGrid(Database):
 			#
 			cdesc = self.cdesc(c)
 			
+			#
+			# CDATA is the column list taken from the sql heading results
+			#
 			cdata = []
 			cdata.append(cdesc)
 			
