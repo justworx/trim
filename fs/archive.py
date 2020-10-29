@@ -135,6 +135,14 @@ class Archive(FileBase):
 		"""The member objects within the archive."""
 		raise NotImplementedError("abstract-property-required", 'members')
 	
+	## 
+	@property
+	def mm(self):
+		"""
+		Abbreviated alias to members (for cmd-line conveniene).
+		"""
+		return self.members
+	
 	
 	#
 	#
@@ -145,6 +153,12 @@ class Archive(FileBase):
 	def names(self):
 		"""List of the names of member objects in this archive."""
 		raise NotImplementedError("abstract-property-required", 'names')
+	
+	## 
+	@property
+	def nn(self):
+		"""Abbreviated alias to names (for cmd-line conveniene)."""
+		return self.names
 	
 	
 	#
@@ -269,6 +283,28 @@ class Archive(FileBase):
 		b.seek(0)
 		return weakref.proxy(b.reader(**k))
 	
+	
+	#
+	#
+	# EXPERIMENTAL
+	#
+	#
+	def rx(self, member, **k):
+		"""
+		Read data into a propx and return.
+		
+		EXAMPLE
+		>>> import trix
+		>>> ud = trix.path("~/Data/unicode/13.0.0/")
+		>>> ud.ls()
+		['Unihan.zip', 'ReadMe.txt', 'UCD.zip']
+		>>>
+		>>> w = ud('UCD.zip').w()
+		>>> w.names.table(w=2)
+		>>>
+		>>> rx = w.rx("Blocks.txt", mode='r')
+		"""
+		return trix.propx(self.read(member, **k))
 	
 	
 	#
