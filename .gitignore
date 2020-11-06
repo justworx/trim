@@ -25,9 +25,10 @@ my
 my/
 
 
+
 # experimental / under construction
-*.x.md
-*.x.py
+*.x.*
+
 
 
 # temporary backups
@@ -35,8 +36,13 @@ bu
 bu/
 *.bu
 *.bu.*
-bu.tar.gz
-bu.zip
+*.x
+*.tar.gz
+*.zip
+
+
+# under construction
+*_ignore_*
 
 
 #
