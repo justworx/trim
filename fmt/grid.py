@@ -33,11 +33,19 @@ class Grid (FormatBase):
 		"""Generate a format string for the given grid."""
 		glen = len(grid[0])
 		cmax = [0 for x in range(glen)]
-		for row in grid:
-			for c,col in enumerate(row):
-				L = len(col)
-				if L > cmax[c]:
-					cmax[c] = L
+		try:
+			for row in grid:
+				for c,col in enumerate(row):
+					L = len(col)
+					if L > cmax[c]:
+						cmax[c] = L
+						
+		except BaseException as ex:
+			raise type(ex)("err-unknown-debugging", xdata(
+					glen=glen, cmax=cmax, row=row, c=c, col=col, L=L, 
+					cmax_c=cmax[c]
+				)
+			)
 		
 		fstr = map(lambda x: "{:<%s}" % x, [cmax[x] for x in range(0, glen)])
 		return self.__sep.join(fstr)
