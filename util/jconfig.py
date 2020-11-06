@@ -60,7 +60,7 @@ class JConfig(EncodingHelper):
 		IMPORTANT:
 		 * You can pass keyword argumnets such as affirm='touch' for new
 		   config files.
-		 * If the file or default file is not menat to be DEF_ENCODE, 
+		 * If the file or default file is not meant to be DEF_ENCODE, 
 		   pass its desired encoding as a keyword argument.
 		 
 		"""
@@ -257,9 +257,10 @@ class JConfig(EncodingHelper):
 	
 	
 	#
+	#
 	# LOAD (on init)
 	#
-
+	#
 	def __load(self, **k):
 		
 		TXT = None
@@ -307,7 +308,8 @@ class JConfig(EncodingHelper):
 					# B) Get the object and reformat as json so that only the 
 					#    JSON content will be included, no comments, etc...
 					#
-					OBJ = self.__parse(TXT)
+					#OBJ = self.__parse(TXT)
+					OBJ = trix.ncreate("util.parse.Parser").parse(TXT)
 					TXT = trix.formatter(f='JDisplay').format(OBJ)
 					
 					# C) write the default config to the file
@@ -322,7 +324,10 @@ class JConfig(EncodingHelper):
 			# try with ast (in case loading a default given in ast).
 			#
 			else:
-				self.__object = self.__parse(TXT)
+				o = trix.ncreate("util.parse.Parser").parse(TXT)
+				self.__object = o
+				#self.__object = self.__parse(TXT)
+				#self.__object = self.__parse(TXT)
 		
 		except FileNotFoundError as ex:
 			raise type(ex)(xdata(
@@ -336,24 +341,3 @@ class JConfig(EncodingHelper):
 				NOTE="This seems to be happening when the file path" +
 				     "is invalid."
 			))
-	
-	
-	def __parse(self, txt):
-		try:
-			try:
-				return ast.literal_eval(txt)
-			except:
-				# this should cause a exception that gives a line number
-				compile(txt, self.path, 'eval')
-				raise # if not, raise anyway
-		
-		except BaseException as ast_ex:
-			# ast failed - try json
-			try:
-				return json.loads(txt)
-			except BaseException as json_ex:
-				raise Exception ("config-read-error", xdata(path=self.path, 
-					json = {"type" : type(json_ex), "args" : json_ex.args},
-					ast  = {"type" : type(ast_ex),  "args" : ast_ex.args}
-				))
-
