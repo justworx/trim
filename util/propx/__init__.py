@@ -82,7 +82,7 @@ class propbase(object):
 	
 	
 	# EXPLANATION:
-	So what is happening up here?
+	So what is happening up there?
 	
 	Because "trix/util/propx" is a directory, the call to `trix.path`
 	returns an `fs.Dir` object (based on `fs.Path`). Many properties of
@@ -214,9 +214,10 @@ class propbase(object):
 		The `fs.Dir` class features several properties that produce propx
 		object as results.
 		
-		The result returned by `trix.fs.path()` is a propx 
+		The result returned by `fs.dir.ls()` is a propx 
 		object, which provides properties and methods related to file
 		system paths.
+		
 		
 		```
 		#
@@ -229,26 +230,35 @@ class propbase(object):
 		
 		
 		#
-		# ls() returns a list for programatic
+		# ls() returns a proplist. Calling `ls()` as a function returns 
+		# the raw data. So would `ls.o`.
 		#
 		trix.path().ls()
 		
 		#
-		# ls.table lets you take a peek at the data before using it
+		# However, the ls method returns a propx object, which may be
+		# used to take a peek at the data before using it.
 		#
-		trix.path().ls.table(width=3)
+		trix.npath().ls.table(width=3)
 		
 		```
 		
 		"""
+		#
+		# The `self.__p` value is set to a value, object, or callable.
+		# It won't be calculated until the `self.o` property is called,
+		# at which time self.__o will be added to the object's private
+		# member variables.
+		#
 		self.__p = o
 		self.__a = a
 		self.__k = k
-	
-	
+
+
 	#
 	#
 	#  REPR
+	#  - This is "terminal" because it terminates the object's "repr".
 	#
 	#
 	def __repr__(self):
@@ -258,6 +268,8 @@ class propbase(object):
 	#
 	#
 	#  CALL
+	#   - This method is terminal because it returns the value held 
+	#     by this propx object.
 	#
 	#
 	def __call__(self, *a, **k):
@@ -290,11 +302,30 @@ class propbase(object):
 				self.__o = self.__p
 			
 			return self.__o
+
+
+
+
+	# -----------------------------------------------------------------
+	#
+	#
+	#
+	# TERMINATING PROPERTIES/METHODS (TERMINAL)
+	#  - This section's property and method results are *NOT* wrapped 
+	#    in propx objects.
+	#  - These properties are mostly used internally, but are useful
+	#    as terminals, and when debugging.
+	#
+	#
+	#
+	# -----------------------------------------------------------------
 	
 	
 	#
 	#
-	#  O - The contained data in its raw form.
+	#  O (OBJECT)
+	#   - This method is terminal because it returns the value held 
+	#     by this propx object.
 	#
 	#
 	@property
@@ -306,12 +337,15 @@ class propbase(object):
 		try:
 			return self.__o
 		except:
-			return self.__call__(*self.__a, **self.__k)
+			self.__o = self.__call__(*self.__a, **self.__k)
+			return self.__o
 	
 	
 	#
 	#
 	# A - Args given to constructor
+	#   - This method is terminal because it returns a python list
+	#     containing any arguments passed to this object's constructor.
 	#
 	#
 	@property
@@ -323,6 +357,9 @@ class propbase(object):
 	#
 	#
 	# K - Keyword-args given to constructor
+	#   - This method is terminal because it returns a python list
+	#     containing any keyword arguments passed to this object's 
+	#     constructor.
 	#
 	#
 	@property
@@ -333,18 +370,22 @@ class propbase(object):
 	
 	#
 	#
-	# TO - Type of Propbase Object
+	# T - Type of Propbase Object
+	#   - This method is terminal because it returns the type of 
+	#     this object.
 	#
 	#
 	@property
 	def T(self):
-		"""Return the type of this `propbase` (or descendant) object."""
+		"""Return the type of this propbase-based object."""
 		return type(self)
 	
 	
 	#
 	#
 	# TO - Type of Object
+	#   - This method is terminal because it returns the type of 
+	#     the object passed to this object's constructor.
 	#
 	#
 	@property
@@ -355,98 +396,30 @@ class propbase(object):
 	
 	#
 	#
-	# COMP-ENC
+	# CURSOR
+	#  - This is "terminal" because it terminates the chain of propx
+	#    objects by returning a `data.cursor.Cursor` object.
 	#
 	#
-	@property
-	def compenc(self):
+	def cursor(self, **k):
 		"""
-		Returns the compenc module on demand; Does not load the module 
-		until first call to this property.
-		
-		NOTE: This is an internally used convenience more than a part of
-		      the `propbase` feature set.
+		Return a cursor containing `self.o`. Any given keyword arguments
+		are passed to the cursor's constructor.
 		"""
-		try:
-			return self.__compenc
-		except:
-			self.__compenc = trix.nmodule("util.compenc")
-			return self.__compenc
-	
-	
-	#
-	#
-	# JPARSE
-	#
-	#
-	@property
-	def jparse(self, **k):
-		"""
-		Return propx containing object parsed from json text. May be a
-		proplist, propdict, propstr, etc...
-		"""
-		try:
-			return propx(trix.jparse(str(self.o), **k))
-		except Exception as ex:
-			raise type(ex)(xdata(o=self.o, k=k))
-	
-	
-	
-	# -----------------------------------------------------------------
-	#
-	#
-	# Methods that can handle pretty much any data type
-	#
-	#
-	# -----------------------------------------------------------------
-	
-	#
-	#
-	# DISPLAY
-	#
-	#
-	def display(self, *a, **k):
-		"""
-		Display using trix.fmt. Default params: f='JDisplay'
-		"""
-		trix.display(self.o, *a, **k)
-	
-	
-	#
-	#
-	# JSON
-	#
-	#
-	def json(self, *a, **k):
-		"""
-		Return self.o formatted as json text. Formatting may be specified.
-		The default is standard JSON text.
-		"""
-		k.setdefault('f', 'JSON')
-		return trix.formatter(*a, **k).format(self.o)
-	
-	
-	#
-	#
-	# JCOMPACT
-	#
-	# 
-	def jcompact(self, *a, **k):
-		"""
-		Return self.o forced to jcompact text.
-		"""
-		k['f'] = 'JCompact'
-		return trix.formatter(*a, **k).format(self.o)
+		return trix.ncreate("data.cursor.Cursor", self.o, **k)
 	
 	
 	#
 	#
 	# DATA MANIPULATION
+	#  - This is "terminal" because it terminates the chain of propx
+	#    objects by returning a Param object.
 	#
 	# 
 	def param(self, o=None):
 		"""
-		Returns arg `o` or `self.o` wrapped in a Param object.
+		Returns arg `o` or `self.o` wrapped in a `data.param.Param` 
+		object.
 		
 		SEE ALSO:
 		>>> from trix.data.param import *
@@ -462,27 +435,279 @@ class propbase(object):
 	
 	#
 	#
-	# CURSOR
-	#
-	#
-	def cursor(self, **k):
-		"""
-		Return a cursor containing `self.o`. Any given keyword arguments
-		are passed to the cursor's constructor.
-		"""
-		return trix.ncreate("data.cursor.Cursor", self.o, **k)
-	
-	
-	#
-	#
 	# PDQ
+	#  - This is "terminal" because it terminates the chain of propx
+	#    objects by returning a `data.pdq.Query` object.
+	#  - HOWEVER: The `data.pdq.Query` object has some interesting
+	#             methods. It's worth a look sometime,
 	#
 	#
 	def pdq(self, **k):
 		"""
 		Return a python data Query object given self.o and any kwargs.
+	   - This is "terminal" because it terminates the chain of propx
+       objects by returning a `data.pdq.Query` object.
+	   - HOWEVER: The `data.pdq.Query` object has some interesting
+	              methods. It's worth a look sometime,
+	   
+	  SEE ALSO:
+	  >>> from trix.data.pdq import *
+		>>> help(Query)
+		>>>
+		 
 		"""
 		return trix.ncreate("data.pdq.Query", self.o, **k)
+	
+	
+	#
+	#
+	# COMP-ENC
+	#   - This method is terminal because it returns the `util.compenc`
+	#     module.
+	#
+	#
+	@property
+	def compenc(self):
+		"""
+		Returns the `compenc` module on demand; Does not load the module 
+		until first call to this property.
+		
+		NOTE: This is an internally used convenience more than a part of
+		      the `propbase` feature set.
+		"""
+		try:
+			return self.__compenc
+		except:
+			self.__compenc = trix.nmodule("util.compenc")
+			return self.__compenc
+	
+	
+	#
+	#
+	# DISPLAY
+	#
+	# 
+	def display(self, *a, **k):
+		"""
+		TERMINAL!
+		
+		Display the current `self.o`.
+		
+		EXAMPLE
+		>>> import trix
+		>>> trix.propx("['1', 'two']").jparse().display()
+		>>>
+		
+		"""
+		trix.display(self.o)
+	
+	
+	
+	
+	# -----------------------------------------------------------------
+	#
+	#
+	#
+	# NON-TERMINAL METHODS
+	#  - This section's method results are wrapped in propx objects.
+	#  - Methods that do not return a propx are called "terminal."
+	#  - Methods that return a propx are "non-terminal."
+	#
+	#
+	# -----------------------------------------------------------------
+	
+	#
+	#
+	# PARSER
+	#
+	#
+	def parser(self, **k):
+		try:
+			return self.__parser
+		except:
+			self.__parser = trix.ncreate("util.parse.Parser", **k)
+			return self.__parser
+			#
+			# I *THINK* this will be fine because the lifespan of any
+			# propx object is only one use. I can't see a way that the
+			# encoding/errors values would change through the course
+			# of manipulating parsed objects, unless maybe someone were
+			# passing an array or dict with strings encoded in different
+			# encodings.
+			# 
+			# KEEP AN EYE ON THIS, THOUGH! 
+			# I keep finding the unexpected in the propx subpackage!
+			#
+	
+	
+	#
+	#
+	# JPARSE
+	#
+	#
+	def jparse(self, **k):
+		"""
+		Return propx containing the object parsed from json text. It may
+		be a proplist, propdict, propstr, etc... depending on the content.
+		
+		EXAMPLES
+		>>> import trix
+		>>> trix.propx("['1', 'two']").jparse().o
+		['1', 'two']
+		>>> trix.propx('["1", "two"]').jparse().o
+		['1', 'two']
+		>>> trix.display(['1', 'two'])
+		
+		"""
+		return propx(self.parser(**k).parse(self.o, **k))
+	
+	
+	# -----------------------------------------------------------------
+	#
+	#
+	# FORMAT METHODS
+	#  - These return a new propx object containing data from the caller
+	#    that has been reformatted to the available formats.
+	#  - See the `trix.fmt` modules for full details.
+	#
+	#
+	# -----------------------------------------------------------------
+	
+	#
+	#
+	# FORMAT
+	#
+	#
+	def format(self, *a, **k):
+		"""
+		Return a new propx object containing the data from self.o 
+		formatted as specified by any given arguments and keyword 
+		arguments. 
+		
+		The default is standard JSON text.
+		
+		To manipulate results, pass args and kwargs as specified by the
+		`trix.format` classmethod's doc.
+		
+		
+		EXAMPLES
+		>>> import trix
+		>>> x = trix.propx([1,2,3,4])
+		>>> x.format(f='Table', width=2).o
+		'1  2\n3  4'
+		>>>
+		>>> from trix.x.propx.proplist import *
+		>>> x = proplist([1,2,3,4]).format(f="Table", w=2)
+		>>> x.o
+		'1  2\n3  4'
+		>>>
+		>>> from trix.x.propx import *
+		>>> x = trix.propx([1,2,3,4])
+		>>> y = x.format(f="Table", width=2)
+		
+		
+		SEE ALSO
+		>>> from trix.fmt import *
+		>>> help(Format)
+		>>>
+		
+		"""
+		k.setdefault('f', 'JSON')
+		return propx(trix.formatter(*a, **k).format(self.o))
+	
+	
+	#
+	#
+	# JSON
+	#
+	# 
+	def json(self, **k):
+		"""
+		Return a propx object containing a copy of self.o converted
+		to json text.
+		
+		EXAMPLE
+		>>> trix.propx([ [1, 2], [3, 4] ]).json().o
+		'[[1,2],[3,4]]'
+		
+		"""
+		k['f'] = 'JSON'
+		
+		#
+		# Remember, formatter returns an altered copy of `self.o`, but 
+		# it is wrapped in a `propx` object, so this method is not
+		# "terminal."
+		#
+		return propx(self.format(*a, **k).format(self.o))
+	
+	
+	#
+	#
+	# JCOMPACT
+	#
+	# 
+	def jcompact(self, **k):
+		"""
+		Return a propx object containing a copy of self.o forced to 
+		jcompact text.
+		
+		EXAMPLE
+		>>> trix.propx([ [1, 2], [3, 4] ]).format(f="JCompact").o
+		
+		"""
+		k['f'] = 'JCompact'
+	
+	
+	#
+	#
+	# JDISPLAY
+	#
+	# 
+	def jdisplay(self, **k):
+		"""
+		Return a propx object containing a copy of self.o forced to 
+		jcompact text.
+		
+		EXAMPLE
+		>>> trix.propx([ [1, 2], [3, 4] ]).format(f="JCompact").o
+		'[\n  [\n    1,\n    2\n  ],\n  [\n    3,\n    4\n  ]\n]'
+		>>>
+		>>> trix.propx([ [1, 2], [3, 4] ]).format(f="JDisplay").output()
+		[
+		  [
+		    1,
+		    2
+		  ],
+		  [
+		    3,
+		    4
+		  ]
+		]
+		>>>
+		
+		"""
+		k['f'] = 'JDisplay'
+		
+		#
+		# Remember, formatter returns an altered copy of `self.o`, but 
+		# it is wrapped in a `propx` object, so this method is not
+		# "terminal."
+		#
+		return self.format(*a, **k).format(self.o)
+	
+	
+	#
+	#
+	# OUTPUT - Print Contents
+	#
+	#
+	def output(self):
+		"""
+		The `output` method prints the object's contents, `self.o`.
+		"""
+		print (self.o)
+	
+	
 	
 	
 	
@@ -504,7 +729,7 @@ class propbase(object):
 		Return self.o as (compact) JSON bytes encoded to base64.
 		"""
 		k.setdefault('f','JCompact')
-		return self.compenc.b64.encode(self.json(**k).encode(**k))
+		return propx(self.compenc.b64.encode(self.json(**k).encode(**k)))
 	
 	
 	#
@@ -517,7 +742,9 @@ class propbase(object):
 		Return self.o as (compact) JSON bytes encoded to base64.
 		"""
 		k.setdefault('f','JCompact')
-		return self.compenc.b64.sencode(self.json(**k).encode('utf8'))
+		return propx(self.compenc.b64.sencode(
+				self.json(**k).encode('utf8'))
+			)
 	
 	
 	#
@@ -530,7 +757,9 @@ class propbase(object):
 		Return self.o as (compact) JSON bytes encoded to url-safe base64.
 		"""
 		k.setdefault('f','JCompact')
-		return self.compenc.b64.uencode(self.json(**k).encode('utf8'))
+		return propx(self.compenc.b64.uencode(
+					self.json(**k).encode('utf8')
+				))
 	
 	
 	#
@@ -541,8 +770,9 @@ class propbase(object):
 	def b32(self, **k):
 		"""Return self.o as (compact) JSON bytes encoded to base32."""
 		k.setdefault('f','JCompact')
-		return self.compenc.b32.encode(self.json(**k).encode(**k))
-	
+		return propx(self.compenc.b32.encode(
+					self.json(**k).encode(**k)
+				))
 	
 	#
 	#
@@ -552,8 +782,9 @@ class propbase(object):
 	def b16(self, **k):
 		"""Return self.o as (compact) JSON bytes encoded to base16."""
 		k.setdefault('f','JCompact')
-		return self.compenc.b16.encode(self.json(**k).encode(**k))
-	
+		return propx(self.compenc.b16.encode(
+					self.json(**k).encode(**k)
+				))
 	
 	#
 	#
@@ -571,7 +802,14 @@ class propbase(object):
 		
 		```
 		"""
-		return self.compenc.compact(self.jcompact(**k).encode('utf8'))
+		try:
+			r = self.compenc.compact(self.o)
+		except:
+			# if self.o is a list or something, better use a json string
+			c = self.jcompact(**k).encode('utf8') # json must be utf8
+			r = self.compenc.compact(c)
+		
+		return propx(r)
 	
 	
 	#
@@ -610,18 +848,6 @@ class propbase(object):
 	
 	#
 	#
-	# OUTPUT - Print Contents
-	#
-	#
-	def output(self):
-		"""
-		The `output` method prints the object's contents, `self.o`.
-		"""
-		print (self.o)
-	
-	
-	#
-	#
 	# SPLITLINES - Bytes or Strings
 	#
 	#
@@ -629,14 +855,10 @@ class propbase(object):
 		"""
 		Alter this propx-based object's contents by splitting bytes or
 		strings.
-		
-		Applies only to bytes/text values. (I guess.)
-		
+				
 		"""
-		try:
-			self.o = self.o.splitlines(**k)
-		except:
-			self.o = self.o.splitlines(self.o, **k)
+		o = self.o.splitlines(self.o, **k)
+		return propx(o)
 	
 	
 	#
@@ -659,8 +881,7 @@ class propbase(object):
 
 
 
-#
-#
+
 #
 #
 #
@@ -670,8 +891,6 @@ class propbase(object):
 #
 #
 #
-#
-
 
 def propx(o, *a, **k):
 	"""Try to calculate and return the correct wrapper."""
@@ -697,7 +916,35 @@ def propx(o, *a, **k):
 	
 	try:
 		o.__setitem__
-		return trix.ncreate("util.propx.proplist.proplist", o, *a, **k)
+		
+		try:
+			LIST = trix.ncreate("util.propx.proplist.proplist", o, *a, **k)
+			ITEMS = LIST.o
+			ILEN = len(ITEMS[0])
+			
+			#
+			# [ [1,2], [3,4] ] # that's a grid
+			# [ [1],   [2]   ] # also a grid
+			# [ [1]          ] # still a grid
+			# [ [12],  [3,4] ] # NOT a grid
+			#
+			for x in ITEMS:
+				if len(x) != ILEN:
+					# 
+					# NOT A GRID!
+					# 
+					if ILEN > 1:
+						return LIST
+		
+		except TypeError as ex:
+			#print (ex)
+			return trix.ncreate("util.propx.proplist.proplist", o, *a, **k)
+		
+		#
+		# If list items' lengths are equal, return propgrid.
+		#
+		return trix.ncreate("util.propx.proplist.propgrid", o, *a, **k)
+			
 	except AttributeError as ex:
 		pass
 	
