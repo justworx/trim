@@ -1,5 +1,5 @@
 #
-# Copyright 2018 justworx
+# Copyright 2018-2020 justworx
 # This file is part of the trix project, distributed under
 # the terms of the GNU Affero General Public License.
 #
@@ -11,7 +11,22 @@ import locale
 
 class BaseLocale(object):
 	"""
-	Base for SysLoc subclass and, potentially, future variants.
+	Base for Locale subclass and, potentially, future variants.
+	
+	BaseLocale can not given a locale string. It's purpose is to store 
+	and grant access to the locale dict `loc_data`, which is provided 
+	by subclasses.
+	
+	EXAMPLE:
+	>>> from trix.util.loc import *
+	>>> l = Locale("en_US.utf8")
+	>>> l.display()
+	{
+	  "locale": "en_US.utf8",
+	  "CODESET": "UTF-8",
+	  "int_curr_symbol": "USD ",
+	  ...
+	
 	"""
 	
 	def __init__(self, loc_data):
@@ -21,6 +36,7 @@ class BaseLocale(object):
 		
 		All items from loc_data are set as member variables.
 		"""
+			
 		# add each loc_data value as an object member variable
 		self.__locdata = loc_data
 		for v in loc_data:
@@ -46,6 +62,11 @@ class BaseLocale(object):
 
 
 
+
+
+
+
+
 class Locale(BaseLocale):
 	"""
 	The `Locale` class provides access to data from multiple locale 
@@ -66,6 +87,13 @@ class Locale(BaseLocale):
 		
 		"""
 		
+		# Default is the current system locale.
+		if not loc_str:
+			loc_str = ".".join(trix.module("locale").getlocale())
+		
+		# VALIDATE THE LOCALE STRING
+		self.__loc_str = loc_str = self.validate_locstr(loc_str)
+		
 		try:
 			#
 			# This will fail on first call, so will be handled below. On
@@ -85,6 +113,9 @@ class Locale(BaseLocale):
 			
 			BaseLocale.__init__(self, Locale.__qdict(loc_str))
 	
+	@property
+	def loc(self):
+		return self.__loc_str
 	
 	@classmethod
 	def list(cls, pattern=None):
@@ -149,9 +180,9 @@ class Locale(BaseLocale):
 		# otherwise, it's just the three basic elements
 		else:
 			return "%s_%s.%s" % tuple(ll)
-			
-		
-		
+	
+	
+	
 	@classmethod
 	def query_asset_dict(cls, loc_str):
 		"""Query locale dict from assets."""
@@ -159,9 +190,12 @@ class Locale(BaseLocale):
 		j = trix.path(cls.AssetPath).wrapper().read(loc_str)
 		return trix.jparse(j)
 	
+	
 	@classmethod
 	def query_locale_dict(cls, loc_str):
-		"""Query locale dict from system locale data."""
+		"""
+		Query locale dict from system locale data.
+		"""
 		cline = "%s -m %s loc -c %s" % (
 				sys.executable, trix.innerfpath(), loc_str
 			)
