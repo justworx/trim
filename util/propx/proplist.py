@@ -218,6 +218,51 @@ class propgrid(proplist):
 		This __call__ method is overridden to separate the header from
 		the data portion of this grid.
 		
+		Pass a list of lists (grid) and, optionally, a header keyword 
+		argument to indicate whether or from whence the heading is 
+		taken.
+		
+		 * Pass keyword argument header=[list of headings] if you have a
+		   list of headings to pass.
+		 * Pass keyword argument header=True if you want to take the list
+		   of headings from the first row of the grid.
+		 * Pass header=False if there is no header, and the grid will be
+		   displayed with no headings. NOTE: If you pass header=False and
+		   the first list in the grid actually consists of headings, that
+		   heading list will be treated as the first row of data.
+		
+		EXAMPLE
+		>>> import trix
+		>>>
+		>>> # pass a plain grid with no headings
+		>>> trix.propx([[1,2],[3,4]])
+		<trix/propgrid list len=2> # <--------- THE LIST LENGTH IS 2
+		>>>
+		>>> # headings plus one row of data (three and four)
+		>>> trix.propx([["three","four"],[3,4]], h=True)
+		<trix/propgrid list len=1> # <--------- THE LIST LENGTH IS 1
+		>>>
+		>>> # no headings, just a grid with no headings
+		>>> trix.propx([[1,2],[3,4]], h=False)
+		<trix/propgrid list len=2> # <--------- THE LIST LENGTH IS 2
+		>>>
+		>>> # 
+		>>> trix.propx([[1,2],[3,4]], h="left right".split())
+		<trix/propgrid list len=2> # <--------- THE LIST LENGTH IS 2
+		>>> 
+		
+		In the example above, only when h=True was passed did the
+		length of the grid change, the first row being taken away
+		by the call to header=True.
+		
+		
+		NOTES:
+		 * The "h" keyword argument is an alias for the "header"
+		   keyword argument.
+		 * You can pass 1 or 0 in lieu of True or False. Eg, h=1
+		
+		
+		TECHNICAL NOTE:
 		When the class is propgrid, all calls to .o are returned from 
 		propgrid.o, and all calls to __call__ are returned from here 
 		(even when its superclasses (or even subclasses) are making the
@@ -235,28 +280,26 @@ class propgrid(proplist):
 			grid = proplist.__call__(self, *a, **k)
 			
 			#
-			# NEXT:
-			#  - Intuitively, we *should*, here, be getting the actual grid 
-			#    list, but we're not. Instead, we're getting the method that 
-			#    was passed to __init__ (along with kwargs) to be executed - 
-			#    and a return value set into self.__o - on first call to 
-			#    __call__ (and just self.__o returned on subsequent calls).
-			#
-			
-			#
-			# SO...
 			#  - split the grid header from grid data (if necessary).
 			#
-			header = self.k.get('header')
-			if header:
+			k = self.k
+			header = k.get('h', k.get('header')) or False
+			
+			if header == False:
 				self.__o = grid
-				self.__h = header
-				self.__hh = True
-			else:
-				self.__o = grid[1:]
-				self.__h = grid[0]
+				self.__h = []
 				self.__hh = False
 			
+			elif header == True:
+				self.__o = grid[1:]
+				self.__h = grid[0]
+				self.__hh = True
+				
+			elif header:
+				# header must be a list
+				self.__o = grid
+				self.__h = header or []
+				self.__hh = bool(self.__h)
 			return self.__o
 	
 	
@@ -319,7 +362,7 @@ class propgrid(proplist):
 		try:
 			return self.__hh
 		except:
-			self.o
+			self.__hh = bool(self.h)
 			return self.__hh
 	
 	
@@ -356,7 +399,8 @@ class propgrid(proplist):
 			# been created.
 			#
 			self.o
-			yield(self.__h)
+			if self.__h:
+				yield(self.__h)
 		
 		for r in self.o:
 			yield(r)
@@ -391,25 +435,51 @@ class propgrid(proplist):
 		sqlite3 table.
 		
 		
-		NOTE: Database Tables are Always Grids!
-
+		NOTE: 
+		Database Tables are Always Grids!
+		
 		This method will fail if `self.o` (or any suplimentary tables
 		defined by the passage of keyword arguments) is not a list of 
 		lists each containing an equal number of items.
 		
 		
-		EXAMPLE
+		EXAMPLE 1
 		>>> import trix
-		>>> lg = trix.npath().list.dbgrid('LG')
-		>>> lg('select * from lgrid order by mtime desc')
+		>>> d = trix.npath()
+		>>> dg = d.list.dbgrid()
+		>>> dg("select * from dbgrid").grid()
+		
+		EXAMPLE 2
+		>>> import trix
+		>>> lg = trix.propx([[1,2],[3,4]])
+		>>> lg.dbgrid(columns=["left","right"])
+		>>> lg.grid()
+		
 		
 		"""
-		t = k.get('t') or k.get('table') or tableName or "TABLE"
-		c = k.get('c') or k.get('columns') or self.h
-		g = trix.ncreate('data.dbgrid.DBGrid', **k)
+		t = k.get('t') or k.get('table') or tableName or "dbgrid"
+		c = k.get('c') or k.get('columns') or self.h or None
+		g = trix.ncreate('data.dbgrid.DBGrid')
+		#g = trix.ncreate('data.dbgrid.DBGrid', **k)
 		
-		#print ("t="+str(t)) 
-		#print ("c="+str(c)) 
+		self.debug   = propx(dict(
+			k          = k,
+			table      = t,
+			columns    = c,
+			header     = self.h
+		))
+		
+		"""
+		DEBUGGING
+		print ("table      = " + str(t)) 
+		print ("columns    = " + str(c)) 
+		print ("k.get('c') = " + str(k.get('c')))
+		print ("k.get('c') = " + str(k.get('c')))
+		print ("self.h     = " + str(self.h))
+		print ("t          = " + str(t))
+		print ("c          = " + str(c))
+		print ("o          = " + str(self.o))
+		"""
 		
 		g.add(t, self.o, c)
 		
