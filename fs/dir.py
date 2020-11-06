@@ -206,20 +206,6 @@ class Dir(Path):
 	
 	
 	#
-	# THIS NEEDS TO BE SPLIT UP
-	#  - search() returns results
-	#  - each() does actions
-	#
-	def search(self, query=None, **k):
-		"""
-		Search directories recursively starting at this directory path. 
-		Return list of all paths, or matching `query` results if given.
-		See `searchgen` for query options.
-		"""
-		return trix.propx(list(self.searchgen(query, **k)))
-	
-	
-	#
 	# --- Directory content access -----------------------------------
 	#
 	
@@ -331,6 +317,21 @@ class Dir(Path):
 			yield (self.merge(item))
 	
 	
+	#
+	# THIS NEEDS TO BE SPLIT UP
+	#  - search() returns results
+	#  - each() does actions
+	#
+	def search(self, query=None, **k):
+		"""
+		Search directories recursively starting at this directory path. 
+		Return list of all paths, or matching `query` results if given.
+		See `searchgen` (below) for query options.
+		"""
+		glist = list(self.searchgen(query, **k))
+		return trix.propx(glist)
+	
+	
 	def searchgen(self, query=None, **k):
 		"""
 		Walk the directory path yielding results as specified by the
@@ -393,7 +394,7 @@ class Dir(Path):
 			#    match the fnmatch pattern are selected. This is a simpler 
 			#    way to select, based only on filepath patterns.
 			#
-			if k.get('matchcase') :
+			if k.get('matchcase') or k.get('mc'):
 				fnmatchx = fnmatch.fnmatchcase
 			else:
 				fnmatchx = fnmatch.fnmatch
