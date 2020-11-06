@@ -4,6 +4,7 @@
 # the terms of the GNU Affero General Public License.
 #
 
+
 #
 # COPYRIGHT
 #  - This value updates `trix.app.cline.version`.
@@ -61,13 +62,25 @@ DEF_LOGLET = "./loglet"
 #
 #  - IMPORTANT: Many trix features make use of threading, so typically
 #               `locale.setlocale` must not be reset over the life of 
-#               the process. However, a thread-safe system for getting
-#               alternate locale data is under construction. We'll see
-#               how that goes. (See: `trix.loc()`, below.)
+#               the process. However, the trix.loc() method provides
+#               a safe way to access locale information. It does not
+#               change the default python locale, but does provide
+#               access to other locales. 
+#               
+#               See: `trix.loc()`, below.
 #
+#               EXAMPLE:
+#               >>> import trix
+#               >>> trix.loc('fr_FR.utf8').display()
+#               
 DEF_LOCALE = ''
 
-# Set the locale as specified above.
+
+# 
+# Set the default locale.
+#  - Set the locale as specified above. If left empty, the system's
+#    "preferred" default locale is set.
+#  
 locale.setlocale(locale.LC_ALL, DEF_LOCALE)
 
 
@@ -104,7 +117,6 @@ DEF_NEWL = '\r\n'
 #    replacement, etc...
 #
 DEF_INDENT = 2
-
 
 
 #
@@ -239,6 +251,8 @@ class trix(object):
 		except KeyError:
 			__import__(path)
 			return cls.__mm[path]
+		except BaseException as ex:
+			raise type(ex)("err", xdata())
 	
 	
 	#
@@ -1418,7 +1432,6 @@ class trix(object):
 		>>> help(propdict)
 		>>> help(trix.display)
 		
-		
 		"""
 		return trix.ncreate("util.propx.propx", *a, **k)
 	
@@ -1433,8 +1446,8 @@ class trix(object):
 		"""
 		Returns a scanner to parse given text data.
 		
-		The `trix.scan` classmethod calls on the `trix.data.scan` module
-		to help with the parsing of text data.
+		The `Scanner.scan` classmethod calls on the `trix.data.scan` 
+		module to help with the parsing of text data.
 		
 		EXAMPLES:
 		>>> trix.scan('[1, 2, 3] frog {"x" : "stream"}').split()
@@ -1520,7 +1533,7 @@ class trix(object):
 	
 	#
 	#
-	# DISPLAY - Util. JSON is the main data format within the package.
+	# DISPLAY - Util. JSON is the default.
 	#
 	#
 	@classmethod
@@ -1550,7 +1563,6 @@ class trix(object):
 		4  5  6
 		7  8  9
 		>>> 
-
 		
 		"""
 		cls.formatter(*a, **k).output(data)
@@ -1786,6 +1798,9 @@ class trix(object):
 		if not locale:
 			locale = ".".join(trix.module("locale").getlocale())
 		
+		#raise Exception("TEST", xdata(locale=locale, T=type(locale)))
+		# T=str ... it's right
+		
 		# If a `locale` argument is specified, that locale will be used.
 		return trix.ncreate("util.loc.Locale", locale)
 	
@@ -1801,6 +1816,25 @@ class trix(object):
 		except:
 			self.__term = trix.ncreate("util.terminal.Terminal")
 			return self.__term
+	
+	
+	
+	# Add Trix Extensions
+	@classmethod
+	def _addtx(cls):
+		cls.tx = trix.ncreate("x.tx.TX")
+
+
+
+
+#
+#
+# Add Trix Extensions
+#
+#
+trix._addtx()
+tx = trix.tx
+
 
 
 
@@ -1861,6 +1895,8 @@ trixc      = trix.trixc
 value      = trix.value
 
 
+
+
 # -------------------------------------------------------------------
 #
 #
@@ -1918,17 +1954,14 @@ class Loader(object):
 		return self.module.__dict__[x]
 
 
+#
 # N-LOADER
+#
 class NLoader(Loader):
 	"""Intended for internal use."""
 	def __init__(self, module, value=None):
 		# Init loader with the trix.nmodule loader."""
 		Loader.__init__(self, module, value, loader=trix.nmodule)
-			
-			
-
-
-
 
 
 
@@ -1943,7 +1976,6 @@ class NLoader(Loader):
 #
 #
 # -------------------------------------------------------------------
-
 
 try:
 	basestring
@@ -2204,4 +2236,22 @@ class Debug(object):
 
 if AUTO_DEBUG:
 	Debug.debug(1,1)
+
+
+
+#
+#
+# UPDATES TO DEFAULT DEF_LOCALE:
+#  * Reset DEF_LOCALE to the result provided by `setlocale`.
+#  * This must happen *after* the trix class is defined so that
+#    the trix.loc() method is available to set the DEF_LOCALE
+#    variable.
+#  * NOTE: This must happen after all of the above has been 
+#          defined because supporting classes must also have been
+#          defined.
+#
+if not DEF_LOCALE:
+	DEF_LOCALE = trix.loc().loc
+
+
 
