@@ -150,8 +150,11 @@ class DBGrid(Database):
 		"""
 		Execute an sql query on the grid data.
 		
-		 * Pack the data (and hopefully headers) into a DBGrid.
+		 * Pack headers and data into a DBGrid.
 		 * In the event of an error, the connection is rolled back.
+		
+		For queries that return rows, the data is packed into a propgrid
+		object.
 		
 		>>>
 		>>> from trix.data.dbgrid import *
@@ -188,17 +191,22 @@ class DBGrid(Database):
 			# CALL EXECUTE
 			#
 			c = self.cur.execute(sql, *a)
+			#print (['c', c])
 			
 			#
-			# GET CURSOR DESC
+			# GET CURSOR DESC (from superclass Database)
 			#
 			cdesc = self.cdesc(c)
+			#print (['cdesc', cdesc])
+			
 			
 			#
 			# CDATA is the column list taken from the sql heading results
 			#
 			cdata = []
 			cdata.append(cdesc)
+			
+			#print (['cdata', cdata])
 			
 			for row in c.fetchall():
 				cdata.append(list(row))
@@ -224,13 +232,80 @@ class DBGrid(Database):
 	
 	#
 	#
-	# FPATH
+	# Q 
+	#
+	#
+	def q(self, *a, **k):
+		"""
+		Run an sql query on the grid data. For select statements, returns 
+		rows as a list of lists.
+		
+		The `q` method is a convenience for inline use. It calls
+		`self.__call__` passing any arguments and keyword args, and
+		returning the query result wrapped in a propgrid object.
+		
+		EXAMPLE 1
+		>>> import trix
+		>>> d = trix.npath()
+		>>> dg = d.list.dbgrid()
+		>>>
+		>>> dg.q('select * from foo order by size desc')
+		
+		
+		"""
+		return self.__call__(*a, **k)
+	
+	
+	#
+	#
+	# X - Execute alias returning a propx (propgrid) with the results.
+	#
+	#
+	def x(self, *a, **k):
+		"""
+		This is a shortcut for `execute`. It could be handy when space in
+		the terminal is short.
+		
+		Execute an sql statement. Returns an sqlite3 cursor.
+		
+		SEE ALSO:
+		>>> from trix.util.propx.propgrid import *
+		>>> help(propgrid)
+		
+		"""
+		return self.execute(*a, **k)
+	
+	
+	#
+	#
+	# CC (Columns)
 	#
 	#
 	@property
-	def fpath(self):
-		"""Return the file path to this sqlite3 file."""
-		return self.__fpath
+	def cc(self):
+		"""Alias for `DBGrid.columns`."""
+		return self.__cols
+	
+	
+	#
+	#
+	# TT (Tables)
+	#
+	#
+	@property
+	def tt(self):
+		"""Alias for `DBGrid.tables`."""
+		return self.tables
+	
+	
+	#
+	#
+	# COLUMNS
+	#
+	#
+	@property
+	def columns(self):
+		return self.__cols
 	
 	
 	#
@@ -241,8 +316,8 @@ class DBGrid(Database):
 	@property
 	def tables(self):
 		"""
-		Return a propx object containing the names of tables added to
-		this object.
+		The tables property returns a propx object containing the names 
+		of tables added to this object.
 		
 		If you want a straight python list, call this property as though
 		it were a method.
@@ -281,6 +356,24 @@ class DBGrid(Database):
 				pass
 			
 			return trix.propx(tableList)
+	
+	
+	#
+	#
+	# FPATH
+	#
+	#
+	@property
+	def fpath(self):
+		"""
+		The fpath property returns the file path to this sqlite3 file.
+		
+		NOTE:
+		DBGrid tables are stored in a temporary sqlite3 table, and are
+		deleted on close, or at_exit.
+		
+		"""
+		return self.__fpath
 	
 	
 	
@@ -377,26 +470,26 @@ class DBGrid(Database):
 				i+=1
 		
 		#
-		# Set the validated columns in `self.cols`.
+		# Set the validated columns in `self.__cols`.
 		#
-		self.cols = cols = valid_cols
+		self.__cols = valid_cols
 		
 		#
 		# Create a table in the temporary database.
 		#
-		sql = "create table %s (%s)" % (table_name, ','.join(self.cols))
+		sql = "create table %s (%s)" % (table_name, ','.join(self.__cols))
 		try:
 			self.con.execute(sql)
 		except:
 			raise Exception("dbgrid.add", xdata(
-					columns=self.cols, row_ct=len(rows), sql=sql, table=table_name
+					columns=self.__cols, row_ct=len(rows), sql=sql, table=table_name
 				))
 		
 		# get the cursor
 		self.cur = self.con.cursor()
 		
 		# populate database
-		qms = ",".join("?"*len(self.cols))
+		qms = ",".join("?"*len(self.__cols))
 		sql = "insert into %s values (%s)" % (table_name, qms)
 		self.cur.executemany(sql, iter(rows))
 		
@@ -410,11 +503,8 @@ class DBGrid(Database):
 	#
 	def execute(self, sql, *a):
 		"""
-		Execute an sql query on the grid data. 
-		
+		Execute an sql query on the grid data. Returns an sqlite3 cursor.
 		In the event of an error, the connection is rolled back.
-		
-		Returns an sqlite3 cursor.
 		
 		"""
 		try:
@@ -425,7 +515,7 @@ class DBGrid(Database):
 			#
 			self.con.rollback()
 			raise type(ex)(xdata(
-					sql=sql, a=a, cols=self.cols, tables=self.__T
+					sql=sql, a=a, cols=self.__cols, tables=self.__T
 				)
 			)
 	
@@ -445,38 +535,6 @@ class DBGrid(Database):
 		except BaseException as ex:
 			pass
 	
-	
-	#
-	#
-	# Q 
-	#
-	#
-	def q(self, *a, **k):
-		"""
-		Run an sql query on the grid data.
-		
-		The `q` method is a convenience for inline use. It calls
-		`self.__call__` passing any arguments and keyword args, and
-		returning the query result.
-		
-		"""
-		return self.__call__(*a, **k)
-	
-	
-	#
-	#
-	# X - Execute alias returning a propx (propgrid) with the results.
-	#
-	#
-	def x(self, *a, **k):
-		"""
-		This is a shortcut for `execute`. It could be handy when space in
-		the terminal is short.
-		
-		Execute an sql statement, returning any selected values.
-		"""
-		return trix.propx(self.__call__(*a, **k))
-
 	
 	#
 	#
@@ -502,4 +560,5 @@ class DBGrid(Database):
 # Close and clean up temp files when program terminates.
 #
 atexit.register(DBGrid._at_exit)
+
 
