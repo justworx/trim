@@ -48,7 +48,7 @@ class propdict(propiter):
 		>>> 
 		
 		"""
-		return proplist(list(self.o.keys()))
+		return propx(list(self.o.keys()))
 	
 	
 	#
@@ -61,7 +61,7 @@ class propdict(propiter):
 		"""
 		Returns a proplist with dict values.
 		"""
-		return proplist(list(self.o.values()))
+		return propx(list(self.o.values()))
 	
 	
 	#
@@ -85,7 +85,7 @@ class propdict(propiter):
 		r = []
 		for k in self.o.keys():
 			r.append((k, self.o[k]))
-		return proplist(r)
+		return propx(r)
 	
 	
 	#
@@ -110,6 +110,6 @@ class propdict(propiter):
 		r = []
 		for k in self.o.keys():
 			r.append((self.o[k], k))
-		return proplist(r)
+		return propx(r)
 	
 
