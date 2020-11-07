@@ -24,8 +24,13 @@ class Dir(Path):
 		except Exception:
 			raise ValueError('fs-invalid-dir', xdata(path=p)) 
 	
-	
+	# 	
+	# 	
+	# 	
 	# GET ITEM - retrieve item path (string) by offset in directory.
+	# 	
+	# 	
+	# 	
 	def __getitem__(self, key):
 		"""
 		Retrieve item path (string) by offset in directory.
@@ -48,6 +53,13 @@ class Dir(Path):
 		return self.merge(self.ls()[key])
 	
 	
+	#
+	#
+	#
+	# STRINGS
+	#
+	#
+	#
 	@property	
 	def strings(self):
 		try:
@@ -57,8 +69,13 @@ class Dir(Path):
 			type(self).__strings = strings
 			return type(self).__strings
 	
+	
 	#
-	# --- Multi-feature Properties -----------------------------------
+	#
+	#
+	# LS
+	#
+	#
 	#
 	@property
 	def ls(self):
@@ -76,6 +93,13 @@ class Dir(Path):
 		return trix.propx(self.listshort())
 	
 	
+	#
+	#
+	#
+	# LIST
+	#
+	#
+	#
 	@property
 	def list(self):
 		"""
@@ -104,6 +128,13 @@ class Dir(Path):
 		return trix.propx(self.listlong())
 	
 	
+	#
+	#
+	#
+	# PATHS
+	#
+	#
+	#
 	@property
 	def paths(self):
 		"""
@@ -120,6 +151,13 @@ class Dir(Path):
 	#
 	#
 	
+	#
+	#
+	#
+	# CD
+	#
+	#
+	#
 	def cd(self, path):
 		"""Change directory the given path."""
 		p = self.merge(path)
@@ -134,6 +172,15 @@ class Dir(Path):
 	#
 	#
 	
+	
+	
+	#
+	#
+	#
+	# MKDIR
+	#
+	#
+	#
 	def mkdir(self, path, *a):
 		"""
 		Create a directory described by path. If appended, additional 
@@ -144,7 +191,13 @@ class Dir(Path):
 	
 	# selection/action by pattern matches...
 	
+	#
+	#
+	#
 	# MV (move) 
+	#
+	#
+	#
 	def mv(self, pattern, dst):
 		"""
 		Select contents of this directory that match `pattern` and 
@@ -153,7 +206,15 @@ class Dir(Path):
 		for src in self.match(pattern):
 			shutil.move(src, self.merge(dst))
 	
+	
+	
+	#
+	#
+	#
 	# RM (remove)
+	#
+	#
+	#
 	def rm(self, pattern):
 		"""
 		Select contents of this directory that match `pattern` for 
@@ -172,14 +233,38 @@ class Dir(Path):
 	#
 	#
 	
+	
+	#
+	#
+	#
+	# COPY
+	#
+	#
+	#
 	def copy(self, dst, symlinks=False, ignore=None):
 		"""Use shutil.copytree to copy this directory."""
 		shutil.copytree(self.path, dst, symlinks, ignore)
 	
+	
+	#
+	#
+	#
+	# MOVE
+	#
+	#
+	#
 	def move(self, dst):
 		"""Move this directory to path `dst`."""
 		shutil.move(self.path, self.merge(dst))
 	
+	
+	#
+	#
+	#
+	# rename
+	#
+	#
+	#
 	def rename(self, name):
 		"""
 		Rename this directory. Parents and contents remain unchanged.
@@ -190,15 +275,21 @@ class Dir(Path):
 	
 	
 	
+	
+	
 	#
 	# --- Content Selection ------------------------------------------
 	#
 	
 	
 	#
+	#
+	#
 	# MATCH
 	#  - Select and return contents of this directory that match 
 	#    `pattern`.
+	#
+	#
 	#
 	def match(self, pattern):
 		"""Return matching directory items for the given pattern."""
@@ -209,7 +300,15 @@ class Dir(Path):
 	# --- Directory content access -----------------------------------
 	#
 	
+	
+	
+	#
+	#
+	#
 	# READ - file/archive text
+	#
+	#
+	#
 	def read(self, path, **k):
 		"""
 		Reads a file or archive member and returns full text.
@@ -221,7 +320,13 @@ class Dir(Path):
 		return w.reader(**k).read()
 	
 	
+	#
+	#
+	#
 	# HEAD - file/archive head 
+	#
+	#
+	#
 	def head(self, path=None, **k):
 		"""
 		Return the initial lines of the given file. See help for 
@@ -230,9 +335,15 @@ class Dir(Path):
 		Pass kwarg "lines" to specify the number of lines (default: 9)
 		"""
 		return self.headlines(path, **k).join()
+
 	
-	
+	#
+	#
+	#
 	# HEAD LINES
+	#
+	#
+	#
 	def headlines(self, path=None, **k):
 		"""
 		Returns a proplist containing the top lines from given file path,
@@ -265,13 +376,29 @@ class Dir(Path):
 	# --- Raw Data Generation ----------------------------------------- 
 	#
 	
+	
+	
+	#
+	#
+	#
 	# LIST SHORT
+	#
+	#
+	#
 	def listshort(self, path=None):
 		"""Returns a python list of directory entries at `path`."""
 		return os.listdir(self.merge(path))
 	
 	
+	
+	
+	#
+	#
+	#
 	# LIST LONG
+	#
+	#
+	#
 	def listlong(self, path=None, **k):
 		"""
 		Return extended directory listing as a list of lists, each
@@ -307,20 +434,38 @@ class Dir(Path):
 		return rr
 	
 	
+	
+	
 	#
-	# GENERAOTRS (for paths and searches)
+	# GENERATORS (for paths and searches)
 	#
 	
+	
+	
+	#
+	#
+	#
+	# pathgen
+	#
+	#
+	#
 	def pathgen(self):
 		"""Generator; Yields full filepaths within this directory."""
 		for item in self.listshort():
 			yield (self.merge(item))
 	
 	
+	
+	
 	#
-	# THIS NEEDS TO BE SPLIT UP
-	#  - search() returns results
-	#  - each() does actions
+	#
+	#
+	# SEARCH
+	#  * This needs to be split up
+	#     - search() returns results
+	#     - each() does actions
+	#
+	#
 	#
 	def search(self, query=None, **k):
 		"""
@@ -332,6 +477,13 @@ class Dir(Path):
 		return trix.propx(glist)
 	
 	
+	#
+	#
+	#
+	# SEARCHGEN
+	#
+	#
+	#
 	def searchgen(self, query=None, **k):
 		"""
 		Walk the directory path yielding results as specified by the
