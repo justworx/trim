@@ -1,15 +1,4 @@
 
-# ROADMAP
-roadmap.md
-
-#
-# TEST PACKAGE IS FIXED!
-# (though it is incomplete)
-#
-#test
-#test/
-
-
 #
 # I'm not sure about this one yet.
 #
@@ -28,7 +17,7 @@ my/
 
 # experimental / under construction
 *.x.*
-
+*_x.py
 
 
 # temporary backups
@@ -42,7 +31,7 @@ bu/
 
 
 # under construction
-*_ignore_*
+*_x.*
 
 
 #
