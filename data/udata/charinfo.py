@@ -64,7 +64,13 @@ class charinfo(xiter):
 		xiter.__init__(self, iter(iterable_text))
 		self.o = 0
 		self.c = None
-
+	
+	
+	#
+	#
+	# __NEXT__
+	#
+	#
 	def __next__(self):
 		try:
 			self.c = xiter.__next__(self)
@@ -74,11 +80,23 @@ class charinfo(xiter):
 			raise TypeError(xdata(
 					itertext=self.debug_text, itertype=type(self.debug_text)
 				))
-
+	
+	
+	#
+	#
+	# __STR__
+	#
+	#
 	def __str__(self):
 		"""Return the current character as a string."""
 		return self.c
 	
+	
+	#
+	#
+	# __REPR__
+	#
+	#
 	def __repr__(self):
 		char = "'%s'" % self.c if self.c else "None"
 		return "<trix/charinfo %s>" % char
@@ -87,6 +105,12 @@ class charinfo(xiter):
 	# ----------------------------------------------------------------
 	# UNICODE DATA
 	# ----------------------------------------------------------------
+	
+	#
+	#
+	# NAME
+	#
+	#
 	@property
 	def name(self):
 		"""Return `unicodedata.name`."""
@@ -94,7 +118,13 @@ class charinfo(xiter):
 			return unicodedata.name(self.c)
 		except:
 			return ''
-
+	
+	
+	#
+	#
+	# DECIMAL
+	#
+	#
 	@property
 	def decimal(self):
 		"""Return `unicodedata.decimal`."""
@@ -102,7 +132,13 @@ class charinfo(xiter):
 			return unicodedata.decimal(self.c)
 		except ValueError:
 			return None
-
+	
+	
+	#
+	#
+	# DIGIT
+	#
+	#
 	@property
 	def digit(self):
 		"""Return `unicodedata.digit`."""
@@ -110,7 +146,13 @@ class charinfo(xiter):
 			return unicodedata.digit(self.c)
 		except ValueError:
 			return None
-
+	
+	
+	#
+	#
+	# NUMERIC
+	#
+	#
 	@property
 	def numeric(self):
 		"""Return `unicodedata.numeric`."""
@@ -118,7 +160,13 @@ class charinfo(xiter):
 			return unicodedata.numeric(self.c)
 		except ValueError:
 			return None
-
+	
+	
+	#
+	#
+	# CATEGORY
+	#
+	#
 	@property
 	def category(self):
 		"""Return `unicodedata.category`."""
@@ -126,27 +174,57 @@ class charinfo(xiter):
 			return unicodedata.category(self.c)
 		except ValueError:
 			return ''
-
+	
+	
+	#
+	#
+	# BIDIRECTIONAL
+	#
+	#
 	@property
 	def bidirectional(self):
 		"""Return `unicodedata.bidirectional`."""
 		return unicodedata.bidirectional(self.c)
-
+	
+	
+	#
+	#
+	# COMBINING
+	#
+	#
 	@property
 	def combining(self):
 		"""Return `unicodedata.combining`."""
 		return unicodedata.combining(self.c)
-
+	
+	
+	#
+	#
+	# EAST_ASIAN_WIDTH
+	#
+	#
 	@property
 	def east_asian_width(self):
 		"""Return `unicodedata.east_asian_width`."""
 		return unicodedata.east_asian_width(self.c)
-
+	
+	
+	#
+	#
+	# MIRRORED
+	#
+	#
 	@property
 	def mirrored(self):
 		"""Return unicodedata.mirrored."""
 		return unicodedata.mirrored(self.c)
-
+	
+	
+	#
+	#
+	# DECOMPOSITION
+	#
+	#
 	@property
 	def decomposition(self):
 		"""Return `unicodedata.decomposition`."""
@@ -156,23 +234,47 @@ class charinfo(xiter):
 	# ----------------------------------------------------------------
 	# data.udata
 	# ----------------------------------------------------------------
+	
+	#
+	#
+	# BLOCK
+	#
+	#
 	@property
 	def block(self):
 		"""
 		Return the name of the block containing the current character.
 		"""
 		return udata.block(self.c)
-
+	
+	
+	#
+	#
+	# BRACKET
+	#
+	#
 	@property
 	def bracket(self):
 		"""Return bracket data."""
 		return udata.bracket(self.c)
-
+	
+	
+	#
+	#
+	# PROPERTIES
+	#
+	#
 	@property
 	def properties(self):
 		"""Return properties associated with this character."""
 		return udata.properties(self.c)
 	
+	
+	#
+	#
+	# ORD
+	#
+	#
 	@property
 	def ord(self):
 		"""Ordinal string."""
@@ -184,11 +286,24 @@ class charinfo(xiter):
 	# ALIASES
 	#  - for use in scanquery and in lambdas where space is tight
 	# ----------------------------------------------------------------
+	
+	
+	#
+	#
+	# BIDI
+	#
+	#
 	@property
 	def bidi(self):
 		"""Alias for unicodedata.bidirectional."""
 		return unicodedata.bidirectional(self.c)
 	
+	
+	#
+	#
+	# CAT
+	#
+	#
 	@property
 	def cat(self): 
 		"""Alias for unicodedata.category."""
@@ -197,26 +312,56 @@ class charinfo(xiter):
 		except:
 			return ''
 	
+	
+	#
+	#
+	# NUM
+	#
+	#
 	@property
 	def num(self):
 		"""Alias for unicodedata.numeric."""
 		return self.numeric
 	
+	
+	#
+	#
+	# DEC
+	#
+	#
 	@property
 	def dec(self):
 		"""Alias for unicodedata.decimal."""
 		return self.decimal
 	
+	
+	#
+	#
+	# DIG
+	#
+	#
 	@property
 	def dig(self):
 		"""Alias for unicodedata.digit."""
 		return self.digit
 	
+	
+	#
+	#
+	# PROPS
+	#
+	#
 	@property
 	def props(self):
 		"""Alias for udata.properties."""
 		return udata.properties(self.c)
 	
+	
+	#
+	#
+	# LEND
+	#
+	#
 	@property
 	def lend(self):
 		"""Alias for self.lineend."""
@@ -231,6 +376,11 @@ class charinfo(xiter):
 	#    may be useful in query "where" lambdas.
 	# ----------------------------------------------------------------
 	
+	#
+	#
+	# QUOTE
+	#
+	#
 	@property
 	def quote(self):
 		"""
@@ -244,36 +394,78 @@ class charinfo(xiter):
 		return ((self.bidi=='ON') and (self.cat=='Po') and (
 			'Quotation_Mark' in self.props))
 	
+	
+	#
+	#
+	# SS
+	#
+	#
 	@property
 	def ss(self):
 		"""-1 if subscript; 1 if superscript; zero if neither;"""
 		return -1 if self.sub else 1 if self.sup else 0
 	
+	
+	#
+	#
+	# SUB
+	#
+	#
 	@property
 	def sub(self):
 		"""True if subscript."""
 		return "SUBSCRIPT" in self.name
 	
+	
+	#
+	#
+	# SUP
+	#
+	#
 	@property
 	def sup(self):
 		"""True if superscript."""
 		return "SUPERSCRIPT" in self.name
 	
+	
+	#
+	#
+	# ALPHA
+	#
+	#
 	@property
 	def alpha(self):
 		"""True for letters."""
 		return self.cat in ['Lu','Ll']
 	
+	
+	#
+	#
+	# ALPHANUM
+	#
+	#
 	@property
 	def alphanum(self):
 		"""True for digits and letters."""
 		return self.cat in ['Lu','Ll','Nd']
 	
+	
+	#
+	#
+	# CONNECTOR
+	#
+	#
 	@property
 	def connector(self):
 		"""True for 'underscore' (LOW LINE, TIE) connectors."""
 		return self.cat == 'Pc'
 	
+	
+	#
+	#
+	# LINEEND
+	#
+	#
 	@property
 	def lineend(self):
 		"""True if line-ending character (CR, LF, 0x85)."""
@@ -292,27 +484,56 @@ class charinfo(xiter):
 	#    lookup the meaning of bidi codes, property aliases, etc...
 	# ----------------------------------------------------------------
 	
+	#
+	#
+	# BIDINAME
+	#
+	#
 	@property
 	def bidiname(self):
 		"""Full name expanded from `self.bidirectional` code."""
 		return udata.propalias().bidi(self.bidi).get(self.bidi)
 	
+	
+	#
+	#
+	# CATNAME
+	#
+	#
 	@property
 	def catname(self):
 		"""Full name expanded from `self.category` code."""
 		return udata.propalias().cat(self.cat).get(self.cat)
 	
+	
+	#
+	#
+	# BR
+	#
+	#
 	@property
 	def br(self):
 		"""Alias for linebreak."""
 		return udata.linebreak(self.c)
 	
+	
+	#
+	#
+	# BRNAME
+	#
+	#
 	@property
 	def brname(self):
 		"""Return expanded linebreak name (eg, AL=Alphabetic)."""
 		d = udata.propalias().linebreak(udata.linebreak(self.c))
 		return d[self.br]
 	
+	
+	#
+	#
+	# COMMA
+	#
+	#
 	@property
 	def comma(self):
 		"""True if current character is a comma."""
@@ -320,9 +541,13 @@ class charinfo(xiter):
 	
 	
 	#
+	#
+	# SPACE
+	#
 	# Whitespace Detectors.
 	#  - I don't understand '\x0b' - is it not a linebreak? When I
 	#    print('\x0b') it looks like a linebreak... what to do?
+	#
 	#
 	@property
 	def space(self):
@@ -332,6 +557,12 @@ class charinfo(xiter):
 				'White_Space' in self.props
 			)
 	
+	
+	#
+	#
+	# LINEBREAK
+	#
+	#
 	@property
 	def linebreak(self):
 		"""
@@ -339,16 +570,34 @@ class charinfo(xiter):
 		"""
 		return udata.linebreak(self.c)
 	
+	
+	#
+	#
+	# TAB
+	#
+	#
 	@property
 	def tab(self):
 		"""True if char is a Segment_Separator - eg, a tab."""
 		return self.bidi == 'S'
 	
+	
+	#
+	#
+	# SEP
+	#
+	#
 	@property
 	def sep(self):
 		"""True if BIDI is "S" or "B" - eg, spaces and tabs."""
 		return self.bidi in ["S", "B"]
 	
+	
+	#
+	#
+	# WHITE
+	#
+	#
 	@property
 	def white(self):
 		"""
@@ -358,10 +607,11 @@ class charinfo(xiter):
 		return self.bidi in ["S", "B", "WS"]
 	
 	
-	
-	# ----------------------------------------------------------------
+	#
+	#
 	# INFO
-	# ----------------------------------------------------------------
+	#
+	#
 	def info(self):
 		"""
 		Return a dict with general attributes of the current character.
