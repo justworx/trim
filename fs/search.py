@@ -9,6 +9,14 @@ from trix.util.xiter import *
 import os
 
 
+# -------------------------------------------------------------------
+#
+#
+# SEARCH
+#
+#
+# -------------------------------------------------------------------
+
 class Search(xiter):
 	"""
 	UNDER CONSTRUCTION!
@@ -44,7 +52,7 @@ class Search(xiter):
 	}
 	>>>
 	
-	"""
+	"""				
 	
 	def __init__(self, path=None, **k):
 		
@@ -153,3 +161,40 @@ class Search(xiter):
 		return self.__item[2]
 
 	
+
+
+
+# -------------------------------------------------------------------
+#
+#
+# SEARCH FUNCTION (UNDER CONSTRUCTION)
+#
+#
+# -------------------------------------------------------------------
+
+def search(path=None, **k):
+	#
+	#
+	# Search using the `Search` class.
+	#
+	#
+	
+	r = []
+	f = []
+	p = trix.path(path).path
+	s = Search(p, **k)
+	results = []
+	try:
+		while True:
+			s.next()
+			for f in s.files():
+				results.append("%s/%s" % (s.dir(), f))
+		
+	except AttributeError as ex:
+		raise type(ex)("err-search-fail", xdata(
+				r=r, f=f, p=p, results=results
+			))
+	except StopIteration:
+		return propx(results)
+
+
