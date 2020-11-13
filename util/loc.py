@@ -102,20 +102,18 @@ class Locale(BaseLocale):
 			BaseLocale.__init__(self, Locale.__qdict(loc_str))
 		except:
 			# here's why it will succeed on subsequent calls...
-			try:
-				# try to use asset locale data if possible...
-				Locale.__qdict = Locale.query_asset_dict
-			except:
-				# otherwise, query the local system for locale data
-				Locale.__qdict = Locale.query_locale_dict
+			Locale.__qdict = Locale.query_locale_dict
 			
 			# here's the initialization for the first call
-			
 			BaseLocale.__init__(self, Locale.__qdict(loc_str))
+	
+	
 	
 	@property
 	def loc(self):
 		return self.__loc_str
+	
+	
 	
 	@classmethod
 	def list(cls, pattern=None):
@@ -139,6 +137,7 @@ class Locale(BaseLocale):
 		a = p.wrapper(encoding='utf_8') # open archive
 		return a.names.fnmatch(pattern)
 		
+	
 	
 	@classmethod
 	def validate_locstr(self, loc_str):
@@ -181,14 +180,6 @@ class Locale(BaseLocale):
 		else:
 			return "%s_%s.%s" % tuple(ll)
 	
-	
-	
-	@classmethod
-	def query_asset_dict(cls, loc_str):
-		"""Query locale dict from assets."""
-		loc_str = cls.validate_locstr(loc_str)
-		j = trix.path(cls.AssetPath).wrapper().read(loc_str)
-		return trix.jparse(j)
 	
 	
 	@classmethod
