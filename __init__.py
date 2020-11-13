@@ -12,7 +12,6 @@
 COPYRIGHT = "Copyright (C) 2018-2020 justworx"
 
 
-
 import sys, time, traceback, locale, json
 try:
 	import thread
@@ -27,6 +26,7 @@ except:
 #
 VERSION = 0.0000
 
+
 #
 # AUTO_DEBUG
 #  - Controls the formatting of raised Exceptions.
@@ -35,6 +35,7 @@ VERSION = 0.0000
 #  - If you want exceptions the old-fashioned way, set it False.
 #
 AUTO_DEBUG = True #True/False
+
 
 #
 # CONFIG / CACHE
@@ -46,10 +47,14 @@ AUTO_DEBUG = True #True/False
 DEF_CONFIG = "~/.config/trix"
 DEF_CACHE  = "~/.cache/trix"
 
+
 #
 # LOGLET FILE PATH/NAME
+#  - The loglet is great for debugging when developing cross-process 
+#    problems.
 #
 DEF_LOGLET = "./loglet"
+
 
 #
 # DEF_LOCALE - Under Construction
@@ -65,7 +70,7 @@ DEF_LOGLET = "./loglet"
 #               the process. However, the trix.loc() method provides
 #               a safe way to access locale information. It does not
 #               change the default python locale, but does provide
-#               access to other locales. 
+#               access to the data of other locales. 
 #               
 #               See: `trix.loc()`, below.
 #
@@ -82,6 +87,7 @@ DEF_LOCALE = ''
 #    "preferred" default locale is set.
 #  
 locale.setlocale(locale.LC_ALL, DEF_LOCALE)
+DEF_LOCALE = ".".join(locale.getlocale())
 
 
 #
@@ -89,12 +95,7 @@ locale.setlocale(locale.LC_ALL, DEF_LOCALE)
 #  - The default encoding for the trix package is now determined by
 #    the locale module. I don't know if that method can fail,
 #    but if it does, 'utf_8' is used as a backup.
-#  - This change is experimental. DEF_ENCODE used to be set directly
-#    to 'utf_8'. I don't expect this to cause any problems, but in
-#    the event it does, I'll switch back to a hard-coded default of
-#    'utf_8'.
 #
-
 DEF_ENCODE = locale.getpreferredencoding() or 'utf_8'
 DEF_ERRORS = 'replace'
 
@@ -1811,6 +1812,8 @@ class trix(object):
 		return trix.ncreate("util.loc.Locale", locale)
 	
 	
+	
+	
 	@classmethod
 	def term(self):
 		"""
@@ -1824,11 +1827,12 @@ class trix(object):
 			return self.__term
 	
 	
-	
+	#
 	# Add Trix Extensions
+	#
 	@classmethod
 	def _addtx(cls):
-		cls.tx = trix.ncreate("x.tx.TX")
+		cls.tx = trix.ncreate("util.tx.TX")
 
 
 
@@ -2022,25 +2026,9 @@ except:
 		return struct.pack('i', i).decode('utf-32')
 
 
-
-"""
 #
-# This supports python versions before 2.6 when the bytes type was 
-# introduced.
-#
-try:
-	bytes
-except:
-	#
-	# TO DO:
-	#  - This only happens pre-version 2.6 and trix only supports 2.7+,
-	#    so I need to deprecate and remove it... after testing.
-	#
-	bytes = str
-"""
-
-
 # Define FileNotFoundError for earlier systems that need it.
+#
 try:
 	FileNotFoundError
 except:
@@ -2073,8 +2061,7 @@ except:
 class xdata(dict):
 	"""
 	Package extensive exception data into a dict.
-	
-	Pass optional data and keyword arguments. A
+	Pass optional data and keyword arguments.
 	"""
 
 	def __init__(self, data=None, **k):
@@ -2242,22 +2229,6 @@ class Debug(object):
 
 if AUTO_DEBUG:
 	Debug.debug(1,1)
-
-
-
-#
-#
-# UPDATES TO DEFAULT DEF_LOCALE:
-#  * Reset DEF_LOCALE to the result provided by `setlocale`.
-#  * This must happen *after* the trix class is defined so that
-#    the trix.loc() method is available to set the DEF_LOCALE
-#    variable.
-#  * NOTE: This must happen after all of the above has been 
-#          defined because supporting classes must also have been
-#          defined.
-#
-if not DEF_LOCALE:
-	DEF_LOCALE = trix.loc().loc
 
 
 
