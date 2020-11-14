@@ -32,6 +32,34 @@ class Path(EncodingHelper):
 	
 	"""
 	
+	#
+	#
+	# TESTING SEARCH
+	#
+	#
+	def search(self, **k):
+		"""
+		TESTING: New search feature.
+		
+		Returns a `Search` object, which may be used in several different
+		ways.
+		
+		EXAMPLE 1
+		#
+		# Use the returned `Search` object to step through items in the
+		#  search root directory, and in any subdirectories.
+		#
+		>>> from trix import *
+		>>> p = trix.path()
+		>>> s = p.search()
+		>>> s.next()
+		>>> s.display()
+		
+		"""
+		return trix.ncreate('fs.search.Search', self.path, **k)
+		
+	
+	
 	
 	#
 	#
@@ -117,7 +145,7 @@ class Path(EncodingHelper):
 		>>> trixpath = trix.innerfpath()
 		>>> p = Path(trixpath)
 		>>> p()
-		<trix.fs.dir.Dir '/home/nine/trix' (d)>
+		<trix.fs.dir.Dir '/home/me/trix' (d)>
 		>>>
 		>>> # 
 		>>> # you can use the result as a temporary object
@@ -234,7 +262,7 @@ class Path(EncodingHelper):
 		>>> 
 		>>> from trix.fs import *
 		>>> repr(p())
-		"<trix.fs.dir.Dir '/home/nine/trix' (d)>"
+		"<trix.fs.dir.Dir '/home/me/trix' (d)>"
 		>>> 
 		"""
 		return "<%s.%s '%s' (%s)>" % (
@@ -784,7 +812,7 @@ class Path(EncodingHelper):
 		>>> from trix.fs import *
 		>>> p = Path( trix.innerfpath() )
 		>>> p.dir("fs")
-		<trix.fs.dir.Dir '/home/nine/trix/fs' (d)>
+		<trix.fs.dir.Dir '/home/me/trix/fs' (d)>
 		>>> 
 		
 		"""
