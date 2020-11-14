@@ -6,7 +6,7 @@
 
 
 from trix.util.xiter import *
-import os
+import os, fnmatch
 
 
 # -------------------------------------------------------------------
@@ -54,30 +54,73 @@ class Search(xiter):
 	
 	"""				
 	
+	
+	#
+	#
+	# 
+	#
+	#
 	def __init__(self, path=None, **k):
+		"""
+		Search for files.
+		
+		The `Search` class uses `os.walk` to find files based on fnmatch
+		patterns. Walk the list one by one, or pass a pattern keyword
+		argument and call `search()` to receive a list of file paths that
+		match the given pattern. 
+		
+		EXAMPLE:
+		>>> from trix.fs.search import *
+		>>> s = Search(trix.npath().path, p="*.conf")
+		>>> s.search().display()
+		[
+		  "/home/nine/trix/app/config/example.conf",
+		  "/home/nine/trix/app/config/app.conf",
+		  "/home/nine/trix/app/config/console.conf",
+		  "/home/nine/trix/app/config/service/en.service.conf"
+		]
+		>>> 
+		
+		"""
 		
 		self.__k = k
 		
 		# start with some cleanup
 		if not path:
-			path = trix.innerfpath()
+			path = trix.path("~/").path
 		
 		self.__path = path
 		self.__item = ()
 		self.__count= 0
 		self.__dir = trix.path(path) # returns an fs.Dir!
 		
+		self.__pattern = k.get('p', k.get('pattern'))
+		if self.__pattern:
+			self.search = self.__search
+			self.__matches = []
+			self.__next__ = self.__next_pat
+		else:
+			self.__next__ = self.__next 
+		
 		xiter.__init__(self, os.walk(path))
+
+
 	
-	
 	#
 	#
-	# __NEXT__
+	# __NEXT
 	#
 	#
-	def __next__(self):
+	def __next(self):
+		"""
+		This is the ultimate iterator. It can not be replaced. It provides
+		content for the various "next" methods, below.
+		
+		"""
 		try:
-			self.__item = xiter.__next__(self)	
+			self.__item = xiter.__next__(self)
+			self.__count += 1
+			
 		except BaseException as ex:
 			raise type(ex)('err-search-fail', xdata(
 				path=self.__path, item=self.__item, k=self.__k
@@ -86,10 +129,110 @@ class Search(xiter):
 	
 	#
 	#
+	# __NEXT_PAT
+	#
+	#
+	def __next_pat(self):
+		"""
+		Filter by pattern.
+		
+		EXAMPLE
+		>>> from trix.fs.search import *
+		>>> s = Search("trix/fs", pattern="*.py")
+		>>> s.next()
+		>>> s.item.display()
+	
+		"""
+		#
+		# Calling `next` is going to give the full dict.
+		#
+		self.__next()
+		
+		#
+		# Filter the files, then add them to `self.__matches`.
+		#
+		results = fnmatch.filter(self.files(), self.__pattern)
+		
+		for r in results:
+			
+			# Matches are given as a full file path.
+			self.__matches.append("%s/%s" % (self.__item[0], r))
+	
+	
+	#
+	#
+	# __SEARCH
+	#
+	#
+	def __search(self):
+		"""
+		Loop until StopIteration.
+		
+		All files matching `pattern` will be returned as file paths
+		stored in the self.matches proplist.
+		"""
+		try:
+			while True:
+				self.next()			
+		except StopIteration:
+			return self.matches
+	
+	
+	#
+	#
+	# NEXTS
+	#
+	#
+	def nexts(self):
+		"""
+		Calls the current `self.__next__` (whether __next or __next_pat)
+		and then returns self. This is to allow call-chaining. It's most
+		useful for debugging.
+		"""
+		self.__next__()
+		return self
+	
+	
+	#
+	#
+	# MATCHES
+	#
+	#
+	@property
+	def matches(self):
+		"""
+		Returns proplist containing `k` matches.
+		
+		This list will be populated only if a pattern keyword argument
+		was specified to the constructor.
+		"""
+		try:
+			return trix.propx(self.__matches)
+		except:
+			return None
+	
+	
+	#
+	#
+	# K - Keyword Argument dict
+	#
+	#
+	@property
+	def k(self):
+		"""Returns propdict containing `k`. Call as a method."""
+		return trix.propx(self.__k)
+	
+	
+	#
+	#
 	# PATH
 	#
 	#
 	def path(self):
+		"""
+		Returns the path at the current point of iteration - the most
+		recent call to `next`.
+		"""
 		return self.__dir[0]
 	
 	
@@ -99,7 +242,11 @@ class Search(xiter):
 	#
 	#
 	def basepath(self):
-		return self.__path # Dir[0] is the path to the directory itself
+		"""
+		Returns the path given to the constructor
+		"""
+		return self.__path
+	
 	
 	
 	# -----------------------------------------------------------------
@@ -109,15 +256,6 @@ class Search(xiter):
 	#
 	#
 	# -----------------------------------------------------------------
-	
-	#
-	#
-	# ITEM
-	#
-	#
-	def item(self):
-		return self.__item
-	
 	
 	#
 	#
@@ -136,11 +274,22 @@ class Search(xiter):
 	
 	#
 	#
+	# ITEM
+	#
+	#
+	@property
+	def item(self):
+		return trix.propx(self.__item)
+	
+	
+	#
+	#
 	# DIR
 	#
 	#
+	@property
 	def dir(self):
-		return self.__item[0]
+		return trix.propx(self.__item[0])
 	
 	
 	#
@@ -148,8 +297,9 @@ class Search(xiter):
 	# DIRS
 	#
 	#
+	@property
 	def dirs(self):
-		return self.__item[1]
+		return trix.propx(self.__item[1])
 	
 	
 	#
@@ -157,44 +307,6 @@ class Search(xiter):
 	# FILES
 	#
 	#
+	@property
 	def files(self):
-		return self.__item[2]
-
-	
-
-
-
-# -------------------------------------------------------------------
-#
-#
-# SEARCH FUNCTION (UNDER CONSTRUCTION)
-#
-#
-# -------------------------------------------------------------------
-
-def search(path=None, **k):
-	#
-	#
-	# Search using the `Search` class.
-	#
-	#
-	
-	r = []
-	f = []
-	p = trix.path(path).path
-	s = Search(p, **k)
-	results = []
-	try:
-		while True:
-			s.next()
-			for f in s.files():
-				results.append("%s/%s" % (s.dir(), f))
-		
-	except AttributeError as ex:
-		raise type(ex)("err-search-fail", xdata(
-				r=r, f=f, p=p, results=results
-			))
-	except StopIteration:
-		return propx(results)
-
-
+		return trix.propx(self.__item[2])
