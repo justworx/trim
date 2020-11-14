@@ -6,6 +6,7 @@
 
 
 from .propseq import *
+#from .propiter import *
 
 
 # -------------------------------------------------------------------
@@ -16,7 +17,7 @@ from .propseq import *
 #
 # -------------------------------------------------------------------
 
-class proplist(propseq):
+class proplist(propiter):
 	"""
 	Wrap objects in a proplist to provide a variety of useful features
 	for manipulation and display.
