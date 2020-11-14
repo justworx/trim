@@ -4,18 +4,41 @@
 # of the GNU Affero General Public License.
 #
 
+
 from .. import *
 import encodings.aliases
 
 
+#
+#
+# ENCODING HELPER
+#
+#
 class EncodingHelper(object):
-	"""Holds default encoding and (optionally) errors."""
+	"""
+	Holds default encoding and (optionally) errors.
+	"""
 	
 	__EE = ['encoding', 'errors']
 	Strict = False
 	
+	
+	#
+	#
+	# __INIT__
+	#
+	#
 	def __init__(self, config=None, **k):
-		"""Pass default encoding and (optionally) errors kwargs."""
+		"""
+		Pass `encoding` and (optionally) `errors` via a config dict or by
+		passing keyword arguments. Any given kwargs will, as always, take
+		precedence over any 'encoding' or 'errors' values specified in the
+		config dict.
+		
+		Optional config/keyword argument 'strict', if True, forces the 
+		given encoding to match an item defined in `encodings.aliases`.
+		
+		"""
 		
 		config = config or {}
 		config.update(k)
@@ -24,8 +47,9 @@ class EncodingHelper(object):
 		self.__given = enc = config.get('encoding')
 		self.__strict = config.get('strict', self.Strict)
 		
-		# Make sure encoding and errors were given as unicode; any error
-		# still brings the correct result. (I think. I hope.)
+		#
+		# Make sure encoding and errors were given as unicode.
+		#
 		enc = config.get('encoding')
 		err = config.get('errors', '')
 		
@@ -40,9 +64,10 @@ class EncodingHelper(object):
 			pass
 
 
-		
+		#
 		# Make sure `enc` matches (or is alias to) a valid encoding 
 		# defined in encodings.aliases.
+		#
 		enc = self.validate(enc)
 		
 		# store the encoding and errors values
@@ -51,7 +76,13 @@ class EncodingHelper(object):
 			err = config.get('errors')
 			if err:
 				self.__ek['errors'] = err
-		
+	
+	
+	#
+	#
+	# EK
+	#
+	#
 	@property
 	def ek(self):
 		"""
@@ -60,24 +91,52 @@ class EncodingHelper(object):
 		"""
 		return dict(self.__ek)
 	
+	
+	#
+	#
+	# ENCODING
+	#
+	#
 	@property
 	def encoding(self):
-		"""Default encoding."""
+		"""
+		Return the encoding specification.
+		"""
 		return self.__ek.get('encoding')
 	
+	
+	#
+	#
+	# ERRORS
+	#
+	#
 	@property
 	def errors(self):
-		"""Default errors value."""
+		"""
+		Return the errors specification.
+		"""
 		return self.__ek.get('errors')
 	
+	
+	#
+	#
+	# STRICT
+	#
+	#
 	@property
 	def strict(self):
-		"""Given encodings must match a python encoding or alias."""
+		"""
+		If `strict` is True, given encodings must match a python encoding
+		or alias.
+		"""
 		return self.__strict
 	
 	
-	
-	# EXTRACT
+	#
+	#
+	# EXTRACT ENCODING
+	#
+	#
 	def extractEncoding(self, k):
 		"""
 		Remove and return encoding and errors from dict `k`, with results
@@ -103,21 +162,27 @@ class EncodingHelper(object):
 			else:
 				return dict(encoding=enc)
 		return {}
-		
 	
-	# APPLY
+	
+	#
+	#
+	# APPLY ENCODING
+	#
+	#
 	def applyEncoding(self, k):
 		"""
 		Apply self.ek params to dict `k` as defaults. If None is passed
 		for either value, that value will be excluded from the results.
-		If encoding is removed, errors must be removed, too.
+		If encoding is removed, errors will be removed, too.
 		
 		Returns the given `k`, updated with any alterations.
 		"""
 		r = {}
 		
+		#
 		# If encoding is specifically None, remove encoding and errors
 		# from k, then return k.
+		#
 		if ('encoding' in k) and (k['encoding']==None):
 			trix.kpop(k, 'encoding errors')
 			return k
@@ -140,9 +205,16 @@ class EncodingHelper(object):
 		return k
 	
 	
-	# SANS
+	#
+	#
+	# SANS ENCODING
+	#
+	#
 	def sansEncoding(self, k):
-		"""Return all keys from `k` except 'encoding' and 'errors'."""
+		"""
+		Return all keys from `k` except 'encoding' and 'errors'.
+		
+		"""
 		r = {}
 		for key in k:
 			if key not in self.__EE:
@@ -150,6 +222,11 @@ class EncodingHelper(object):
 		return r
 	
 	
+	#
+	#
+	# ALTALIAS
+	#
+	#
 	@classmethod
 	def altalias(cls, enc):
 		"""Return a matches without underscore, dash, or dots."""
@@ -175,6 +252,13 @@ class EncodingHelper(object):
 	# UTILITY
 	#
 	
+	
+	
+	#
+	#
+	# VALIDATE
+	#
+	#
 	def validate(self, enc):
 		"""
 		Check that `enc` matches either DEF_ENCODE, one of the ENCODINGS,
@@ -213,10 +297,22 @@ class EncodingHelper(object):
 			encoding=gvn, strict=True if self.__strict else False
 		))
 	
+	
+	#
+	#
+	# MATCH
+	#
+	#
 	def match(self, encoding):
 		"""True if `encoding` matches self.encoding (or an alias)."""
 		return self.validate(encoding) == self.encoding
 	
+	
+	#
+	#
+	# ENCODE
+	#
+	#
 	def encode(self, s):
 		"""Encode to bytes (if not already bytes). Returns bytes."""
 		try:
@@ -224,6 +320,12 @@ class EncodingHelper(object):
 		except AttributeError:
 			return s # s is already bytes
 	
+	
+	#
+	#
+	# DECODE
+	#
+	#
 	def decode(self, b):
 		"""Decode to unicode (if not already unicode). Returns unicode."""
 		try:
@@ -231,6 +333,12 @@ class EncodingHelper(object):
 		except AttributeError:
 			return b # b is already unicode
 	
+	
+	#
+	#
+	# MCODE
+	#
+	#
 	def mcode(self, mode, data):
 		"""Encode or decode based on `mode`."""
 		return self.encode(data) if 'b' in mode else self.decode(data)

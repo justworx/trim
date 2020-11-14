@@ -235,7 +235,7 @@ class propbase(EncodingHelper):
 		#
 		>>> import trix
 		>>> trix.path()
-		<trix.fs.dir.Dir '/home/nine' (d)>
+		<trix.fs.dir.Dir '/home/me' (d)>
 		>>> 		
 		
 		#
