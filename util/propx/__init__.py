@@ -905,7 +905,12 @@ def propx(o, *a, **k):
 		try:
 			LIST = trix.ncreate("util.propx.proplist.proplist", o, *a, **k)
 			ITEMS = LIST.o
-			ILEN = len(ITEMS[0])
+			
+			try:
+				ILEN = len(ITEMS[0])
+			except IndexError:
+				return LIST
+			
 			
 			#
 			# [ [1,2], [3,4] ] # that's a grid
