@@ -79,7 +79,7 @@ class callx(TBase):
 	#
 	def __init__(self, cmd=None, **k):
 		"""
-		Makes a system call and returns the response.
+		Makes a system call and store the response for retrieval.
 		
 		Pass argument `cmd`, which may be one of the following:
 		 * a string containing a command line, to be split with shlex
