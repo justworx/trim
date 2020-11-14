@@ -734,13 +734,20 @@ class trix(object):
 	@classmethod
 	def popen (cls, cmd, *a, **k):
 		"""
-		Open a subprocess and return a Popen object created with the given
-		args and kwargs. This functions exactly as would calling the popen
-		function directly, except that stdout and stderr are enabled by 
-		default.
+		Open a subprocess.
+		
+		The `popen` classmethod expects arguments and keyword arguments 
+		suitable to the python `Popen` class, except that stdout and 
+		stderr are enabled by default.
 		
 		The return value is a Popen object. Use its communicate() method
 		to read results of the command.
+		
+		NOTE:
+		The `trix.popen` classmethod is little more than a link between
+		the python Popen class and the `trix.callx` method. However, it
+		is certainly available for use in other ways, and several vital
+		trix features depend on it.
 		
 		KWARGS REFERENCE:
 		bufsize=0, executable=None, stdin=None, stdout=None, stderr=None, 
@@ -1832,8 +1839,11 @@ class trix(object):
 	#
 	@classmethod
 	def _addtx(cls):
+		"""
+		Add trix extensions to the trix classmethod. This method is called
+		automatically, directly below.
+		"""
 		cls.tx = trix.ncreate("util.tx.TX")
-
 
 
 
@@ -1859,13 +1869,15 @@ tx = trix.tx
 #  Because these variables are set to the values of the trix methods
 #  and classmethods, there's no chance that the annoyance of not
 #  having chosen the correct import statement will interfere with
-#  one's work.
+#  ones work.
 #
 #  Importing by the first method, `import trix` is tighter, and gives
-#  access to all of trix features. 
+#  access to all of trix classmethods, but subpackages and modules 
+#  must import * from trix if they need access to CONSTANTS and/or 
+#  any of the other classes/features of the `trix` module.
 #
-#  Importing by the second method, `from trix import *`, allows 
-#  access to the variables, below, by name.
+#  Importing by the second method, `from trix import *`, allows the
+#  fullest access to trix features.
 #
 # -------------------------------------------------------------------
 
