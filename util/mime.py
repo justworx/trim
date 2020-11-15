@@ -111,7 +111,7 @@ class Mime(object):
 			for k in mimetypes.types_map:
 				maptypes[mimetypes.types_map[k]] = k
 			cls.__maptypes = maptypes
-			return maptypes
+			return trix.propx(maptypes)
 	
 	# -----------------------------------------------------------------
 	
