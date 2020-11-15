@@ -589,12 +589,11 @@ class trix(object):
 		>>> # 
 		>>> import trix
 		>>> r = trix.path("trix/LICENSE").reader()
-		>>> r.readline()
-		b'                    GNU AFFERO GENERAL PUBLIC LICENSE\n'
-		>>> r.readline()
-		b'                       Version 3, 19 November 2007\n'
+		>>> r.readline().strip()
+		b'GNU AFFERO GENERAL PUBLIC LICENSE'
+		>>> r.readline().strip()
+		b'Version 3, 19 November 2007'
 		>>> 
-		
 		
 		If argument `path` points to a directory, a `trix.fs.Dir` object 
 		(which is based on fs.Path) is returned instead.
@@ -646,7 +645,7 @@ class trix(object):
 		>>> #
 		>>> r = trix.npath("LICENSE").reader(encoding='utf8')
 		>>> r.readline().strip()
-		'GNU AFFERO GENERAL PUBLIC LICENSE\n'
+		'GNU AFFERO GENERAL PUBLIC LICENSE'
 		>>> 
 		
 		"""
@@ -812,7 +811,7 @@ class trix(object):
 		Store the return value so that you may control the remote process
 		and receive any data which may result of its operation.
 		
-				>>> p = trix.process("trix.net.server.Server", 9999)
+		>>> p = trix.process("trix.net.server.Server", 9999)
 		
 		
 		Pass a class `path` and any needed args/kwargs. An object of type 
@@ -822,8 +821,7 @@ class trix(object):
 		object contained in the remote process starts processing on its 
 		own).
 		
-				>>> p.launch('run')
-		
+		>>> p.launch('run')
 		
 		The trix.process() method supports trix.nprocess(), which accepts
 		the same arguments (but, of course, with the path leading to a
@@ -905,12 +903,12 @@ class trix(object):
 		When calling `trix.process`, the full dot-separated path to the 
 		object being run in the remote process is given:
 		
-				>>> p = trix.process("trix.net.server.Server", 9999)
+		>>> p = trix.process("trix.net.server.Server", 9999)
 		
 		Here, though, in `trix.nprocess`, only the inner path should be
 		specified:
 
-				>>> p = trix.nprocess("net.server.Server", 9999)
+		>>> p = trix.nprocess("net.server.Server", 9999)
 		
 		#
 		# EXAMPLE
@@ -1198,13 +1196,41 @@ class trix(object):
 	
 	#
 	#
+	# PARSE (Dependent)
+	#
+	#
+	@classmethod
+	def parse(cls, text, **k):
+		"""
+		Parses test structures using `ast`.
+		
+		Use `trix.parse` when you don't need to ensure that incomming
+		text is properly formatted json.
+		
+		EXAMPLE:
+		>>> trix.parse("['1',2]")
+		['1', 2]
+		>>> trix.jparse("['1',2]")
+		<class 'json.decoder.JSONDecodeError'>
+		>>>
+		
+		"""
+		return trix.ncreate("util.parse.Parser", **k).parse(text)
+	
+	
+	#
+	#
 	# J-PARSE (Independent)
 	#
 	#
 	@classmethod
 	def jparse(cls, jsonstr, **k):
 		"""
-		Parse json to object.
+		Parse json to object. Use `trix.jparse` to ensure that the 
+		incoming `jsonstr` is properly formatted JSON text.
+		
+		Otherwise, use parse, which will return the expected value when 
+		`jparse` would fail.
 		
 		EXAMPLE:
 		>>>
@@ -1280,8 +1306,8 @@ class trix(object):
 	@classmethod
 	def kpop(cls, d, keys):
 		"""
-		Remove and return a set of `keys` from given dict. Missing keys 
-		are ignored.
+		Remove and return a set of `keys` from given dict, `d`. 
+		Missing keys are ignored.
 		
 		Argument `keys` may be passed as a space-separated string, but 
 		this won't work in all situations. It's much safer to pass the 
@@ -1296,8 +1322,19 @@ class trix(object):
 		>>> import trix
 		>>> d = dict(a=1, b=9, c=4)
 		>>> x = trix.kpop(d, "b")
+		>>> 
+		>>> #
+		>>> # Note removed key 'b', and remaining keys, 'a' and 'c'
+		>>> #
 		>>> print (x, d)
 		{'b': 9} {'a': 1, 'c': 4}
+		>>> 
+		>>> #
+		>>> # Start over. Note that missing keys are ignored.
+		>>> #
+		>>> d = dict(a=1, b=9, c=4)
+		>>> trix.kpop(d, "a b c d")
+		{'a': 1, 'b': 9, 'c': 4}
 		>>> 
 		
 		"""
@@ -1408,9 +1445,9 @@ class trix(object):
 		>>> # Get the result text:
 		>>> #
 		>>> ps.text() 
-		'  PID TTY          TIME CMD\n13766 pts/4    00:00:00 
-		bash\n16203 pts/4    00:00:00 python3\n16205 pts/4    00:00:00 
-		ps\n'
+		'  PID TTY          TIME CMD\\n13766 pts/4    00:00:00 
+		bash\\n16203 pts/4    00:00:00 python3\\n16205 pts/4    00:00:00 
+		ps\\n'
 		>>>
 		>>> #
 		>>> # Split the result text into a list of lines:
@@ -1512,10 +1549,12 @@ class trix(object):
 		>>> # Create a formatter for a welcoming banner.
 		>>> #
 		>>> f = trix.formatter(f="Lines")
-		>>> 
+		>>>
 		>>> # 'format' generates the string
 		>>> f.format("Hello!", ff="title")
-		'#\n# Hello!\n#'
+		'#
+		# Hello!
+		#'
 		>>>
 		>>> # 'output' formats and prints the string
 		>>> f.output("Hello!", ff="title")
@@ -1533,7 +1572,7 @@ class trix(object):
 		 * List     - A list of items (much like the one you're reading).
 		 * Lines    - Formatting of text for display.
 		 * Table    - Tabulated data.
-		 
+		
 		See `trix.fmt.*` class doc to learn more how to use formats for 
 		various FormatBase subclasses.
 		
