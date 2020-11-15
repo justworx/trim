@@ -28,8 +28,8 @@ class propbase(EncodingHelper):
 	push results forward through dot notation and method calls. This
 	allows a fun and intuitive way to gather, manipulate, and display
 	data.
-	                                             
-	# PROPX CLASS HIERARCHY                         
+	
+	# PROPX CLASS HIERARCHY
 	All propx classes descend from propbase.         propbase  
 	The propiter class is the base for propdict,     |_propiter  
 	propseq, propstr, and proplist. The propgrid       |_propdict
@@ -38,7 +38,7 @@ class propbase(EncodingHelper):
 	To illustrate how propx objects work, let's        |_proplist  
 	take a look at a very simple example. The            |_propgrid
 	`trix.fs.Path` and its descendants make use of
-	propx objects to (among other things) display 
+	propx objects to (among other things) display
 	directory listings.
 	
 	EXAMPLE: Directory Listing
@@ -118,9 +118,9 @@ class propbase(EncodingHelper):
 	so a plethora of manipulation and display options are available.
 	
 	  * propbase
-    * |_propiter
-    *   |_proplist
-    *     |_propgrid
+	  * |_propiter
+	  *   |_proplist
+	  *     |_propgrid
 	
 	In the "Directory Listing" examples, above, you will notice the 
 	following calls:
@@ -165,7 +165,7 @@ class propbase(EncodingHelper):
 	[['type', 'size', 'uid'], ['f', 370, 1000], ['f', 1510, 1000], 
 	 ['f', 1771, 1000], ['f', 1990, 1000], ['d', 4096, 1000], 
 	 ['f', 10166, 1000], ['f', 12629, 1000], ['f', 22159, 1000]]
-	>>> 	
+	>>>
 	
 		
 	SEE ALSO:
@@ -419,6 +419,9 @@ class propbase(EncodingHelper):
 	#
 	#
 	def parser(self, **k):
+		"""
+		Returns a `util.parse.Parser`.
+		"""
 		try:
 			return self.__parser
 		except:
@@ -457,7 +460,7 @@ class propbase(EncodingHelper):
 		NOTE: This is an internally used convenience more than a part of
 		      the `propbase` feature set. It implements all the base-x
 		      methods, as well as compact and expand.
-		      
+		
 		"""
 		try:
 			return self.__compenc
@@ -529,15 +532,15 @@ class propbase(EncodingHelper):
 	def pdq(self, **k):
 		"""
 		Return a python data Query object given self.o and any kwargs.
-	  
-	  This is "terminal" because it terminates the chain of propx
-    objects by returning a `data.pdq.Query` object.
+		
+		This is "terminal" because it terminates the chain of propx
+		objects by returning a `data.pdq.Query` object.
 		
 		TERMINAL!
 		This method does not return a propx object.
-	   
-	  SEE ALSO:
-	  >>> from trix.data.pdq import *
+		
+		SEE ALSO:
+		>>> from trix.data.pdq import *
 		>>> help(Query)
 		>>>
 		 
@@ -636,17 +639,17 @@ class propbase(EncodingHelper):
 		>>> import trix
 		>>> x = trix.propx([1,2,3,4])
 		>>> x.format(f='Table', width=2).o
-		'1  2\n3  4'
+		'1  2 \\n3  4'
 		>>>
 		>>> from trix.x.propx.proplist import *
 		>>> x = proplist([1,2,3,4]).format(f="Table", w=2)
 		>>> x.o
-		'1  2\n3  4'
+		'1  2 \\n3  4'
 		>>>
 		>>> from trix.x.propx import *
 		>>> x = propx([1,2,3,4])
 		>>> y = x.format(f="Table", width=2)
-		'1  2\n3  4'
+		'1  2 \\n3  4'
 		>>>
 		
 		SEE ALSO:
@@ -721,19 +724,15 @@ class propbase(EncodingHelper):
 		
 		EXAMPLE
 		>>> trix.propx([ [1, 2], [3, 4] ]).format(f="JCompact").o
-		'[\n  [\n    1,\n    2\n  ],\n  [\n    3,\n    4\n  ]\n]'
+		'[[1,2],[3,4]]'
 		>>>
-		>>> trix.propx([ [1, 2], [3, 4] ]).format(f="JDisplay").output()
-		[
-		  [
-		    1,
-		    2
-		  ],
-		  [
-		    3,
-		    4
-		  ]
-		]
+		>>> px = trix.propx({"a":1,"b":1,"c":4})
+		>>> px.format(f="JDisplay").output()
+		{
+		  "a": 1,
+		  "b": 1,
+		  "c": 4
+		}
 		>>>
 		
 		"""
@@ -848,7 +847,7 @@ class propbase(EncodingHelper):
 	
 	#
 	#
-	#  PROP-STR
+	# PROP-STR
 	#
 	#
 	def propstr(self):
