@@ -677,6 +677,12 @@ class Param(Chain):
 	#    non-scalar types be able to make use of this?
 	#  - I'm pretty sure these are not going to be here much longer.
 	#
+	
+	#
+	# The real problem is, I didn't document anything originally, and
+	# now I've completely forgotten how to make cursor and param work.
+	#
+	
 	def eq(self, v):
 		"""Comparison: `v` equal to self.v"""
 		return self.v == v
