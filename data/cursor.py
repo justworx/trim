@@ -39,7 +39,6 @@ class Cursor(object):
 	>>> Preprocess data, joining list pairs into string values.
 	>>>
 	>>> from trix.data.cursor import *
-	>>> from trix.data.cursor import *
 	>>> c = Cursor([['1','2'], ['3','4']], use=lambda p: p.join(","))
 	>>> c.fetch() # "1,2"
 	'1,2'
