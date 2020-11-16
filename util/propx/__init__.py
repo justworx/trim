@@ -88,8 +88,8 @@ class propbase(EncodingHelper):
 	returns an `fs.Dir` object (based on `fs.Path`). Many properties of
 	`fs.Dir` (including `list` and `ls`) return a propx object.
 	
-	When we call `trix.npath('util/propx').ls`, a proplist object 
-	encapsulating the directory listing is returned.
+	The call to `trix.npath('util/propx').ls`, returns a proplist object 
+	encapsulating the directory listing.
 	
 	The default behavior for calling a propx object *as a function* is 
 	to return the actual value held by the object. It is an alias for
@@ -106,8 +106,8 @@ class propbase(EncodingHelper):
 	>>> 
 	
 	Therefore, despite that `Path.ls` is a property, calling 
-	`trix.path('trix/util/propx').ls()` returns a  list containing the
-	directory listing.
+	`trix.path('trix/util/propx').ls()` returns a list containing the
+	directory contents.
 	
 	
 	#
