@@ -184,16 +184,6 @@ class propiter(propbase):
 		[[0, 1], [2, 3]]
 		>>>
 		
-		NOTE:
-		This is a variant on `propiter.each`. The one in propiter is much
-		more powerful, but much more complicated. This one is simpler, and
-		faster. If you have many such conversions to make, it might go a 
-		lot faster using `eachx`, particularly with large datasets.
-		
-		Of course, if your conversion needs are more complex, you can dig
-		into the use of `trix.data.param.Param`. It's a powerful tool,
-		but again, probably much slower than eachx for simple conversions.
-		
 		"""
 		L = []
 		for item in self.o:
@@ -209,14 +199,8 @@ class propiter(propbase):
 	def select (self, fn, *a, **k):
 		"""
 		Argument `fn` is a callable that selects/alters items one at a 
-		time, storing them in an xprop wrapper and returning the result.
+		time, storing each in an xprop wrapper and returning the result.
 		
-		```
-		from trix.propx import *
-		pl = proplist([1,2,3])
-		pl.select(lambda o: o*9)
-		
-		```
 		"""
 		rr = []
 		for v in self.o:
