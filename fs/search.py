@@ -29,7 +29,7 @@ class Search(xiter):
 	a complete search of the selected directory gathers all matching 
 	file paths. The `Search.matches` property returns a proplist that
 	contains the results. Call it as a function to retrieve the result
-	as a python list, or use the `Search.matches.display()` feature to
+	as a python list, or use the `matches.display()` propx method to 
 	view the results.
 	
 	EXAMPLE 1
@@ -53,7 +53,8 @@ class Search(xiter):
 	`os.walk` results.
 	
 	Note that this alternate method can not be used when a pattern is
-	given. Pass only the path to the directory to be walked.
+	given. If you want to walk the directory manually, pass only the 
+	path to the directory.
 	
 	
 	EXAMPLE 2
@@ -89,7 +90,7 @@ class Search(xiter):
 	
 	#
 	#
-	# 
+	# INIT
 	#
 	#
 	def __init__(self, path=None, **k):
@@ -99,7 +100,20 @@ class Search(xiter):
 		The `Search` class uses `os.walk` to find files based on fnmatch
 		patterns. Walk the list one by one, or pass a pattern keyword
 		argument and call `search()` to receive a list of file paths that
-		match the given pattern. 
+		match the given pattern.
+		
+		Valid keyword arguments:
+		 * pattern: Pass an fnmatch pattern string indicating files to
+		            select.
+		 * ignore : Pass an fnmatch pattern string indicating files to
+		            ignore.
+		
+		Keyword argument aliases:
+		 * p      : An alias for pattern, the "p" keyword argument is
+		            useful when working in the interpreter.
+		 * pi     : An alias for ignore, the "pi" keyword argument is
+		            useful when working in the interpreter.
+		
 		
 		EXAMPLE:
 		>>> from trix.fs.search import *
@@ -149,7 +163,12 @@ class Search(xiter):
 		#
 		# GET THE PATTERN
 		#
-		self.__pattern = k.get('p', k.get('pattern', None))
+		self.__pattern = k.get('pattern', k.get('p', None))
+		
+		#
+		# Don't make me specify a pattern if I only want to ignore 
+		# certain patterns.
+		#
 		if self.__ignore and not self.__pattern:
 			self.__pattern = "*"
 		
@@ -393,6 +412,12 @@ class Search(xiter):
 	#
 	#
 	def ignore(self):
+		"""
+		Returns the current set of ignored match strings.
+		
+		EXMAPLE:
+		>>> 
+		"""
 		return self.__ignore
 	
 	
@@ -402,6 +427,9 @@ class Search(xiter):
 	#
 	#
 	def pattern(self):
+		"""
+		Returns the current search pattern.
+		"""
 		return self.__pattern
 	
 	
@@ -409,7 +437,11 @@ class Search(xiter):
 	# -----------------------------------------------------------------
 	#
 	#
-	# RESULTS
+	# CURRENT ITEM RESULTS
+	#  - This is mostly for cases when one might wish to walk through 
+	#    the results one at a time, examining each step of the process.
+	#    These methods could be very useful for debugging, or for when
+	#    looking at ways to expand the feature set.
 	#
 	#
 	# -----------------------------------------------------------------
@@ -467,3 +499,6 @@ class Search(xiter):
 	@property
 	def files(self):
 		return trix.propx(self.__item[2])
+
+
+
