@@ -45,15 +45,35 @@ class Path(EncodingHelper):
 		ways.
 		
 		EXAMPLE 1
+		>>> import trix
+		>>> trix.npath('fs').search(pattern="*.py").display()
+		[
+		  "/home/nine/trix/fs/__init__.py",
+		  "/home/nine/trix/fs/archive.py",
+		  "/home/nine/trix/fs/bzip.py",
+		  "/home/nine/trix/fs/dir.py",
+		  "/home/nine/trix/fs/file.py",
+		  "/home/nine/trix/fs/gzip.py",
+		  "/home/nine/trix/fs/search.py",
+		  "/home/nine/trix/fs/tar.py",
+		  "/home/nine/trix/fs/zip.py"
+		]
+		>>> 
+		
+		EXAMPLE 2
 		#
-		# Use the returned `Search` object to step through items in the
-		#  search root directory, and in any subdirectories.
+		# Use ignore to filter all python files.
 		#
-		>>> from trix import *
-		>>> p = trix.path()
-		>>> s = p.search()
-		>>> s.next()
-		>>> s.display()
+		>>> import trix
+		>>> trix.npath('fs').search(ignore="*.py|*.pyc").display()
+		[
+		  "/home/nine/trix/fs/strings.json"
+		]
+		>>> 
+		
+		SEE ALSO:
+		>>> import fnmatch
+		>>> help(fnmatch)
 		
 		"""
 		return trix.ncreate('fs.search.Search', self.path, **k)
