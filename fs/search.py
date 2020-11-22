@@ -53,8 +53,8 @@ class Search(xiter):
 	`os.walk` results.
 	
 	Note that this alternate method can not be used when a pattern is
-	given. If you want to walk the directory manually, pass only the 
-	path to the directory.
+	given. To walk the directory manually, pass only the path to the 
+	directory.
 	
 	
 	EXAMPLE 2
@@ -109,23 +109,22 @@ class Search(xiter):
 		            ignore.
 		
 		Keyword argument aliases:
-		 * p      : An alias for pattern, the "p" keyword argument is
-		            useful when working in the interpreter.
-		 * pi     : An alias for ignore, the "pi" keyword argument is
-		            useful when working in the interpreter.
-		
+		 * p      : An alias for pattern.
+		 * pi     : An alias for ignore.
+		 
+		 I use the full names, "pattern" and "ignore", when writing 
+		 serious code, but these aliases are useful when working in the 
+		 cramped space of the interpreter. 
 		
 		EXAMPLE:
-		>>> from trix.fs.search import *
-		>>> s = Search(trix.npath().path, p="*.conf")
-		>>> s.search().display()
+		>>> trix.npath().search(p="*.conf").display()
 		[
-		  "/home/me/app/config/example.conf",
-		  "/home/me/app/config/app.conf",
-		  "/home/me/app/config/console.conf",
-		  "/home/me/app/config/service/en.service.conf"
+		  "/home/nine/trix/app/config/app.conf",
+		  "/home/nine/trix/app/config/console.conf",
+		  "/home/nine/trix/app/config/example.conf",
+		  "/home/nine/trix/app/config/service/en.service.conf"
 		]
-		>>> 
+		>>>		
 		
 		"""
 		
@@ -147,17 +146,19 @@ class Search(xiter):
 		
 		
 		#
-		# UNDER CONSTRUCTION
 		#  - Finding things to ignore should lead to simply
 		#    calling next without storing the result.
 		#
 		ignore = k.get('ignore', k.get("pi", ''))
 		
 		#
-		# Now we have a (possibly empty) list of things which,
+		# Now create a (possibly empty) list of things which,
 		# if they match, should be left out of the results.
 		#
-		self.__ignore = ignore.split("|") or []
+		if ignore:
+			self.__ignore = ignore.split("|") or []
+		else:
+			self.__ignore = None
 		
 		
 		#
@@ -178,8 +179,29 @@ class Search(xiter):
 			self.__search()
 		else:
 			self.__next__ = self.__next 
+	
+	
+	#
+	#
+	# GET	ITEM
+	#
+	#
+	def __getitem__(self, key):
+		"""
+		Returns a wrapper for the search result matching `key`, an integer
+		index into the results.
 		
-
+		EXAMPLE:
+		>>> import trix
+		>>> trix.npath().search(p="*.conf")[0].rx().parse().display()
+		{
+		  "A": "Alpha",
+		  "B": "Bet"
+		}
+		>>> 
+		
+		"""
+		return trix.path(self.__matches[key]).w(**self.__k)
 
 	
 	#
@@ -453,6 +475,9 @@ class Search(xiter):
 	#
 	@property
 	def dict(self):
+		"""
+		Returns a dict of the current item's contents, wrapped in a propx.
+		"""
 		itm = self.__item
 		return trix.propx({
 			"dir": itm[0],
@@ -468,6 +493,9 @@ class Search(xiter):
 	#
 	@property
 	def item(self):
+		"""
+		Returns current item, wrapped in a propx.
+		"""
 		return trix.propx(self.__item)
 	
 	
@@ -478,6 +506,9 @@ class Search(xiter):
 	#
 	@property
 	def dir(self):
+		"""
+		Returns the base directory, wrapped in a propx.
+		"""
 		return trix.propx(self.__item[0])
 	
 	
@@ -488,6 +519,9 @@ class Search(xiter):
 	#
 	@property
 	def dirs(self):
+		"""
+		Returns the current items directories, wrapped in a propx.
+		"""
 		return trix.propx(self.__item[1])
 	
 	
@@ -498,7 +532,9 @@ class Search(xiter):
 	#
 	@property
 	def files(self):
+		"""
+		Returns the current items files, wrapped in a propx.
+		"""
 		return trix.propx(self.__item[2])
 
-
-
+	
