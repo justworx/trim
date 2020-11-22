@@ -910,6 +910,14 @@ class Path(EncodingHelper):
 	
 	#
 	#
+	# RX
+	#
+	#
+	def rx(self, **k):
+		return trix.propx(self.read(**k))	
+	
+	#
+	#
 	# READER
 	#
 	#
