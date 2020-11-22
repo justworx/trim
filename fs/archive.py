@@ -132,7 +132,15 @@ class Archive(FileBase):
 	#
 	@property
 	def members(self):
-		"""The member objects within the archive."""
+		"""
+		The member objects within the archive.
+		
+		This property is overridden by subclasses `tar` and `zip`.
+		
+		In both `tar` and `zip`, this property returns a propx object
+		representing the return value.
+		
+		"""
 		raise NotImplementedError("abstract-property-required", 'members')
 	
 	## 
@@ -151,7 +159,9 @@ class Archive(FileBase):
 	#
 	@property
 	def names(self):
-		"""List of the names of member objects in this archive."""
+		"""
+		List of the names of member objects in this archive.
+		"""
 		raise NotImplementedError("abstract-property-required", 'names')
 	
 	## 
@@ -420,7 +430,20 @@ class Archive(FileBase):
 		"""
 		Mark the given member for deletion on the next flush.
 		"""
-		self.__deleted.append(member)
+		#
+		#
+		# LOOKS LIKE THE PROBLEM IS HERE:
+		#  - I think tar returns a propdict 
+		#    while zip returns a proplist.
+		#  - I'm not sure if the commented 
+		#    line needs to be here.
+		#
+		#
+		
+		#self.__deleted.append(member)
+		if member in self.members().keys():
+			self.__deleted.append(member)
+		
 		if member in self.__readers:
 			del(self.__readers[member])
 		if member in self.__writers:

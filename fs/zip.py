@@ -1,5 +1,5 @@
 #
-# Copyright 2018-2020 justworx
+# Copyright 2018 justworx
 # This file is part of the trix project, distributed under the terms 
 # of the GNU Affero General Public License.
 #
@@ -14,31 +14,21 @@ DEF_ALLOW64  = False
 class Zip(Archive):
 	"""
 	Read/write Zip files.
+	
 	"""
 	
+	#	
+	#	
 	# INIT
+	#	
+	#	
 	def __init__(self, path, **k):
 		"""
-		Pass path to file.
-		
-		Optional Zip-related keyword arguments include:
+		Pass path to file. Optional arguments include:
 		 * compression - default is ZIP_DEFLATED
 		 * allowZip64  - allow zipfile size > 2GB; default: True
 		
-		Keyword arguments that apply as to `fs.Path.expand`:
-		 * affirm (eg, affirm='touch')
-		
-		EXAMPLE:
-		>>>
-		>>> from trix.fs.zip import *
-		>>> p = trix.path("~/test.zip", affirm="touch", encoding="utf8")
-		>>> w = p.wrapper()
-		>>> w.write("Test1", "This is a zip file test.")
-		>>> w.write("Test2", "This is a zip another.")
-		>>> w.flush()
-		>>> w.members()
-		>>> w.members.display()
-		
+		Keywords apply as to Path.expand().
 		"""
 		Archive.__init__(self, path, **k)
 		
@@ -51,11 +41,21 @@ class Zip(Archive):
 		self.__openk.setdefault('allowZip64', DEF_ALLOW64)
 	
 	
-	
+	#	
+	#	
+	# OPEN-K
+	#	
+	#	
 	@property
 	def openk(self):
 		return dict(self.__openk)
 	
+	
+	#	
+	#	
+	# NAMES
+	#	
+	#	
 	@property
 	def names(self):
 		"""
@@ -79,53 +79,36 @@ class Zip(Archive):
 			finally:
 				z.close()
 	
+	
+	#	
+	#	
+	# MEMBERS
+	#	
+	#	
 	@property
 	def members(self):
 		"""
-		Returns a list containing ZipInfo on each member.
-		
+		{'filename':ZipInfo}
+		"""
+		r = {}
+		for x in self.zipinfo():
+			r[x.filename] = x
+		return propx(r)
+	
+	
+	@property
+	def zipinfo(self):
+		"""
+		Return a list of zipinfo objects as provided by python's zipfile
+		module.
 		"""
 		with self.archopen() as z:
 			try:
-				return trix.propx(z.infolist())
+				return propx(z.infolist())
 			finally:
 				z.close()
 	
-	@property
-	def memberinfo(self):
-		"""
-		Return a proplist with accessible member info in individual dicts.
-		This is more for display than actual use. It can be helpful in
-		assessing what's there.
-		"""
-		
-		memdict = {}
-		
-		for item in self.members():
-			itemdict = dict(
-				is_dir         = item.is_dir(),
-				filename       = item.filename,
-				date_time      = item.date_time,
-				compress_type  = item.compress_type,
-				comment        = item.comment,
-				extra          = item.extra,
-				create_system  = item.create_system,
-				create_version = item.create_version,
-				reserved       = item.reserved,
-				flag_bits      = item.flag_bits,
-				volume         = item.volume,
-				internal_attr  = item.internal_attr,
-				external_attr  = item.external_attr,
-				header_offset  = item.header_offset,
-				CRC            = item.CRC,
-				file_size      = item.file_size
-			)
-			
-			memdict[item.filename] = itemdict
-			
-		return trix.propx(memdict)
-		
-		
+	
 	
 	#
 	# TEST
@@ -150,16 +133,13 @@ class Zip(Archive):
 	
 	
 	#
-	#
-	# ARCH READ (Internal Use)
-	#
+	# ARCH READ
 	#  * Kwargs for ZipFile - Defaults from constructor
 	#    - compression 
 	#    - allowZip64
 	#  * Kwargs for z.read():
 	#    - pwd = optional password
 	#    - mode = 'r', 'U'; default: 'rU'
-	#
 	#
 	def archread(self, member, **k):
 		"""Read directly from zip file."""
@@ -185,7 +165,10 @@ class Zip(Archive):
 	#    - allowZip64
 	#
 	def archstore(self, memgen, **k):
-		"""Write member data from the `memgen` iterable."""
+		"""
+		Write member data from the `memgen` iterable to the zipfile.
+		
+		"""
 		
 		kz = dict(self.__openk)
 		kz.update(k)
