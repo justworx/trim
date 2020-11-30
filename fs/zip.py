@@ -28,7 +28,8 @@ class Zip(Archive):
 		 * compression - default is ZIP_DEFLATED
 		 * allowZip64  - allow zipfile size > 2GB; default: True
 		
-		Keywords apply as to Path.expand().
+		Keywords apply as to `Path.expand`.
+		
 		"""
 		Archive.__init__(self, path, **k)
 		
@@ -96,6 +97,28 @@ class Zip(Archive):
 		return propx(r)
 	
 	
+	#	
+	#	
+	# MEMBER-INFO (Same as `members`)
+	#	
+	#	
+	@property
+	def memberinfo(self):
+		"""
+		Return a proplist of zipinfo objects generated from python's 
+		zipfile module.
+		
+		This method is an alias for `zipinfo`. It exists to provide a
+		set of methods consistent with the `tar.py` module.
+		"""
+		return self.members
+	
+	
+	#	
+	#	
+	# ZIP-INFO
+	#	
+	#	
 	@property
 	def zipinfo(self):
 		"""
@@ -109,10 +132,11 @@ class Zip(Archive):
 				z.close()
 	
 	
-	
+	#	
 	#
 	# TEST
 	#
+	#	
 	def test(self):
 		"""Test zip file's integrity."""
 		with self.open() as z:
@@ -122,9 +146,11 @@ class Zip(Archive):
 				z.close()
 	
 	
+	#	
 	#
 	# TOUCH
 	#
+	#	
 	def touch(self, times=None):
 		"""Touch zip file, initing the zip format for the file."""
 		with self.archopen(mode='a') as z:
@@ -132,6 +158,7 @@ class Zip(Archive):
 		Path.touch(self, times)
 	
 	
+	#	
 	#
 	# ARCH READ
 	#  * Kwargs for ZipFile - Defaults from constructor
@@ -141,6 +168,7 @@ class Zip(Archive):
 	#    - pwd = optional password
 	#    - mode = 'r', 'U'; default: 'rU'
 	#
+	#	
 	def archread(self, member, **k):
 		"""Read directly from zip file."""
 		
@@ -158,11 +186,13 @@ class Zip(Archive):
 			return z.read(member, **ko)
 	
 	
+	#	
 	#
 	# ARCH STORE
 	#  * Kwargs for ZipFile - Defaults from constructor
 	#    - compression 
 	#    - allowZip64
+	#	
 	#
 	def archstore(self, memgen, **k):
 		"""
@@ -182,11 +212,13 @@ class Zip(Archive):
 				z.close()
 	
 	
+	#	
 	#
 	# ARCH OPEN
 	#
+	#	
 	def archopen(self, mode='r', **kz):
-		"""Return an open file pointer - for utility purposes, mainly."""
+		"""Return an open file pointer."""
 		return zipfile.ZipFile(self.path, mode, **kz)
 
 
