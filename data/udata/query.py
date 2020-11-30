@@ -8,12 +8,66 @@ from ..scan import *
 
 
 def query(**k):
-	"""Display tabulated query results. See help for `udata.query`."""
+	"""
+	Display tabulated query results.
+	
+	EXAMPLE:
+	>>> from trix.data.udata import *
+	>>> udata.query(
+	...   blocks=['Basic Latin', "Gothic"], 
+	...   where=lambda ci: ci.num != None
+	... )
+
+	BLOCK       ORD     CHAR BIDI BRACKET CAT NUM   NAME
+	Basic Latin 0x30    '0'  EN   None    Nd  0.0   DIGIT ZERO
+	Basic Latin 0x31    '1'  EN   None    Nd  1.0   DIGIT ONE
+	Basic Latin 0x32    '2'  EN   None    Nd  2.0   DIGIT TWO
+	Basic Latin 0x33    '3'  EN   None    Nd  3.0   DIGIT THREE
+	Basic Latin 0x34    '4'  EN   None    Nd  4.0   DIGIT FOUR
+	Basic Latin 0x35    '5'  EN   None    Nd  5.0   DIGIT FIVE
+	Basic Latin 0x36    '6'  EN   None    Nd  6.0   DIGIT SIX
+	Basic Latin 0x37    '7'  EN   None    Nd  7.0   DIGIT SEVEN
+	Basic Latin 0x38    '8'  EN   None    Nd  8.0   DIGIT EIGHT
+	Basic Latin 0x39    '9'  EN   None    Nd  9.0   DIGIT NINE
+	Gothic      0x10341 '𐍁'  L    None    Nl  90.0  GOTHIC LETTER NINETY
+	Gothic      0x1034A '𐍊'  L    None    Nl  900.0 GOTHIC LETTER NINE HUNDRED
+	qtime: 0.176986
+	>>>
+	
+	SEE ALSO:
+	>>> from trix.data.udata import charinfo
+	>>> help(charinfo)
+	
+	"""
 	ScanQuery(**k).table(**k)
 
 
+
+
 class ScanQuery(Scanner):
-	"""Select unicode data properties. See `scanquery.query()` help."""
+	"""
+	Select unicode data properties.
+	
+	The `ScanQuery` class is the workhorse behind the `query` function,
+	defined above.
+	
+	EXAMPLE
+	>>> from trix.data.udata.query import *
+	>>> sq = ScanQuery(blocks=['Basic Latin', "Gothic"],
+	...                where=lambda ci: ci.num != None)
+	>>> result = sq.format()
+	
+	# -----------------------------------------------------------------
+	#
+	#
+	# DARN. This doesn't work right. It's not limiting the
+	#       results to numbers. I can't see how it works
+	#       for `query` but not for `format`.
+	#
+	#
+	# -----------------------------------------------------------------
+	
+	"""
 	
 	# default fields to query
 	Titles = 'block ord char bidi bracket cat num name'
@@ -29,9 +83,10 @@ class ScanQuery(Scanner):
 		
 		#
 		# CHECK LIMIT
-		#  - Limit is a stop-gap measure to prohibit CJK (0x3400) and 
-		#    beyond.
-		#  - This means the 'blocks' kwarg can be set to '*'
+		#  - Limit is a stop-gap measure to prohibit CJK (0x3400 and 
+		#    beyond).
+		#  - This makes it more practical to set the 'blocks' keyword
+		#    argument default to '*'.
 		#
 		if (bnames=='*'):
 			limit = limit or cls.ALimit
@@ -50,7 +105,6 @@ class ScanQuery(Scanner):
 				if limit and (c >= limit):
 					raise StopIteration()
 			
-				
 			except ValueError:
 				if c > 0x10FFFF:
 					raise StopIteration()
@@ -65,7 +119,9 @@ class ScanQuery(Scanner):
 	
 	
 	def query(self, **k):
-		"""Pass keyword args to match. Eg., category='Po', etc..."""
+		"""
+		Pass keyword args to match. Eg., category='Po', etc...
+		"""
 		
 		# select clause - a space-separated string listing titles
 		titles = k.get('select', self.Titles).upper()
