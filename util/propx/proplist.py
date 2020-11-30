@@ -22,6 +22,20 @@ class proplist(propiter):
 	Wrap objects in a proplist to provide a variety of useful features
 	for manipulation and display.
 	"""
+
+	def __getitem__(self, key):
+		return self.o[key]
+	
+	
+	#
+	#
+	#  LEN - List length.
+	#
+	#
+	def len(self):
+		"""Return list length."""
+		return len(self.o)
+	
 	
 	#
 	#
