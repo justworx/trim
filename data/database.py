@@ -64,9 +64,9 @@ class Database(object):
 	
 	"""
 	
-	LOADERR = []
-	CONFTYPE = ''
-	CONFUSED = None
+	#LOADERR = []
+	#CONFTYPE = ''
+	#CONFUSED = None
 	
 	# read-conf
 	def __readconf(self, config, *a, **k):
@@ -96,13 +96,13 @@ class Database(object):
 		try:
 			# try to read config as a dict
 			config.update(k)
-			self.CONFUSED = 1
-			self.CONFTYPE = str(type(c))
+			#self.CONFUSED = 1
+			#self.CONFTYPE = str(type(c))
 			return config
 		except BaseException as ex:
-			self.CONFTYPE = None
-			self.CONFUSED = 0
 			pass
+			#self.CONFTYPE = None
+			#self.CONFUSED = 0
 			#print ("Not a dict. " + str(ex))
 			#self.LOADERR.append(xdata(ex=str(ex)))
 		
@@ -110,13 +110,13 @@ class Database(object):
 			# try to load config as a config file
 			c = trix.config(config, **k)
 			c.update(k)
-			self.CONFUSED = 2
-			self.CONFTYPE = str(type(c))
+			#self.CONFUSED = 2
+			#self.CONFTYPE = str(type(c))
 			return c
 		except BaseException as ex:
-			self.CONFTYPE = None
-			self.CONFUSED = 0
 			pass
+			#self.CONFTYPE = None
+			#self.CONFUSED = 0
 			#print ("Not a config file. " + str(ex))
 			#self.LOADERR.append(xdata(ex=str(ex)))
 		
@@ -124,13 +124,13 @@ class Database(object):
 			# config must be a file path directly to the database file
 			c = {'path':config}
 			c.update(k)
-			self.CONFTYPE = str(type(c))
-			self.CONFUSED = 3
+			#self.CONFTYPE = str(type(c))
+			#self.CONFUSED = 3
 			return c
 		except BaseException as ex:
-			self.CONFTYPE = None
-			self.CONFUSED = 0
 			pass
+			#self.CONFTYPE = None
+			#self.CONFUSED = 0
 			#print ("Not a file path. " + str(ex))
 			#self.LOADERR.append(xdata(ex=str(ex)))
 	
@@ -167,9 +167,6 @@ class Database(object):
 		if self.__path:
 			path = trix.path(self.__path, affirm='makepath').path
 			self.__args.insert(0, path)
-		
-		# Store the path. Note: It might be None for some dbms.
-		#self.__path = path
 		
 		# Initialize runtime values.
 		self.__con = None
