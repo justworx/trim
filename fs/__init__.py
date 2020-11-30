@@ -690,7 +690,6 @@ class Path(EncodingHelper):
 		with the minimum use of memory.
 		
 		EXAMPLE:
-		>>> 
 		>>> from trix.fs import *
 		>>> p = Path( trix.innerfpath() )
 		>>> p('__main__.py').blocksizer() # 215 bytes
@@ -718,9 +717,11 @@ class Path(EncodingHelper):
 		Return the size of the file at this object's path.
 		
 		EXAMPLE:
-		>>> 
 		>>> from trix.fs import *
 		>>> p = Path( trix.innerfpath("README.md") )
+		>>> p.size()
+		2174
+		>>> 
 		
 		"""
 		p = self.merge(mergepath)
