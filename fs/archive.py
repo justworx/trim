@@ -5,6 +5,7 @@
 #
 
 import weakref
+from fnmatch import fnmatch
 from ..util.stream.buffer import *
 from ..util.propx import *
 from .file import * # trix, stream, enchelp
@@ -19,47 +20,52 @@ class Archive(FileBase):
 	delete members.
 	
 	EXAMPLE:
-	>>>
-	>>> Create an archive; write and read memebers.
-	>>>
-	# 
-	# Create a path object to a test archive
-	# 
-	p = trix.path("~/test.tar.gz", affirm="touch")
+	>>> #
+	>>> # Create an archive; write and read memebers.
+	>>> #
+	>>> import trix
+	>>> 
+	>>> # Create a path object to a test archive
+	>>> p = trix.path("~/test.tar.gz", affirm="touch")
+	>>> 
+	>>> # Get a tar file wrapper, `z`.
+	>>> z = p.wrapper()
+	>>> 
+	>>> # New archive has no members.
+	>>> z.names()
+	[]
+	>>> 
+	>>> # Create a member passing member name, "Test1", and some text.
+	>>> z.write("Test1", "This is a test.")
+	>>> 
+	>>> #
+	>>> # Until he `Tar.flush` method is called, no changes take place
+	>>> # in the file, so `z.members` still returns an empty dict.
+	>>> #
+	>>> z.members()
+	{}
+	>>> 
+	>>> # Call `flush` to save changes.
+	>>> z.flush()
+	>>> 
+	>>> # After calling `flush()`, the member is in the archive.
+	>>> z.members()
+	{'Test1': <TarInfo 'Test1' at 0x7fdc2db3df20>}
+	>>> 
+	>>> 
+	>>> z.read("Test1")
+	b'This is a test.'
+	>>> 
+	>>> 
+	>>> z.read("Test1", mode='r')
+	'This is a test.'
+	>>> 
 	
-	# 
-	# Get a tar file wrapper, `z`.
-	# 
-	z = p.wrapper()
-	
-	# 
-	# Create a member passing member name, "Test1", and some text.
-	# 
-	z.write("Test1", "This is a test.")
-	
-	# 
-	# Until you call the `Tar.flush` method, no changes take place
-	# in the file, so `z.members` returns an empty dict.
-	# 
-	z.members
-	
-	# 
-	# After calling `flush()`, the member is in the archive.
-	# 
-	z.flush()
-	z.members
-	
-	# 
-	# After calling `flush()`, the member is in the archive.
-	# 
-	z.read("Test1")
-	
-	
-	READING AND WRITING:
+	SEE ALSO:
 	See the `read`, `reader`, `write`, and `writer` method documentation
-	for a description of how to "mode" and "encoding" keyword arguments
-	to maintain strict control of how data is read from and written to
-	archive members.
+	for a description of how to use the "mode" and "encoding" keyword 
+	arguments to maintain strict control of how data is read from and 
+	written to archive members.
 	
 	"""
 	
@@ -74,11 +80,12 @@ class Archive(FileBase):
 		"""
 		
 		#
-		# Keep changed members in __writers dict. Each key is an archive 
-		# member's name, and its value is a Buffer object with the text
-		# to be stored when this archive is flushed - rewritten into a
-		# new archive with removals excluded, changed and unchanged (but
-		# not removed) members.
+		# * Keep changed members in __writers dict.
+		# * Each key is an archive member's name, and its value is a 
+		#   Buffer object with the text to be stored when this archive
+		#   is flushed.
+		# * On flush, the new data is rewritten into a new archive. 
+		# * On flush, deleted members are excluded.
 		#
 		self.__writers = {}
 		self.__readers = {}
@@ -207,25 +214,46 @@ class Archive(FileBase):
 	# SEARCH - UNDER CONSTRUCTION
 	#
 	#
-	def search(self, fnmatch_pattern, **k):
-		"""
-		Search member names in this path using fnmatch.
+	# def search(self, fnmatch_pattern, **k):
+		# """
+		# Search member names in this path using fnmatch.
 		
-		Pass keyword argument `remove=True` to delete matching members.
+		# Pass keyword argument `remove=True` to delete matching members.
 		 
-		NOTE: You must flush the archive before removed members are
-		      actually deleted. Until flushed, removed members will 
-		      still appear in listings.
+		# NOTE: You must flush the archive before removed members are
+		      # actually deleted. Until flushed, removed members will 
+		      # still appear in listings.
 		
-		"""
+		# """
+		# # store results in `r`.
+		# r = []
+		# self.R = r # DEBUG INFO
 		
-		nn = self.names.fnmatch(fnmatch_pattern)
-		if k.get('remove'):
-			for n in nn:
-				self.delete(n)
+		# # Get all `members.keys()`. (Remember: `members` is a dict.)
+		# mm = self.members.keys()
+		# self.MM = mm # DEBUG INFO
 		
-		return trix.propx(nn)		
-	
+		# # Loop through all member keys (which are full paths).
+		# for m in mm:
+			
+			# # Store matching patterns in `r`.
+			# if fnmatch(m, fnmatch_pattern):
+				# r.append(m)
+		
+		# #
+		# # If "remove" keyword argument evaluates to True, delete matching
+		# # member from this archive.
+		# #
+		# i=0
+		# if k.get('remove'):
+			# for m in r:
+				# self.delete(m)
+				# i += 1 # DEBUG INFO
+		
+		# self.K = k # DEBUG INFO
+		# self.I = i # DEBUG INFO
+		
+		# return trix.propx(mm)		
 	
 	
 	#
