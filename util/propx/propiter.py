@@ -97,7 +97,7 @@ class propiter(propbase):
 					itertools.islice(self.o, key.start, key.stop, key.step)
 				))
 		except Exception as ex:
-			raise type(ex)(xdata(
+			raise type(ex)("err-itertools.islice", xdata(
 					start=key.start, stop=key.stop, step=key.step
 				))
 	
@@ -128,8 +128,8 @@ class propiter(propbase):
 		"""
 		Return a generator for self.o.
 		
-		This property is here for internal use, but (obviously) it could
-		come in handy in situations this particular class can't help with.
+		This property is here for internal use, but subclasses might also
+		find it useful.
 		
 		"""
 		for item in self.o:
@@ -250,7 +250,7 @@ class propiter(propbase):
 	#
 	def map(self, fn, *iterables):
 		"""
-		The "map" filteR.
+		The "map" filter.
 		
 		Call this method using python3 conventions (even when running
 		under python 2.7.x).
