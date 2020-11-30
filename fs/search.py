@@ -202,7 +202,7 @@ class Search(xiter):
 		
 		"""
 		return trix.path(self.__matches[key]).w(**self.__k)
-
+	
 	
 	#
 	#
@@ -537,4 +537,4 @@ class Search(xiter):
 		"""
 		return trix.propx(self.__item[2])
 
-	
+
